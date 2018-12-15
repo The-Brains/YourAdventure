@@ -6,22 +6,19 @@ import cats.implicits._
 import cats.effect._
 import tuco.{Tuco, _}
 import Tuco._
-import scalaz.Maybe
-import scalaz.Maybe.Just
 import tuco.shell._
 
 object Main {
 
   var Stop: scalaz.Maybe[IO[Unit]] = scalaz.Maybe.Empty()
-  case class Todo(text: String)
+  type TodoAction = TodoState => SessionIO[TodoState]
+  type TodoState  = List[Todo]
 
-  type TodoState = List[Todo]
+  case class Todo(text: String)
 
   object TodoState {
     val Empty: TodoState = Nil
   }
-
-  type TodoAction = TodoState => SessionIO[TodoState]
 
   def add(
     index: Int,
@@ -72,8 +69,7 @@ object Main {
       .withDefault(1)
       .map(_ - 1) // 1-based for the user, 0-based internally
 
-  val Txt: Opts[String] =
-    Opts.argument[String](metavar = "\"text\"")
+  val Txt: Opts[String] = Opts.argument[String](metavar = "\"text\"")
 
   val AddCommand: Command[SessionIO, Session[TodoState]] = {
     Command("add", "Add a new todo.", (Ind, Txt).mapN(add))
@@ -119,9 +115,9 @@ object Main {
 
   val TodoMain: SessionIO[Unit] =
     for {
-      _ <- writeLn("Welcome to TODO!")
-      s <- runShell(InitialState)
-      _ <- writeLn(s"Exiting with ${s.data.length} item(s) on your list.")
+      _     <- writeLn("Welcome to TODO!")
+      state <- runShell(InitialState)
+      _     <- writeLn(s"Exiting with ${state.data.length} item(s) on your list.")
     } yield {
       ()
     }
@@ -139,6 +135,6 @@ object Main {
     //    val conf = Config[IO](hello, port)
     //    val stop = conf.start.unsafeRunSync
     val conf = Config[IO](TodoMain, port)
-    Stop = Just(conf.start.unsafeRunSync)
+    Stop = scalaz.Maybe.Just(conf.start.unsafeRunSync)
   }
 }
