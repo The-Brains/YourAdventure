@@ -15,7 +15,8 @@ scalacOptions ++= List(
   "-Ywarn-unused-import",
   "-Ywarn-value-discard",
   "-deprecation",
-  "-encoding", "utf8"
+  "-encoding",
+  "utf8"
 )
 
 // Code Style
@@ -23,7 +24,7 @@ lazy val scalafmtSettings = Seq(
   scalafmtOnCompile := true
 )
 libraryDependencies += compilerPlugin(scalafixSemanticdb)
-scalastyleFailOnError := true
+scalastyleFailOnError   := true
 scalastyleFailOnWarning := true
 
 addCommandAlias("fix", "; compile:scalafix; test:scalafix")
@@ -37,6 +38,21 @@ addCommandAlias("styleCheck", "; compile:scalastyle; test:scalastyle")
 addCommandAlias("checkAll", "; fixCheck; fmtCheck; styleCheck")
 //////
 
+// SCALAZ
+libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.2.27"
+//////////////
+
+// TUCO
+// https://tpolecat.github.io/tuco/
+// libraryDependencies += "org.tpolecat" %% "tuco-core"  % "0.4.1" // either this
+// or this, which includes the shell API
+libraryDependencies += "org.tpolecat" %% "tuco-shell" % "0.4.1"
+
+// JLINE3
+// https://github.com/jline/jline3
+libraryDependencies += "org.jline" % "jline" % "3.9.0"
+/////////////////////////////////
+
 // ////////////scallop/////////////////
 libraryDependencies ++= Seq(
   // https://github.com/scallop/scallop
@@ -48,9 +64,9 @@ libraryDependencies ++= Seq(
 val circeVersion = "0.10.1"
 
 libraryDependencies ++= Seq(
-  "io.circe" %% "circe-core" % circeVersion,
+  "io.circe" %% "circe-core"    % circeVersion,
   "io.circe" %% "circe-generic" % circeVersion,
-  "io.circe" %% "circe-parser" % circeVersion
+  "io.circe" %% "circe-parser"  % circeVersion
 )
 /////////////////////////////////////
 
@@ -91,6 +107,6 @@ dockerfile in docker := {
   }
 }
 
-version in docker := version.value
+version in docker      := version.value
 buildOptions in docker := BuildOptions(cache = false)
 /////////////////////////////////////

@@ -2,11 +2,9 @@
 // https://github.com/scoverage/sbt-scoverage
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.6.0-M3")
 
-
 // PACKAGE
-addSbtPlugin("se.marcuslonnberg" % "sbt-docker" % "1.5.0")
-addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.14.9")
-
+addSbtPlugin("se.marcuslonnberg" % "sbt-docker"   % "1.5.0")
+addSbtPlugin("com.eed3si9n"      % "sbt-assembly" % "0.14.9")
 
 // SCALA STYLE
 // http://www.scalastyle.org/sbt.html
