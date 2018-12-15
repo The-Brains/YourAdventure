@@ -18,5 +18,3 @@ addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.9.1")
 
 resolvers += Resolver.bintrayRepo("scalameta", "maven")
 addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.6.0-RC4")
-
-addSbtPlugin("com.sksamuel.scapegoat" %% "sbt-scapegoat" % "1.0.9")

@@ -64,7 +64,6 @@ parallelExecution in Test := false
 
 ///// DOCKER BUILD /////
 // https://github.com/Demandbase/sbt_safety_plugin#for-fat-jar-assembly-build
-assemblyOption in assembly := safetyAssemblySettings.value
 test in assembly := {}
 
 // Docker settings - http://www.scala-sbt.org/sbt-native-packager/formats/docker.html
