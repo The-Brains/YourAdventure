@@ -42,12 +42,6 @@ addCommandAlias("checkAll", "; fixCheck; fmtCheck; styleCheck")
 libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.2.27"
 //////////////
 
-// TUCO
-// https://tpolecat.github.io/tuco/
-// libraryDependencies += "org.tpolecat" %% "tuco-core"  % "0.4.1" // either this
-// or this, which includes the shell API
-libraryDependencies += "org.tpolecat" %% "tuco-shell" % "0.4.1"
-
 // JLINE3
 // https://github.com/jline/jline3
 libraryDependencies += "org.jline" % "jline" % "3.9.0"
