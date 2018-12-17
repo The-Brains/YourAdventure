@@ -1,9 +1,9 @@
 package thebrains.youradventure.Adventure
 
 case class BodyPart(
-  name: String,
+  name:        String,
   description: String,
-  descriptor: String
+  descriptor:  String
 ) extends Things(name, description) {
   def toPlayerBodyPart: PlayerBodyPart = PlayerBodyPart(this, None)
 
@@ -11,14 +11,22 @@ case class BodyPart(
 
   def sameExactPart(other: BodyPart): Boolean = {
     samePart(other) &&
-      this.descriptor == other.descriptor
+    this.descriptor == other.descriptor
+  }
+
+  override def toString: String = {
+    if (descriptor.isEmpty) {
+      super.toString
+    } else {
+      s"'$descriptor $name'"
+    }
   }
 }
 
 object BodyParts {
 
   class PlainBodyPart(
-    name: String,
+    name:        String,
     description: String
   ) {
     def apply(descriptor: String): BodyPart = BodyPart(name, description, descriptor)

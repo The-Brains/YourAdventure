@@ -1,7 +1,7 @@
 package thebrains.youradventure.Adventure
 
-import thebrains.youradventure.Adventure.PlayerAttribute._
-import thebrains.youradventure.Adventure.PlayerAttribute.AttributeCollection
+import thebrains.youradventure.Adventure.Attribute.AttributeCollection
+import thebrains.youradventure.Adventure.Transformation.TransformationCollection
 
 case class Player(
   name:           String,
@@ -13,7 +13,11 @@ case class Player(
 ) {
   private def equipments: List[Equipment] = bodyParts.flatMap(_.equipment)
 
-  private def equipmentModifier: List[Transformation] = equipments.flatMap(_.modifiers)
+  private def equipmentModifier: TransformationCollection = {
+    equipments
+      .map(_.modifiers)
+      .reduce(_ ++ _)
+  }
 
   def currentAttributes: AttributeCollection = baseAttributes << equipmentModifier
 }

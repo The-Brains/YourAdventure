@@ -1,26 +1,27 @@
 package thebrains.youradventure.Adventure
 
-import thebrains.youradventure.Adventure.PlayerAttribute.{AttributeCollection, AttributeType}
+import thebrains.youradventure.Adventure.Attribute.PlayerAttribute.AttributeType
+import thebrains.youradventure.Adventure.Attribute.{Attribute, AttributeCollection}
 
 abstract class CompoundAttributes(
-  name: String,
+  name:        String,
   description: String
 ) extends Things(
-  name,
-  description
-) {
+      name,
+      description
+    ) {
   def getValue(attributes: AttributeCollection): PlayerValues
 }
 
 abstract class CompoundAttributes2(
-  name: String,
+  name:        String,
   description: String,
-  attribute1: Attribute,
-  attribute2: Attribute
+  attribute1:  Attribute,
+  attribute2:  Attribute
 ) extends CompoundAttributes(
-  name,
-  description
-) {
+      name,
+      description
+    ) {
 
   def compose(
     attribute1: Option[AttributeType],
@@ -40,15 +41,15 @@ abstract class CompoundAttributes2(
 }
 
 abstract class CompoundAttributes3(
-  name: String,
+  name:        String,
   description: String,
-  attribute1: Attribute,
-  attribute2: Attribute,
-  attribute3: Attribute
+  attribute1:  Attribute,
+  attribute2:  Attribute,
+  attribute3:  Attribute
 ) extends CompoundAttributes(
-  name,
-  description
-) {
+      name,
+      description
+    ) {
   def compose(
     attribute1: AttributeType,
     attribute2: AttributeType,

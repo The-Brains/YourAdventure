@@ -1,10 +1,12 @@
 package thebrains.youradventure.Adventure
 
+import thebrains.youradventure.Adventure.Transformation.TransformationCollection
+
 case class Equipment(
   name:        String,
   description: String,
   bodyPart:    BodyPart,
-  modifiers:   List[Transformation]
+  modifiers:   TransformationCollection
 ) extends Item(
       name,
       description,

@@ -1,5 +1,7 @@
 package thebrains.youradventure.Adventure
 
+import thebrains.youradventure.Adventure.Transformation.Transformation
+
 case class Step(
   name:             String,
   description:      String,

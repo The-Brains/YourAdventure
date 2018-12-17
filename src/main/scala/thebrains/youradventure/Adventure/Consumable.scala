@@ -1,9 +1,11 @@
 package thebrains.youradventure.Adventure
 
+import thebrains.youradventure.Adventure.Transformation.TransformationCollection
+
 class Consumable(
   name:        String,
   description: String,
-  modifiers:   List[Transformation]
+  modifiers:   TransformationCollection
 ) extends Item(
       name,
       description,

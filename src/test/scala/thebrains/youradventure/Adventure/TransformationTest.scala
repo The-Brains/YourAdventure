@@ -1,33 +1,50 @@
 package thebrains.youradventure.Adventure
 
+import org.scalatest.Assertion
+import thebrains.youradventure.Adventure.Attribute.{Attribute, Attributes}
+import thebrains.youradventure.Adventure.Attribute.PlayerAttribute.AttributeType
+import thebrains.youradventure.Adventure.Transformation._
 import thebrains.youradventure.ParentTest
 
 class TransformationTest extends ParentTest {
   "Transformation" - {
-    val attribute = Attribute(
-      name = "attack",
-      description = "damage you do"
-    )
+    val attribute = Attributes.Strength
+
+    def testApply(
+      transformation: Transformation,
+      initValue:      AttributeType,
+      expectedValue:  AttributeType
+    ): Assertion = {
+      val playerAttribute = attribute.toPlayerAttribute(initValue)
+      val result = transformation.>>(playerAttribute)
+      assert(result.isRight)
+      assertEquals(expectedValue, result.right.get.value)
+    }
+
+    def testRevert(transformation: Transformation): Assertion = {
+      val playerAttribute = attribute.toPlayerAttribute(10)
+      val tmp = transformation.>>(playerAttribute)
+      assert(tmp.isRight)
+
+      val revert = transformation.revert(tmp.right.get)
+      assert(revert.isRight)
+
+      assertEquals(playerAttribute.value, revert.right.get.value)
+    }
 
     "Add" - {
       "Increase" - {
-        val transformation = TransformationBuilder
+        val transformation: Transformation = TransformationBuilder
           .willDo(Addition, Increase)
           .byValueOf(10)
           .onAttribute(attribute)
 
         "apply" in {
-          val playerAttribute = attribute.toPlayerAttribute(10)
-          val expected = 20
-          val result = transformation.applyOn(playerAttribute)
-          assertEquals(expected, result.value)
+          testApply(transformation, 10, 20)
         }
 
         "revert" in {
-          val playerAttribute = attribute.toPlayerAttribute(10)
-          val tmp = transformation.applyOn(playerAttribute)
-          val revert = transformation.revert(tmp)
-          assertEquals(playerAttribute.value, revert.value)
+          testRevert(transformation)
         }
       }
 
@@ -38,17 +55,11 @@ class TransformationTest extends ParentTest {
           .onAttribute(attribute)
 
         "apply" in {
-          val playerAttribute = attribute.toPlayerAttribute(10)
-          val expected = 0
-          val result = transformation.applyOn(playerAttribute)
-          assertEquals(expected, result.value)
+          testApply(transformation, 10, 0)
         }
 
         "revert" in {
-          val playerAttribute = attribute.toPlayerAttribute(10)
-          val tmp = transformation.applyOn(playerAttribute)
-          val revert = transformation.revert(tmp)
-          assertEquals(playerAttribute.value, revert.value)
+          testRevert(transformation)
         }
       }
     }
@@ -61,17 +72,11 @@ class TransformationTest extends ParentTest {
           .onAttribute(attribute)
 
         "apply" in {
-          val playerAttribute = attribute.toPlayerAttribute(10)
-          val expected = 100
-          val result = transformation.applyOn(playerAttribute)
-          assertEquals(expected, result.value)
+          testApply(transformation, 10, 100)
         }
 
         "revert" in {
-          val playerAttribute = attribute.toPlayerAttribute(10)
-          val tmp = transformation.applyOn(playerAttribute)
-          val revert = transformation.revert(tmp)
-          assertEquals(playerAttribute.value, revert.value)
+          testRevert(transformation)
         }
       }
 
@@ -82,17 +87,11 @@ class TransformationTest extends ParentTest {
           .onAttribute(attribute)
 
         "apply" in {
-          val playerAttribute = attribute.toPlayerAttribute(10)
-          val expected = 1
-          val result = transformation.applyOn(playerAttribute)
-          assertEquals(expected, result.value)
+          testApply(transformation, 10, 1)
         }
 
         "revert" in {
-          val playerAttribute = attribute.toPlayerAttribute(10)
-          val tmp = transformation.applyOn(playerAttribute)
-          val revert = transformation.revert(tmp)
-          assertEquals(playerAttribute.value, revert.value)
+          testRevert(transformation)
         }
       }
     }

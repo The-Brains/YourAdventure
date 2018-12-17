@@ -1,13 +1,13 @@
 package thebrains.youradventure.Adventure
 
-import thebrains.youradventure.Adventure.PlayerAttribute.AttributeCollection
+import thebrains.youradventure.Adventure.Attribute.{AttributeCollection, Attributes}
 
 case class Race(
-  name: String,
-  description: String,
-  baseAttributes: AttributeCollection,
+  name:               String,
+  description:        String,
+  baseAttributes:     AttributeCollection,
   compoundAttributes: Set[CompoundAttributes],
-  bodyParts: List[BodyPart]
+  bodyParts:          List[BodyPart]
 ) extends Things(name, description)
 
 object Races {
@@ -23,7 +23,7 @@ object Races {
       BodyParts.TwoLegs ++
       BodyParts.TwoFeet ++
       BodyParts.TwoHands,
-    baseAttributes = Set(
+    baseAttributes = AttributeCollection(
       Attributes.Strength.toPlayerAttribute(10)
     ),
     compoundAttributes = Set(
