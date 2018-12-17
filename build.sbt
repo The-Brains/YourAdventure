@@ -39,7 +39,9 @@ addCommandAlias("checkAll", "; fixCheck; fmtCheck; styleCheck")
 //////
 
 // SCALAZ
-libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.2.27"
+val scalaZVersion = "7.2.27"
+libraryDependencies += "org.scalaz" %% "scalaz-core"   % scalaZVersion
+libraryDependencies += "org.scalaz" %% "scalaz-effect" % scalaZVersion
 //////////////
 
 // JLINE3

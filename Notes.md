@@ -9,3 +9,4 @@
 
 * [Jline3](https://github.com/jline/jline3)
 * [Tuco](https://tpolecat.github.io/tuco/)
+* [Decline](http://ben.kirw.in/decline/)
