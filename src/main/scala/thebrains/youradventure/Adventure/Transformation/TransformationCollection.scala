@@ -24,13 +24,12 @@ class TransformationCollection(transformations: List[Transformation]) {
     transformations.foreach(f)
   }
 
-
   def ++(other: TransformationCollection): TransformationCollection = {
-    append(this, other)
+    TransformationCollection.append(this, other)
   }
 
   def ++(other: Transformation): TransformationCollection = {
-    append(this, other.asCollection)
+    TransformationCollection.append(this, other.asCollection)
   }
 }
 

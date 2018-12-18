@@ -16,7 +16,6 @@ class Race(
 }
 
 object Races {
-
   case object Human extends Race(
     name = "Human",
     description = "Just a basic human",
@@ -36,5 +35,21 @@ object Races {
       Attributes.Health
     )
   )
+
+  val AllRaces: Seq[Race] = Seq(
+    Human
+  )
+
+  private lazy val ListOfAllRaces: String = AllRaces.map(_.getName).mkString(", ")
+
+  def fromString(race: String): Either[Error, Race] = {
+    race.toLowerCase match {
+      case Human.getLowerCaseName => Right(Human)
+      case _ => Left(Error(
+        "Unknown Race",
+        s"The race '$race' was not found among: $ListOfAllRaces"
+      ))
+    }
+  }
 
 }

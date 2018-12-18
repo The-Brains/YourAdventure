@@ -7,8 +7,6 @@ class Attribute(
   name: String,
   description: String
 ) extends Things(name, description) {
-  def getName: String = name
-
   def toPlayerAttribute(value: AttributeType): PlayerAttribute = {
     PlayerAttribute(
       attribute = this,

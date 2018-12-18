@@ -35,6 +35,13 @@ object PlayerBuilder {
         race = race
       )
     }
+
+    def selectRace(race: String): Either[Error, Player] = {
+      Races.fromString(race) match {
+        case Right(r) => Right(selectRace(r))
+        case Left(e) => Left(e)
+      }
+    }
   }
 
   def create(name: String): PlayerWithName = {

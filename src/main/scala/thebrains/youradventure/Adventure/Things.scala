@@ -6,5 +6,9 @@ class Things(
 ) {
   override def toString: String = s"'$name'"
 
-  def getDescription: String = description
+lazy  val getDescription: String = description
+
+lazy  val getName: String = name
+
+ lazy val getLowerCaseName: String = name.toLowerCase
 }
