@@ -1,20 +1,26 @@
 package thebrains.youradventure.Adventure
 
 import thebrains.youradventure.Adventure.Attribute.{AttributeCollection, Attributes}
+import thebrains.youradventure.Adventure.Body.{BodyPart, BodyParts}
 
-case class Race(
-  name:               String,
-  description:        String,
-  baseAttributes:     AttributeCollection,
+class Race(
+  name: String,
+  description: String,
+  inputBaseAttributes: AttributeCollection,
   compoundAttributes: Set[CompoundAttributes],
-  bodyParts:          List[BodyPart]
-) extends Things(name, description)
+  inputBodyParts: List[BodyPart]
+) extends Things(name, description) {
+  def bodyParts: List[BodyPart] = this.inputBodyParts
+
+  def baseAttributes: AttributeCollection = inputBaseAttributes
+}
 
 object Races {
-  val Human: Race = Race(
-    "Human",
-    "Just a basic human",
-    bodyParts = List(
+
+  case object Human extends Race(
+    name = "Human",
+    description = "Just a basic human",
+    inputBodyParts = List(
       BodyParts.OneChest,
       BodyParts.OneHead
     ) ++
@@ -23,11 +29,12 @@ object Races {
       BodyParts.TwoLegs ++
       BodyParts.TwoFeet ++
       BodyParts.TwoHands,
-    baseAttributes = AttributeCollection(
+    inputBaseAttributes = AttributeCollection(
       Attributes.Strength.toPlayerAttribute(10)
     ),
     compoundAttributes = Set(
       Attributes.Health
     )
   )
+
 }

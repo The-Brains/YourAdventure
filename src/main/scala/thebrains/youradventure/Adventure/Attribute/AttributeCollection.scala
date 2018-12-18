@@ -4,8 +4,7 @@ import thebrains.youradventure.Adventure.Attribute.PlayerAttribute.AttributeType
 import thebrains.youradventure.Adventure.Error
 import thebrains.youradventure.Adventure.Transformation.{Transformation, TransformationCollection}
 
-class AttributeCollection(attributes: Set[PlayerAttribute])
-  extends scalaz.Monoid[AttributeCollection] {
+class AttributeCollection(attributes: Set[PlayerAttribute]) {
   private def toCustomMap: Map[String, PlayerAttribute] = {
     attributes.map(a => (a.attribute.getName, a)).toMap
   }
@@ -60,17 +59,34 @@ class AttributeCollection(attributes: Set[PlayerAttribute])
     attributes.find(p)
   }
 
-  def getAttribute(attribute: Attribute): Option[PlayerAttribute] = {
+  def getAttribute[A <: Attribute](attribute: A): Option[PlayerAttribute] = {
     this.find(attribute === _)
   }
 
-  def getAttributeValue(attribute: Attribute): Option[AttributeType] = {
+  def getAttributeValue[A <: Attribute](attribute: A): Option[AttributeType] = {
     this.getAttribute(attribute).map(_.value)
   }
 
-  override def zero: AttributeCollection = {
-    new AttributeCollection(Set.empty)
+  def ++(other: AttributeCollection): AttributeCollection = {
+    AttributeCollection.append(this, other)
   }
+
+  def ++(other: PlayerAttribute): AttributeCollection = {
+    AttributeCollection.append(this, other.asCollection)
+  }
+}
+
+object AttributeCollection extends scalaz.Monoid[AttributeCollection] {
+
+  case object Empty extends AttributeCollection(Set.empty)
+
+  def apply(a: PlayerAttribute*): AttributeCollection = {
+    new AttributeCollection(a.toSet)
+  }
+
+  def apply(a: Set[PlayerAttribute]): AttributeCollection = new AttributeCollection(a)
+
+  override def zero: AttributeCollection = AttributeCollection.Empty
 
   override def append(
     f1: AttributeCollection,
@@ -88,20 +104,4 @@ class AttributeCollection(attributes: Set[PlayerAttribute])
         .toSet
     )
   }
-
-  def ++(other: AttributeCollection): AttributeCollection = {
-    append(this, other)
-  }
-
-  def ++(other: PlayerAttribute): AttributeCollection = {
-    append(this, other.asCollection)
-  }
-}
-
-object AttributeCollection {
-  def apply(a: PlayerAttribute*): AttributeCollection = {
-    new AttributeCollection(a.toSet)
-  }
-
-  def apply(a: Set[PlayerAttribute]): AttributeCollection = new AttributeCollection(a)
 }

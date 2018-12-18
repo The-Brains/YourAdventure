@@ -1,5 +1,7 @@
 package thebrains.youradventure.Adventure
 
+import thebrains.youradventure.Adventure.Body.BodyPart
+
 case class PlayerBodyPart(
   bodyPart:  BodyPart,
   equipment: Option[Equipment]

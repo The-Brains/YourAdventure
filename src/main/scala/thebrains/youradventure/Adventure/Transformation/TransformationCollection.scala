@@ -1,7 +1,6 @@
 package thebrains.youradventure.Adventure.Transformation
 
-class TransformationCollection(transformations: List[Transformation])
-  extends scalaz.Monoid[TransformationCollection] {
+class TransformationCollection(transformations: List[Transformation]) {
 
   def getTransformations: List[Transformation] = this.transformations
 
@@ -25,14 +24,6 @@ class TransformationCollection(transformations: List[Transformation])
     transformations.foreach(f)
   }
 
-  override def zero: TransformationCollection = new TransformationCollection(Nil)
-
-  override def append(
-    f1: TransformationCollection,
-    f2: => TransformationCollection
-  ): TransformationCollection = {
-    new TransformationCollection(f1.getTransformations ++ f2.getTransformations)
-  }
 
   def ++(other: TransformationCollection): TransformationCollection = {
     append(this, other)
@@ -43,8 +34,20 @@ class TransformationCollection(transformations: List[Transformation])
   }
 }
 
-object TransformationCollection {
+object TransformationCollection extends scalaz.Monoid[TransformationCollection] {
+
+  case object Empty extends TransformationCollection(Nil)
+
   def apply(transformations: Transformation*): TransformationCollection = {
     new TransformationCollection(transformations.toList)
+  }
+
+  override def zero: TransformationCollection = TransformationCollection.Empty
+
+  override def append(
+    f1: TransformationCollection,
+    f2: => TransformationCollection
+  ): TransformationCollection = {
+    new TransformationCollection(f1.getTransformations ++ f2.getTransformations)
   }
 }

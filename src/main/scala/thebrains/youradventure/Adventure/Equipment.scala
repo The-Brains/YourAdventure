@@ -1,5 +1,6 @@
 package thebrains.youradventure.Adventure
 
+import thebrains.youradventure.Adventure.Body.BodyPart
 import thebrains.youradventure.Adventure.Transformation.TransformationCollection
 
 case class Equipment(

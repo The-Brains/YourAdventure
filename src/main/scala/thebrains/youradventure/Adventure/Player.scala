@@ -4,19 +4,19 @@ import thebrains.youradventure.Adventure.Attribute.AttributeCollection
 import thebrains.youradventure.Adventure.Transformation.TransformationCollection
 
 case class Player(
-  name:           String,
-  journey:        List[Step],
-  consumables:    List[Consumable],
-  bodyParts:      List[PlayerBodyPart],
+  name: String,
+  journey: List[Step],
+  consumables: List[Consumable],
+  bodyParts: List[PlayerBodyPart],
   baseAttributes: AttributeCollection,
-  race:           Race
+  race: Race
 ) {
   private def equipments: List[Equipment] = bodyParts.flatMap(_.equipment)
 
   private def equipmentModifier: TransformationCollection = {
     equipments
       .map(_.modifiers)
-      .reduce(_ ++ _)
+      .foldLeft[TransformationCollection](TransformationCollection.Empty)(_ ++ _)
   }
 
   def currentAttributes: AttributeCollection = baseAttributes << equipmentModifier

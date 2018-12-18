@@ -1,6 +1,6 @@
 package thebrains.youradventure.Adventure
 
-import thebrains.youradventure.Adventure.Transformation.{Transformation, TransformationCollection}
+import thebrains.youradventure.Adventure.Transformation.TransformationCollection
 
 class Item(
   name:        String,
