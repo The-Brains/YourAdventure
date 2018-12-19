@@ -10,7 +10,7 @@ import thebrains.youradventure.BirdUtils.BirdOperator._
 
 class StepTest extends ParentTest {
   "Step" - {
-    lazy val step = new Step(
+    lazy val step = Step(
       name = "starting Step",
       description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
         "Nunc hendrerit vehicula pellentesque. Mauris vitae pellentesque risus, ut " +
@@ -23,7 +23,7 @@ class StepTest extends ParentTest {
         "tempor nisl. Pellentesque ornare est at augue pellentesque volutpat. Praesent " +
         "feugiat orci in est iaculis, id pellentesque elit pretium. Proin sit amet nibh eget " +
         "sem convallis pellentesque non nec tortor. Nulla a imperdiet augue, vel fermentum ipsum.",
-      location = Location.Earth,
+      location = Locations.Earth,
       transformations = TransformationCollection(
         TransformationBuilder
           .willDo(Addition)
@@ -31,8 +31,8 @@ class StepTest extends ParentTest {
           .onAttribute(Attributes.Strength)
       ),
       availableActions = ActionCollection("Whats up?")(
-        Action("Look", "Look at Earth closer", Step.EmptyStep),
-        Action("Leave", "Leave earth alone", Step.EmptyStep)
+        Action("Look", "Look at Earth closer", Steps.EmptyStep),
+        Action("Leave", "Leave earth alone", Steps.EmptyStep)
       )
     )
 
@@ -64,12 +64,10 @@ class StepTest extends ParentTest {
       step: Step,
       answers: List[Maybe[String]]
     ): Unit = {
-      val output = processStep(r, player, step, answers.headOption match {
+      processStep(r, player, step, answers.headOption match {
         case Some(a) => a
         case None => Maybe.empty
       })
-
-      output
         .map {
           case Left(error) =>
             r.display(error)
@@ -106,7 +104,12 @@ class StepTest extends ParentTest {
         step,
         List(
           Maybe.Just("0"),
-          Maybe.Just("4")
+          Maybe.Just("0"),
+          Maybe.Just("0"),
+          Maybe.Just("0"),
+          Maybe.Just("0"),
+          Maybe.Just("1"),
+          Maybe.Just("2")
         )
       )
     }

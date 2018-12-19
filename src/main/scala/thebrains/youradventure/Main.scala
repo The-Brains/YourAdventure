@@ -8,7 +8,7 @@ import thebrains.youradventure.TerminalUIPack.{GameStatus, TerminalUI}
 object Main extends SafeApp {
   override def run(args: ImmutableArray[String]): IO[Unit] = {
     TerminalUI().run(
-      GameStatus(Universe.Void, None, None),
+      GameStatus(Universe.Void),
       None
     )
     super.run(args)

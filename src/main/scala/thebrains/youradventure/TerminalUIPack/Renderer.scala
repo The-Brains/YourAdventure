@@ -3,16 +3,29 @@ package thebrains.youradventure.TerminalUIPack
 import scalaz.Maybe.Just
 import scalaz._
 import thebrains.youradventure.Adventure.ActionPack.{Action, ActionCollection}
-import thebrains.youradventure.Adventure.{Error, Player, Step}
+import thebrains.youradventure.Adventure.{Error, Player, PlayerBuilder, Step}
 
 class Renderer(tp: TerminalPrint) {
+
+  def getTP: TerminalPrint = tp
+
+  def displayEmptyPlayer: DisplayQuestion = {
+    TerminalMessageBuilder
+      .start()
+      .makeQuestion(PlayerBuilder.NameQuestion)
+  }
+
+  def display(p: PlayerBuilder.PlayerWithName): DisplayQuestion = {
+    TerminalMessageBuilder
+      .start()
+      .makeQuestion(PlayerBuilder.RaceQuestion)
+  }
 
   def display(error: Error): Maybe[(TerminalPrint, DisplayMessage)] = {
     Just(
       tp,
       TerminalMessageBuilder
         .start()
-        .addEmptyLine
         .addLine(error.getCapitalizeName)
         .addLine(error.getDescription)
         .complete()
@@ -20,39 +33,38 @@ class Renderer(tp: TerminalPrint) {
   }
 
   def display(
-    step:   Step,
+    step: Step,
     player: Maybe[Player]
   ): Maybe[(TerminalPrint, Either[DisplayQuestion, DisplayMessage])] = {
     Just(
       tp,
-      display {
+      display(
         TerminalMessageBuilder
           .start()
-          .addEmptyLine
           .addLine(s"--- ${step.getCapitalizeName} ---")
           .addLine(step.getDescription)
-          .addEmptyLine
-      }(step.getActions(player))
+          .addEmptyLine,
+        step.getActions(player)
+      )
     )
   }
 
   private def display(
-    buffer: TerminalMessageBuilder.MessageAssembly
-  )(
+    buffer: TerminalMessageBuilder.MessageAssembly,
     actions: ActionCollection
   ): Either[DisplayQuestion, DisplayMessage] = {
     actions.getIndexedActions
-      .foldLeft(buffer) { case (b, (i, a)) => b ++ display(i, a) }
+      .foldLeft(buffer) { case (b, (i, a)) => display(b, i, a) }
       .addEmptyLine
       .finishWithQuestion(actions.getQuestion)
   }
 
   private def display(
-    id:     Int,
+    buffer: TerminalMessageBuilder.MessageAssembly,
+    id: Int,
     action: Action
   ): TerminalMessageBuilder.MessageAssembly = {
-    TerminalMessageBuilder
-      .start()
+    buffer
       .addLine(s"$id - ${action.name} - ${action.description}")
   }
 }

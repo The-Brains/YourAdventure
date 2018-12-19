@@ -2,14 +2,15 @@ package thebrains.youradventure.Adventure
 
 import thebrains.youradventure.Adventure.AttributePack.AttributeCollection
 import thebrains.youradventure.Adventure.TransformationPack.TransformationCollection
+import thebrains.youradventure.TerminalUIPack.Renderer
 
 case class Player(
-  name:           String,
-  journey:        List[Step],
-  consumables:    List[Consumable],
-  bodyParts:      List[PlayerBodyPart],
+  name: String,
+  journey: List[Step],
+  consumables: List[Consumable],
+  bodyParts: List[PlayerBodyPart],
   baseAttributes: AttributeCollection,
-  race:           Race
+  race: Race
 ) {
   private def equipments: List[Equipment] = bodyParts.flatMap(_.equipment)
 
@@ -25,6 +26,8 @@ case class Player(
 }
 
 object PlayerBuilder {
+  val NameQuestion: String = "What is your name?"
+  val RaceQuestion: String = "What race are you part of ?"
 
   case class PlayerWithName(name: String) {
     def selectRace(race: Race): Player = {
@@ -41,12 +44,16 @@ object PlayerBuilder {
     def selectRace(race: String): Either[Error, Player] = {
       Races.fromString(race) match {
         case Right(r) => Right(selectRace(r))
-        case Left(e)  => Left(e)
+        case Left(e) => Left(e)
       }
     }
   }
 
   def create(name: String): PlayerWithName = {
     PlayerWithName(name)
+  }
+
+  def initialize(r: Renderer) = {
+    r.displayEmptyPlayer
   }
 }

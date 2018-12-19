@@ -6,7 +6,7 @@ class Location(
   parentLocation: Option[Location]
 ) extends Things(name, description)
 
-object Location {
+object Locations {
 
   case object Menu
       extends Location(

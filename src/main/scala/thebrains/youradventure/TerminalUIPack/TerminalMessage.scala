@@ -46,6 +46,10 @@ object TerminalMessageBuilder {
       this.addLine("")
     }
 
+    def makeQuestion(question: String): DisplayQuestion = {
+      finishWithQuestion(Maybe.just(question)).left.get
+    }
+
     def finishWithQuestion(text: Maybe[String]): Either[DisplayQuestion, DisplayMessage] = {
       text match {
         case Maybe.Just(question) => Left(DisplayQuestion(messages = this.messages :+ question))
@@ -64,5 +68,6 @@ object TerminalMessageBuilder {
 
   def start(): MessageAssembly = {
     MessageAssembly(Nil)
+      .addEmptyLine
   }
 }
