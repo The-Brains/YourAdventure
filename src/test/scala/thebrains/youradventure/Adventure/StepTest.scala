@@ -39,9 +39,9 @@ class StepTest extends ParentTest {
     val r: Renderer = Renderer(TerminalPrint())
 
     def processStep(
-      r: Renderer,
+      r:      Renderer,
       player: Maybe[Player],
-      step: Step,
+      step:   Step,
       answer: Maybe[String]
     ): Maybe[Either[Error, Maybe[Action]]] = {
       r.display(step, player)
@@ -59,29 +59,28 @@ class StepTest extends ParentTest {
     }
 
     def processGame(
-      r: Renderer,
-      player: Maybe[Player],
-      step: Step,
+      r:       Renderer,
+      player:  Maybe[Player],
+      step:    Step,
       answers: List[Maybe[String]]
     ): Unit = {
       processStep(r, player, step, answers.headOption match {
         case Some(a) => a
-        case None => Maybe.empty
-      })
-        .map {
-          case Left(error) =>
-            r.display(error)
-              .map {
-                case (tp, message) =>
-                  message displayWith tp
-              }
-            if (!error.isFatal) {
-              processGame(r, player, step, answers.drop(1))
+        case None    => Maybe.empty
+      }).map {
+        case Left(error) =>
+          r.display(error)
+            .map {
+              case (tp, message) =>
+                message displayWith tp
             }
-          case Right(Maybe.Just(action)) =>
-            processGame(r, player, action.targetStep, answers.drop(1))
-          case Right(Maybe.Empty()) => () // End of game
-        }
+          if (!error.isFatal) {
+            processGame(r, player, step, answers.drop(1))
+          }
+        case Right(Maybe.Just(action)) =>
+          processGame(r, player, action.targetStep, answers.drop(1))
+        case Right(Maybe.Empty()) => () // End of game
+      }
     }
 
     "Display" in {
@@ -103,8 +102,6 @@ class StepTest extends ParentTest {
         ),
         step,
         List(
-          Maybe.Just("0"),
-          Maybe.Just("0"),
           Maybe.Just("0"),
           Maybe.Just("0"),
           Maybe.Just("0"),

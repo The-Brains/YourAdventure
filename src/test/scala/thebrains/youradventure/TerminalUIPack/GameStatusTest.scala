@@ -10,7 +10,7 @@ import thebrains.youradventure.ParentTest
 class GameStatusTest extends ParentTest {
   "GameStatus" - {
     val r: Renderer = Renderer(TerminalPrint())
-    val game: Either[Error, GameStatus] = GameStatus(
+    val baseGame = GameStatus(
       universe = Universe(
         availableRaces = List(
           Races.Human
@@ -46,12 +46,19 @@ class GameStatusTest extends ParentTest {
         )
       )
     )
-      .startGame(r, List(
-        Maybe.Just("tom"),
-        Maybe.Just(Races.Human.getName)
-      ))
 
-    assert(game.isRight)
-    assert(game.right.get.getPlayer.isJust)
+    "Should create user" in {
+      val game = baseGame.startGame(
+        r,
+        List(
+          Maybe.Just("tom"),
+          Maybe.Just("not really a good race"),
+          Maybe.Just(Races.Human.getName)
+        )
+      )
+
+      assert(game.isRight)
+      assert(game.right.get.getPlayer.isJust)
+    }
   }
 }

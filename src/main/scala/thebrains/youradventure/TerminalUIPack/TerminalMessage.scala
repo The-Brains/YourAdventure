@@ -3,7 +3,7 @@ package thebrains.youradventure.TerminalUIPack
 import scalaz.Maybe
 
 abstract class TerminalMessage(
-  messages: List[String],
+  messages:   List[String],
   isQuestion: Boolean
 ) {
   lazy protected val question: Option[String] = if (isQuestion) Some(messages.last) else None
@@ -17,17 +17,17 @@ abstract class TerminalMessage(
 }
 
 case class DisplayMessage(messages: List[String])
-  extends TerminalMessage(messages, isQuestion = false) {
+    extends TerminalMessage(messages, isQuestion = false) {
   def displayWith(tp: TerminalPrint): Unit = {
     printToConsole(tp)
   }
 }
 
 case class DisplayQuestion(messages: List[String])
-  extends TerminalMessage(messages, isQuestion = true) {
+    extends TerminalMessage(messages, isQuestion = true) {
 
   def displayWithQuestionAnd(
-    tp: TerminalPrint,
+    tp:     TerminalPrint,
     answer: Maybe[String] = Maybe.empty
   ): String = {
     printToConsole(tp)
@@ -53,7 +53,7 @@ object TerminalMessageBuilder {
     def finishWithQuestion(text: Maybe[String]): Either[DisplayQuestion, DisplayMessage] = {
       text match {
         case Maybe.Just(question) => Left(DisplayQuestion(messages = this.messages :+ question))
-        case Maybe.Empty() => Right(complete())
+        case Maybe.Empty()        => Right(complete())
       }
     }
 
@@ -67,7 +67,6 @@ object TerminalMessageBuilder {
   }
 
   def start(): MessageAssembly = {
-    MessageAssembly(Nil)
-      .addEmptyLine
+    MessageAssembly(Nil).addEmptyLine
   }
 }

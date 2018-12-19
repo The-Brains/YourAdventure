@@ -33,7 +33,7 @@ class Renderer(tp: TerminalPrint) {
   }
 
   def display(
-    step: Step,
+    step:   Step,
     player: Maybe[Player]
   ): Maybe[(TerminalPrint, Either[DisplayQuestion, DisplayMessage])] = {
     Just(
@@ -50,7 +50,7 @@ class Renderer(tp: TerminalPrint) {
   }
 
   private def display(
-    buffer: TerminalMessageBuilder.MessageAssembly,
+    buffer:  TerminalMessageBuilder.MessageAssembly,
     actions: ActionCollection
   ): Either[DisplayQuestion, DisplayMessage] = {
     actions.getIndexedActions
@@ -61,7 +61,7 @@ class Renderer(tp: TerminalPrint) {
 
   private def display(
     buffer: TerminalMessageBuilder.MessageAssembly,
-    id: Int,
+    id:     Int,
     action: Action
   ): TerminalMessageBuilder.MessageAssembly = {
     buffer

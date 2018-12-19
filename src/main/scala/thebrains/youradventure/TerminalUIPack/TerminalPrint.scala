@@ -61,7 +61,10 @@ class TerminalPrint {
     Console.out.flush()
   }
 
-  def askText(question: String, answer: Maybe[String] = Maybe.empty): String = {
+  def askText(
+    question: String,
+    answer:   Maybe[String] = Maybe.empty
+  ): String = {
     printToConsole(question)
     printSameLine("?> ")
     answer match {
@@ -70,7 +73,10 @@ class TerminalPrint {
     }
   }
 
-  def askInt(question: String, answer: Maybe[Int] = Maybe.empty): Int = {
+  def askInt(
+    question: String,
+    answer:   Maybe[Int] = Maybe.empty
+  ): Int = {
     printToConsole(question)
     printSameLine("?> ")
     answer match {
@@ -98,9 +104,9 @@ object TerminalPrint {
 
   private def terminalWidth: Option[Int] = terminalSize.map(_.getColumns)
 
-  private val NewLineChar: String = "\n"
+  private val NewLineChar:         String = "\n"
   private val DefaultTerminalSize: Int = 80
-  private val Margin: Int = 10
+  private val Margin:              Int = 10
 
   def maxLineLength: Int = terminalWidth.getOrElse(DefaultTerminalSize) - Margin
 

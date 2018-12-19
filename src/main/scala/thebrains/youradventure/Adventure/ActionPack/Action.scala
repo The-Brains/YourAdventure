@@ -3,9 +3,9 @@ package thebrains.youradventure.Adventure.ActionPack
 import thebrains.youradventure.Adventure._
 
 case class Action(
-  name: String,
+  name:        String,
   description: String,
-  targetStep: Step
+  targetStep:  Step
 ) extends Things(name, description) {
   def asCollection: BastardActionCollection = BastardActionCollection(this)
 
@@ -18,7 +18,10 @@ case class Action(
 }
 
 object Actions {
-  def playerStatusMenu(player: Player, p: Player => Step): Action = {
+  def playerStatusMenu(
+    player: Player,
+    p:      Player => Step
+  ): Action = {
     Action("Player Status", "Look at your player status", p(player))
   }
 }

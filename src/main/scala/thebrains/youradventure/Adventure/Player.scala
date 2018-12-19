@@ -5,12 +5,12 @@ import thebrains.youradventure.Adventure.TransformationPack.TransformationCollec
 import thebrains.youradventure.TerminalUIPack.Renderer
 
 case class Player(
-  name: String,
-  journey: List[Step],
-  consumables: List[Consumable],
-  bodyParts: List[PlayerBodyPart],
+  name:           String,
+  journey:        List[Step],
+  consumables:    List[Consumable],
+  bodyParts:      List[PlayerBodyPart],
   baseAttributes: AttributeCollection,
-  race: Race
+  race:           Race
 ) {
   private def equipments: List[Equipment] = bodyParts.flatMap(_.equipment)
 
@@ -44,7 +44,7 @@ object PlayerBuilder {
     def selectRace(race: String): Either[Error, Player] = {
       Races.fromString(race) match {
         case Right(r) => Right(selectRace(r))
-        case Left(e) => Left(e)
+        case Left(e)  => Left(e)
       }
     }
   }

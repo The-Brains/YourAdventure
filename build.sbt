@@ -74,10 +74,20 @@ libraryDependencies ++= Seq(
 parallelExecution in Test := false
 /////////////////////////////////////
 
+// Test
+testOptions in Test += Tests.Argument("-oD")
+javaOptions in Test ++= Seq(
+  "-Xms512M",
+  "-Xmx2048M",
+  "-XX:MaxPermSize=2048M",
+  "-XX:+CMSClassUnloadingEnabled"
+)
+parallelExecution in Test := false
+fork in Test              := false
+test in assembly          := {}
+
 ///// DOCKER BUILD /////
 // https://github.com/Demandbase/sbt_safety_plugin#for-fat-jar-assembly-build
-test in assembly := {}
-
 // Docker settings - http://www.scala-sbt.org/sbt-native-packager/formats/docker.html
 enablePlugins(DockerPlugin)
 
@@ -97,7 +107,7 @@ dockerfile in docker := {
   val artifactTargetPath = s"/app/${artifact.name}"
 
   new Dockerfile {
-    from("demandbase/ivy2cache:latest")
+    from("openjdk-slim:8")
     add(artifact, artifactTargetPath)
     entryPoint("java", "-jar", artifactTargetPath)
   }
