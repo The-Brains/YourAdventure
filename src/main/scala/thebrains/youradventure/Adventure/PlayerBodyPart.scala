@@ -1,6 +1,6 @@
 package thebrains.youradventure.Adventure
 
-import thebrains.youradventure.Adventure.Body.BodyPart
+import thebrains.youradventure.Adventure.BodyPack.BodyPart
 
 case class PlayerBodyPart(
   bodyPart:  BodyPart,

@@ -1,4 +1,4 @@
-package thebrains.youradventure.Adventure.Transformation
+package thebrains.youradventure.Adventure.TransformationPack
 
 class TransformationCollection(transformations: List[Transformation]) {
 

@@ -1,10 +1,10 @@
-package thebrains.youradventure.Adventure.Attribute
+package thebrains.youradventure.Adventure.AttributePack
 
 import thebrains.youradventure.Adventure._
 
 case class PlayerAttribute(
   attribute: Attribute,
-  value: PlayerAttribute.AttributeType
+  value:     PlayerAttribute.AttributeType
 ) {
   def ===(other: PlayerAttribute): Boolean = {
     this.attribute === other

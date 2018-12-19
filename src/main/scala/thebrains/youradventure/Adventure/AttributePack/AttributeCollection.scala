@@ -1,8 +1,11 @@
-package thebrains.youradventure.Adventure.Attribute
+package thebrains.youradventure.Adventure.AttributePack
 
-import thebrains.youradventure.Adventure.Attribute.PlayerAttribute.AttributeType
+import thebrains.youradventure.Adventure.AttributePack.PlayerAttribute.AttributeType
 import thebrains.youradventure.Adventure.Error
-import thebrains.youradventure.Adventure.Transformation.{Transformation, TransformationCollection}
+import thebrains.youradventure.Adventure.TransformationPack.{
+  Transformation,
+  TransformationCollection
+}
 
 class AttributeCollection(attributes: Set[PlayerAttribute]) {
   private def toCustomMap: Map[String, PlayerAttribute] = {
@@ -12,9 +15,9 @@ class AttributeCollection(attributes: Set[PlayerAttribute]) {
   private def reduceAll: Either[Error, PlayerAttribute] = {
     attributes
       .foldLeft[Either[Error, PlayerAttribute]](Left(Error.Empty)) {
-      case (Right(a), b) => a |+| b
-      case (Left(_), b) => Right(b)
-    }
+        case (Right(a), b) => a |+| b
+        case (Left(_), b)  => Right(b)
+      }
   }
 
   def <<(applyTransformations: TransformationCollection): AttributeCollection = {

@@ -1,4 +1,4 @@
-package thebrains.youradventure.terminalUI.Command
+package thebrains.youradventure.TerminalUIPack.Command
 
 case class TerminalCommand(
   name:        String,

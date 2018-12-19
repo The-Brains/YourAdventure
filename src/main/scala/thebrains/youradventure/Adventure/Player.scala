@@ -1,15 +1,15 @@
 package thebrains.youradventure.Adventure
 
-import thebrains.youradventure.Adventure.Attribute.AttributeCollection
-import thebrains.youradventure.Adventure.Transformation.TransformationCollection
+import thebrains.youradventure.Adventure.AttributePack.AttributeCollection
+import thebrains.youradventure.Adventure.TransformationPack.TransformationCollection
 
 case class Player(
-  name: String,
-  journey: List[Step],
-  consumables: List[Consumable],
-  bodyParts: List[PlayerBodyPart],
+  name:           String,
+  journey:        List[Step],
+  consumables:    List[Consumable],
+  bodyParts:      List[PlayerBodyPart],
   baseAttributes: AttributeCollection,
-  race: Race
+  race:           Race
 ) {
   private def equipments: List[Equipment] = bodyParts.flatMap(_.equipment)
 
@@ -39,7 +39,7 @@ object PlayerBuilder {
     def selectRace(race: String): Either[Error, Player] = {
       Races.fromString(race) match {
         case Right(r) => Right(selectRace(r))
-        case Left(e) => Left(e)
+        case Left(e)  => Left(e)
       }
     }
   }

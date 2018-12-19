@@ -1,6 +1,6 @@
 package thebrains.youradventure.Adventure
 
-import thebrains.youradventure.Adventure.Attribute.Attributes
+import thebrains.youradventure.Adventure.AttributePack.Attributes
 import thebrains.youradventure.ParentTest
 
 class PlayerBuilderTest extends ParentTest {

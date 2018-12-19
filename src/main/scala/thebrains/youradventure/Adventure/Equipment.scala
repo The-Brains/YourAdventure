@@ -1,7 +1,7 @@
 package thebrains.youradventure.Adventure
 
-import thebrains.youradventure.Adventure.Body.BodyPart
-import thebrains.youradventure.Adventure.Transformation.TransformationCollection
+import thebrains.youradventure.Adventure.BodyPack.BodyPart
+import thebrains.youradventure.Adventure.TransformationPack.TransformationCollection
 
 case class Equipment(
   name:        String,

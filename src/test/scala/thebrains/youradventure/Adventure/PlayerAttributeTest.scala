@@ -1,7 +1,7 @@
 package thebrains.youradventure.Adventure
 
-import thebrains.youradventure.Adventure.Attribute.{AttributeCollection, Attributes}
-import thebrains.youradventure.Adventure.Transformation._
+import thebrains.youradventure.Adventure.AttributePack.{AttributeCollection, Attributes}
+import thebrains.youradventure.Adventure.TransformationPack._
 import thebrains.youradventure.ParentTest
 
 class PlayerAttributeTest extends ParentTest {

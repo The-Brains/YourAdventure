@@ -1,7 +1,7 @@
 package thebrains.youradventure.Adventure
 
-import thebrains.youradventure.Adventure.Attribute.PlayerAttribute.AttributeType
-import thebrains.youradventure.Adventure.Attribute.{Attribute, AttributeCollection}
+import thebrains.youradventure.Adventure.AttributePack.PlayerAttribute.AttributeType
+import thebrains.youradventure.Adventure.AttributePack.{Attribute, AttributeCollection, Attributes}
 
 abstract class CompoundAttributes(
   name:        String,
@@ -55,4 +55,23 @@ abstract class CompoundAttributes3(
     attribute2: AttributeType,
     attribute3: AttributeType
   ): AttributeType
+}
+
+object CompoundAttributes {
+
+  case object Health
+      extends CompoundAttributes2(
+        name = "health",
+        description = "The amount of health. If zero, you are dead.",
+        attribute1 = Attributes.Strength,
+        attribute2 = Attributes.Constitution
+      ) {
+    override def compose(
+      attribute1: Option[AttributeType],
+      attribute2: Option[AttributeType]
+    ): AttributeType = {
+      attribute1.getOrElse(0) + attribute2.getOrElse(0)
+    }
+  }
+
 }

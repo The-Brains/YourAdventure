@@ -1,8 +1,6 @@
-package thebrains.youradventure.Adventure.Body
+package thebrains.youradventure.Adventure.BodyPack
 
-class BodyCollection {
-
-}
+class BodyCollection {}
 
 object BodyCollection extends scalaz.Monoid[BodyCollection] {
 
