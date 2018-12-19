@@ -1,6 +1,7 @@
 package thebrains.youradventure.TerminalUIPack
 
-import org.jline.terminal.Size
+import org.jline.terminal.{Size, Terminal}
+import scalaz.Maybe
 import thebrains.youradventure.BirdUtils.BirdOperator._
 
 import scala.io.StdIn
@@ -15,10 +16,10 @@ class TerminalPrint {
   }
 
   private def splitLine(txt: String): List[String] = {
-    if (txt.length > TerminalPrint.MaxLineLength) {
-      val newLimit = lengthToFarSparce(txt.substring(0, TerminalPrint.MaxLineLength))
-      val finalEdge = if (newLimit < TerminalPrint.MaxLineLength / 2) {
-        TerminalPrint.MaxLineLength
+    if (txt.length > TerminalPrint.maxLineLength) {
+      val newLimit = lengthToFarSparce(txt.substring(0, TerminalPrint.maxLineLength))
+      val finalEdge = if (newLimit < TerminalPrint.maxLineLength / 2) {
+        TerminalPrint.maxLineLength
       } else {
         newLimit
       }
@@ -60,34 +61,48 @@ class TerminalPrint {
     Console.out.flush()
   }
 
-  def askText(question: String): String = {
+  def askText(question: String, answer: Maybe[String] = Maybe.empty): String = {
     printToConsole(question)
     printSameLine("?> ")
-    StdIn.readLine()
+    answer match {
+      case Maybe.Just(a) => printToConsole(a); a
+      case Maybe.Empty() => StdIn.readLine()
+    }
   }
 
-  def askInt(question: String): Int = {
+  def askInt(question: String, answer: Maybe[Int] = Maybe.empty): Int = {
     printToConsole(question)
     printSameLine("?> ")
-    StdIn.readInt()
+    answer match {
+      case Maybe.Just(a) => printToConsole(a.toString); a
+      case Maybe.Empty() => StdIn.readInt()
+    }
+
   }
 }
 
 object TerminalPrint {
-  private val TerminalSize: Option[Size] = Try {
+  private val Terminal: Option[Terminal] = Try {
     org.jline.terminal.TerminalBuilder
       .builder()
       .system(true)
       .dumb(false)
       .build()
-      .getSize
   }.toOption
 
-  private val TerminalWidth:       Option[Int] = TerminalSize.map(_.getColumns)
-  private val NewLineChar:         String = "\n"
+  private def terminalSize: Option[Size] = {
+    Try {
+      Terminal.map(_.getSize)
+    }.toOption.flatten
+  }
+
+  private def terminalWidth: Option[Int] = terminalSize.map(_.getColumns)
+
+  private val NewLineChar: String = "\n"
   private val DefaultTerminalSize: Int = 80
-  private val Margin:              Int = 10
-  val MaxLineLength:               Int = TerminalWidth.getOrElse(DefaultTerminalSize) - Margin
+  private val Margin: Int = 10
+
+  def maxLineLength: Int = terminalWidth.getOrElse(DefaultTerminalSize) - Margin
 
   def apply(): TerminalPrint = new TerminalPrint()
 }

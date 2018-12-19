@@ -20,7 +20,7 @@ class TerminalPrintTest extends ParentTest {
 
       "should be printed on several lines" in {
         val output = TerminalPrintForTest.previewTextToPrint(text)
-        output.foreach(t => assert(t.length <= TerminalPrint.MaxLineLength))
+        output.foreach(t => assert(t.length <= TerminalPrint.maxLineLength))
       }
     }
 
@@ -31,7 +31,7 @@ class TerminalPrintTest extends ParentTest {
         val lengthToTest = 200
         val output =
           TerminalPrintForTest.previewTextToPrint(text2.take(lengthToTest).toList.mkString(""))
-        output.foreach(t => assert(t.length <= TerminalPrint.MaxLineLength))
+        output.foreach(t => assert(t.length <= TerminalPrint.maxLineLength))
       }
     }
   }

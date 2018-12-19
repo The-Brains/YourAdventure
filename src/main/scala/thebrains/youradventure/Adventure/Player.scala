@@ -20,6 +20,8 @@ case class Player(
   }
 
   def currentAttributes: AttributeCollection = baseAttributes << equipmentModifier
+
+  def toStatus: String = ""
 }
 
 object PlayerBuilder {

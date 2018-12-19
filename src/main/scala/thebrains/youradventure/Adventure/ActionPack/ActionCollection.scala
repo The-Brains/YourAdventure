@@ -2,15 +2,18 @@ package thebrains.youradventure.Adventure.ActionPack
 
 import scalaz.Maybe
 import scalaz.Maybe.Just
+import thebrains.youradventure.Adventure.Error
+
+import scala.util.Try
 
 class ActionCollection(
-  actions:  List[Action],
+  actions: List[Action],
   question: Maybe[String]
 ) extends BastardActionCollection(actions) {
 
   def getQuestion: Maybe[String] = question
 
-  def ++(other: ActionCollection): ActionCollection = {
+  override def ++(other: ActionCollection): ActionCollection = {
     ActionCollection.append(this, other)
   }
 
@@ -21,12 +24,43 @@ class ActionCollection(
   override def ++(other: Action): ActionCollection = {
     this ++ other.asCollection
   }
+
+  def getAction(key: String): Either[Error, Maybe[Action]] = {
+    key match {
+      case i if Try(i.toInt).toOption.isDefined =>
+        getIndexedActionsMap.get(i.toInt) match {
+          case Some(a) => Right(Just(a))
+          case None =>
+            Left(
+              Error(
+                "Action not found",
+                s"Could not find action for id '$i', " +
+                  s"among: ${getIndexedActionsMap.keys.mkString(", ")}"
+              )
+            )
+        }
+      case k =>
+        getActions.find(a => a.getLowerCaseName == k.toLowerCase) match {
+          case Some(a) => Right(Just(a))
+          case None =>
+            Left(
+              Error(
+                "Action not found",
+                s"Could not find action for '$k', among: ${validActions.mkString(", ")}"
+              )
+            )
+        }
+    }
+  }
 }
 
 class BastardActionCollection(actions: List[Action]) {
   def getActions: List[Action] = actions
 
   @transient lazy val getIndexedActions: List[(Int, Action)] = actions.zipWithIndex.map(_.swap)
+  @transient lazy val getIndexedActionsMap: Map[Int, Action] = getIndexedActions.toMap
+
+  @transient lazy val validActions: List[String] = getActions.map(_.getLowerCaseName)
 
   def toCustomMap: Map[String, Action] = {
     actions.map(a => (a.getName, a)).toMap
@@ -55,6 +89,10 @@ class BastardActionCollection(actions: List[Action]) {
   def ++(other: Action): BastardActionCollection = {
     BastardActionCollection.append(this, other.asCollection)
   }
+
+  def ++(other: ActionCollection): ActionCollection = {
+    ActionCollection.append(this, other)
+  }
 }
 
 object BastardActionCollection extends scalaz.Monoid[BastardActionCollection] {
@@ -76,7 +114,7 @@ object BastardActionCollection extends scalaz.Monoid[BastardActionCollection] {
 
 object ActionCollection extends scalaz.Monoid[ActionCollection] {
   def apply(
-    action:   Action,
+    action: Action,
     question: String
   ): ActionCollection = {
     new ActionCollection(List(action), Just(question))
@@ -95,5 +133,12 @@ object ActionCollection extends scalaz.Monoid[ActionCollection] {
     f2: => ActionCollection
   ): ActionCollection = {
     new ActionCollection(f1.getActions ++ f2.getActions, f1.getQuestion orElse f2.getQuestion)
+  }
+
+  def append(
+    f1: BastardActionCollection,
+    f2: => ActionCollection
+  ): ActionCollection = {
+    new ActionCollection(f1.getActions ++ f2.getActions, f2.getQuestion)
   }
 }

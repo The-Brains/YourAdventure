@@ -2,38 +2,36 @@ package thebrains.youradventure.TerminalUIPack
 
 import scalaz.Maybe
 
-case class PrintableMessage(
-  tm: TerminalMessage,
-  tp: TerminalPrint
-) {
-  def printToConsole(): Unit = {
-    tm displayWith tp
-  }
-}
-
 abstract class TerminalMessage(
-  messages:   List[String],
+  messages: List[String],
   isQuestion: Boolean
 ) {
   lazy protected val question: Option[String] = if (isQuestion) Some(messages.last) else None
   lazy protected val messageToShow: Seq[String] =
     if (isQuestion) messages.dropRight(1) else messages
 
-  def displayWith(tp: TerminalPrint): Unit = {
+  protected def printToConsole(tp: TerminalPrint): Unit = {
     tp.printToConsole(messageToShow)
-  }
 
-  def toPrintableMessage(tp: TerminalPrint): PrintableMessage = {
-    PrintableMessage(this, tp)
   }
 }
 
-case class DisplayMessage(messages: List[String]) extends TerminalMessage(messages, false)
+case class DisplayMessage(messages: List[String])
+  extends TerminalMessage(messages, isQuestion = false) {
+  def displayWith(tp: TerminalPrint): Unit = {
+    printToConsole(tp)
+  }
+}
 
-case class DisplayQuestion(messages: List[String]) extends TerminalMessage(messages, true) {
-  override def displayWith(tp: TerminalPrint): Unit = {
-    super.displayWith(tp)
-    tp.askText(question.get)
+case class DisplayQuestion(messages: List[String])
+  extends TerminalMessage(messages, isQuestion = true) {
+
+  def displayWithQuestionAnd(
+    tp: TerminalPrint,
+    answer: Maybe[String] = Maybe.empty
+  ): String = {
+    printToConsole(tp)
+    tp.askText(question.get, answer)
   }
 }
 
@@ -48,12 +46,11 @@ object TerminalMessageBuilder {
       this.addLine("")
     }
 
-    def finishWithQuestion(text: Maybe[String]): TerminalMessage = {
+    def finishWithQuestion(text: Maybe[String]): Either[DisplayQuestion, DisplayMessage] = {
       text match {
-        case Maybe.Just(question) => DisplayQuestion(messages = this.messages :+ question)
-        case Maybe.Empty()        => complete()
+        case Maybe.Just(question) => Left(DisplayQuestion(messages = this.messages :+ question))
+        case Maybe.Empty() => Right(complete())
       }
-
     }
 
     def complete(): DisplayMessage = {

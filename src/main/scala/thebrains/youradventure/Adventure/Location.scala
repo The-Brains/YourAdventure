@@ -8,6 +8,13 @@ class Location(
 
 object Location {
 
+  case object Menu
+      extends Location(
+        name = "Menu Interface",
+        description = "This is a Menu",
+        None
+      )
+
   case object Void
       extends Location(
         name = "void",
@@ -49,4 +56,5 @@ object Location {
         description = "The blue planet, planet Earth",
         parentLocation = Some(SolarSystem)
       )
+
 }

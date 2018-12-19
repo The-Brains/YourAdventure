@@ -1,10 +1,12 @@
 package thebrains.youradventure.Adventure
 
+import scalaz.Maybe
 import thebrains.youradventure.Adventure.ActionPack.{Action, ActionCollection}
 import thebrains.youradventure.Adventure.AttributePack.Attributes
 import thebrains.youradventure.Adventure.TransformationPack._
 import thebrains.youradventure.ParentTest
 import thebrains.youradventure.TerminalUIPack._
+import thebrains.youradventure.BirdUtils.BirdOperator._
 
 class StepTest extends ParentTest {
   "Step" - {
@@ -34,10 +36,79 @@ class StepTest extends ParentTest {
       )
     )
 
-    "Display" - {
-      Renderer(TerminalPrint())
-        .display(step)
-        .printToConsole()
+    val r: Renderer = Renderer(TerminalPrint())
+
+    def processStep(
+      r: Renderer,
+      player: Maybe[Player],
+      step: Step,
+      answer: Maybe[String]
+    ): Maybe[Either[Error, Maybe[Action]]] = {
+      r.display(step, player)
+        .map {
+          case (tp, message) =>
+            message match {
+              case Left(m: DisplayQuestion) =>
+                m.displayWithQuestionAnd(tp, answer) |>
+                  step.getActions(player).getAction
+              case Right(m: DisplayMessage) =>
+                m displayWith tp
+                Right(Maybe.empty)
+            }
+        }
+    }
+
+    def processGame(
+      r: Renderer,
+      player: Maybe[Player],
+      step: Step,
+      answers: List[Maybe[String]]
+    ): Unit = {
+      val output = processStep(r, player, step, answers.headOption match {
+        case Some(a) => a
+        case None => Maybe.empty
+      })
+
+      output
+        .map {
+          case Left(error) =>
+            r.display(error)
+              .map {
+                case (tp, message) =>
+                  message displayWith tp
+              }
+            if (!error.isFatal) {
+              processGame(r, player, step, answers.drop(1))
+            }
+          case Right(Maybe.Just(action)) =>
+            processGame(r, player, action.targetStep, answers.drop(1))
+          case Right(Maybe.Empty()) => () // End of game
+        }
+    }
+
+    "Display" in {
+      processGame(
+        r,
+        Maybe.empty,
+        step,
+        List(
+          Maybe.Just("1")
+        )
+      )
+    }
+
+    "Display with player" in {
+      processGame(
+        r,
+        Maybe.Just(
+          PlayerBuilder.create("test").selectRace(Races.Human)
+        ),
+        step,
+        List(
+          Maybe.Just("0"),
+          Maybe.Just("4")
+        )
+      )
     }
   }
 }
