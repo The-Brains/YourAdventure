@@ -2,7 +2,7 @@ package thebrains.youradventure.Adventure.TransformationPack
 
 import thebrains.youradventure.Adventure.AttributePack.PlayerAttribute._
 import thebrains.youradventure.Adventure.AttributePack._
-import thebrains.youradventure.Adventure.Error
+import thebrains.youradventure.Utils.Error
 
 case class Transformation(
   attribute:              Attribute,

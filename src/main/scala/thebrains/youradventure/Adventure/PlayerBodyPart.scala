@@ -1,6 +1,7 @@
 package thebrains.youradventure.Adventure
 
 import thebrains.youradventure.Adventure.BodyPack.BodyPart
+import thebrains.youradventure.Utils.Error
 
 case class PlayerBodyPart(
   bodyPart:  BodyPart,

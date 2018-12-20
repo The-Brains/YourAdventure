@@ -2,7 +2,8 @@ package thebrains.youradventure.Adventure
 
 import thebrains.youradventure.Adventure.AttributePack.AttributeCollection
 import thebrains.youradventure.Adventure.TransformationPack.TransformationCollection
-import thebrains.youradventure.TerminalUIPack.Renderer
+import thebrains.youradventure.TerminalUIPack.{DisplayQuestion, Renderer}
+import thebrains.youradventure.Utils.Error
 
 case class Player(
   name:           String,
@@ -53,7 +54,7 @@ object PlayerBuilder {
     PlayerWithName(name)
   }
 
-  def initialize(r: Renderer) = {
+  def initialize(r: Renderer): DisplayQuestion = {
     r.displayEmptyPlayer
   }
 }

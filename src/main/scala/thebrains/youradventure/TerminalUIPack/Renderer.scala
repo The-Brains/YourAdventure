@@ -3,7 +3,8 @@ package thebrains.youradventure.TerminalUIPack
 import scalaz.Maybe.Just
 import scalaz._
 import thebrains.youradventure.Adventure.ActionPack.{Action, ActionCollection}
-import thebrains.youradventure.Adventure.{Error, Player, PlayerBuilder, Step}
+import thebrains.youradventure.Adventure.{Player, PlayerBuilder, Step}
+import thebrains.youradventure.Utils.Error
 
 class Renderer(tp: TerminalPrint) {
 

@@ -1,9 +1,13 @@
-package thebrains.youradventure.Adventure
+package thebrains.youradventure.Utils
+
+import java.io.IOException
+
+import thebrains.youradventure.Adventure.Things
 
 class Error(
-  name:        String,
+  name: String,
   description: String,
-  fatal:       Boolean
+  fatal: Boolean
 ) extends Things(name, description) {
   @transient lazy val toDisplay: String = s"Error: $name - $description"
 
@@ -14,20 +18,31 @@ object Error {
   val Empty: Error = new Error(name = "", description = "", fatal = false)
 
   def apply(
-    name:        String,
+    name: String,
     description: String,
-    isFatal:     Boolean = false
+    isFatal: Boolean = false
   ): Error = {
     new Error(name, description, isFatal)
   }
 
   case class FatalError(
-    name:        String,
+    name: String,
     description: String
   ) extends Error(
-        name,
-        description,
-        fatal = true
-      )
+    name,
+    description,
+    fatal = true
+  )
+
+  private def createFrom(ex: Throwable): Error = {
+    FatalError(
+      ex.getClass.getCanonicalName,
+      ex.getMessage
+    )
+  }
+
+  def apply(ex: IOException): Error = {
+    this.createFrom(ex)
+  }
 
 }

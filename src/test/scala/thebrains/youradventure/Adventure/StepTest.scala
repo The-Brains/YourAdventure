@@ -6,7 +6,8 @@ import thebrains.youradventure.Adventure.AttributePack.Attributes
 import thebrains.youradventure.Adventure.TransformationPack._
 import thebrains.youradventure.ParentTest
 import thebrains.youradventure.TerminalUIPack._
-import thebrains.youradventure.BirdUtils.BirdOperator._
+import thebrains.youradventure.Utils.BirdUtils.BirdOperator._
+import thebrains.youradventure.Utils.Error
 
 class StepTest extends ParentTest {
   "Step" - {

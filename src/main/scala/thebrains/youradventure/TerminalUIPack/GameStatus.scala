@@ -3,6 +3,7 @@ package thebrains.youradventure.TerminalUIPack
 import scalaz.Maybe
 import thebrains.youradventure.Adventure.ActionPack.Action
 import thebrains.youradventure.Adventure._
+import thebrains.youradventure.Utils
 
 class GameStatus(
   universe:      Universe,
@@ -25,11 +26,15 @@ class GameStatus(
     )
   }
 
+  def withPlayer(p: Either[Utils.Error, Player]): Either[Utils.Error, GameStatus] = {
+    p.map(player => this.copy(player = Maybe.Just(player)))
+  }
+
   private def selectRace(
     r:       Renderer,
     p:       PlayerBuilder.PlayerWithName,
     answers: List[Maybe[String]]
-  ): Either[Error, Player] = {
+  ): Either[Utils.Error, Player] = {
     val firstAnswer: Maybe[String] = answers.headOption match {
       case Some(a) => a
       case None    => Maybe.empty
@@ -53,7 +58,7 @@ class GameStatus(
   def startGame(
     r:       Renderer,
     answers: List[Maybe[String]] = Nil
-  ): Either[Error, GameStatus] = {
+  ): Either[Utils.Error, GameStatus] = {
     val firstAnswer: Maybe[String] = answers.headOption match {
       case Some(a) => a
       case None    => Maybe.empty
@@ -78,9 +83,20 @@ class GameStatus(
   }
 
   def getPlayer: Maybe[Player] = this.player
+
+  protected def getUniverse: Universe = this.universe
+
+  protected def getCurrentAction: Maybe[Action] = this.currentAction
+
+  protected def getCurrentStep: Step = this.currentStep
 }
 
 object GameStatus {
+
+  def unapply(arg: GameStatus): Option[(Universe, Step, Maybe[Action], Maybe[Player])] = {
+    Some(arg.getUniverse, arg.getCurrentStep, arg.getCurrentAction, arg.getPlayer)
+  }
+
   def apply(universe: Universe): GameStatus = {
     new GameStatus(universe, universe.getStartingStep, Maybe.empty, Maybe.empty)
   }

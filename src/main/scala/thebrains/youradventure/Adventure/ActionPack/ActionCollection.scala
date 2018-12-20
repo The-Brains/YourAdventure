@@ -2,7 +2,7 @@ package thebrains.youradventure.Adventure.ActionPack
 
 import scalaz.Maybe
 import scalaz.Maybe.Just
-import thebrains.youradventure.Adventure.Error
+import thebrains.youradventure.Utils.Error
 
 import scala.util.Try
 

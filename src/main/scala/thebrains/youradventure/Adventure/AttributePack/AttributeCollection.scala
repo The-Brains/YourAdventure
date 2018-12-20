@@ -1,11 +1,8 @@
 package thebrains.youradventure.Adventure.AttributePack
 
 import thebrains.youradventure.Adventure.AttributePack.PlayerAttribute.AttributeType
-import thebrains.youradventure.Adventure.Error
-import thebrains.youradventure.Adventure.TransformationPack.{
-  Transformation,
-  TransformationCollection
-}
+import thebrains.youradventure.Adventure.TransformationPack.{Transformation, TransformationCollection}
+import thebrains.youradventure.Utils.Error
 
 class AttributeCollection(attributes: Set[PlayerAttribute]) {
   private def toCustomMap: Map[String, PlayerAttribute] = {

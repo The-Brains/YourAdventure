@@ -1,4 +1,4 @@
-package thebrains.youradventure.BirdUtils
+package thebrains.youradventure.Utils.BirdUtils
 
 import scala.language.implicitConversions
 

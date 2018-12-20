@@ -2,6 +2,7 @@ package thebrains.youradventure.Adventure
 
 import thebrains.youradventure.Adventure.AttributePack.{AttributeCollection, Attributes}
 import thebrains.youradventure.Adventure.BodyPack.{BodyPart, BodyParts}
+import thebrains.youradventure.Utils.Error
 
 class Race(
   name:                String,

@@ -1,6 +1,7 @@
 package thebrains.youradventure.Adventure.AttributePack
 
 import thebrains.youradventure.Adventure._
+import thebrains.youradventure.Utils.Error
 
 case class PlayerAttribute(
   attribute: Attribute,
