@@ -1,5 +1,6 @@
 package thebrains.youradventure.Adventure
 
+import scalaz.Maybe
 import thebrains.youradventure.Adventure.AttributePack.{AttributeCollection, Attributes}
 import thebrains.youradventure.Adventure.TransformationPack._
 import thebrains.youradventure.ParentTest
@@ -9,8 +10,8 @@ class PlayerAttributeTest extends ParentTest {
     "as List" - {
       "With Transformation" in {
         val attributes: AttributeCollection =
-          Attributes.Strength.toPlayerAttribute(10) ++
-            Attributes.Constitution.toPlayerAttribute(10)
+          (Attributes.Strength.toPlayerAttribute(10) ++
+            Attributes.Constitution.toPlayerAttribute(10)).right.get
 
         val transformations: TransformationCollection =
           TransformationBuilder
@@ -22,9 +23,9 @@ class PlayerAttributeTest extends ParentTest {
 
         val newAttributes = attributes << transformations
 
-        assertEquals(Some(11), newAttributes.getAttributeValue(Attributes.Strength))
-        assertEquals(Some(10), newAttributes.getAttributeValue(Attributes.Constitution))
-        assertEquals(None, newAttributes.getAttributeValue(Attributes.Intelligence))
+        assertEquals(Maybe.Just(11), newAttributes.getAttributeValue(Attributes.Strength))
+        assertEquals(Maybe.Just(10), newAttributes.getAttributeValue(Attributes.Constitution))
+        assertEquals(Maybe.Empty(), newAttributes.getAttributeValue(Attributes.Intelligence))
       }
     }
   }

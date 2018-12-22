@@ -1,15 +1,16 @@
 package thebrains.youradventure.Adventure.AttributePack
 
+import thebrains.youradventure.Adventure.CollectionPack.{AssemblyItemTrait, AssemblyTrait}
 import thebrains.youradventure.Adventure._
 import thebrains.youradventure.Utils.Error
 
 case class PlayerAttribute(
   attribute: Attribute,
-  value:     PlayerAttribute.AttributeType
+  value: PlayerAttribute.AttributeType
+) extends AssemblyItemTrait(
+  attribute.getName,
+  attribute.getDescription
 ) {
-  def ===(other: PlayerAttribute): Boolean = {
-    this.attribute === other
-  }
 
   def |+|(other: PlayerAttribute): Either[Error, PlayerAttribute] = {
     if (this === other) {
@@ -24,22 +25,25 @@ case class PlayerAttribute(
     }
   }
 
-  override def hashCode(): Int = attribute.getName.hashCode
-
-  override def equals(obj: Any): Boolean = {
-    obj match {
-      case p: PlayerAttribute => p === this
-      case _ => false
+  override def |+|(
+    other: AssemblyItemTrait
+  ): Either[Error, PlayerAttribute] = {
+    other match {
+      case p: PlayerAttribute => this |+| p
+      case _ => Left(Error(
+        "Impossible merge",
+        s"Impossible to merge '${this.toString}' with ${other.toString}"
+      ))
     }
   }
 
-  override def toString: String = s"${attribute.toString} -> $value"
-
-  def asCollection: AttributeCollection = AttributeCollection(this)
-
-  def ++(other: PlayerAttribute): AttributeCollection = asCollection ++ other
-
-  def ++(other: AttributeCollection): AttributeCollection = other ++ this
+  def ++(other: PlayerAttribute): Either[Error, AttributeCollection] = {
+    AttributeCollection(this) ++ AttributeCollection(other) match {
+      case a: AttributeCollection => Right(a)
+      case _ => Left(Error("Cannot convert",
+        "Somehow, not able to combine two 'AttributeCollection' into one."))
+    }
+  }
 }
 
 object PlayerAttribute {

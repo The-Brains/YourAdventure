@@ -1,10 +1,21 @@
 package thebrains.youradventure.Adventure
 
 class Things(
-  name:        String,
+  name: String,
   description: String
 ) {
   override def toString: String = s"'$name'"
+
+  def ===(other: Things): Boolean = this.getName == other.getName
+
+  override def hashCode(): Int = getName.hashCode
+
+  override def equals(obj: Any): Boolean = {
+    obj match {
+      case p: Things => p === this
+      case _ => false
+    }
+  }
 
   lazy val getDescription: String = description
 

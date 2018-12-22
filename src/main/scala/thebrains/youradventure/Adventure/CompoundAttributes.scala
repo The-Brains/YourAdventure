@@ -1,5 +1,6 @@
 package thebrains.youradventure.Adventure
 
+import scalaz.Maybe
 import thebrains.youradventure.Adventure.AttributePack.PlayerAttribute.AttributeType
 import thebrains.youradventure.Adventure.AttributePack.{Attribute, AttributeCollection, Attributes}
 
@@ -24,8 +25,8 @@ abstract class CompoundAttributes2(
     ) {
 
   def compose(
-    attribute1: Option[AttributeType],
-    attribute2: Option[AttributeType]
+    attribute1: Maybe[AttributeType],
+    attribute2: Maybe[AttributeType]
   ): AttributeType
 
   final override def getValue(attributes: AttributeCollection): PlayerValues = {
@@ -67,8 +68,8 @@ object CompoundAttributes {
         attribute2 = Attributes.Constitution
       ) {
     override def compose(
-      attribute1: Option[AttributeType],
-      attribute2: Option[AttributeType]
+      attribute1: Maybe[AttributeType],
+      attribute2: Maybe[AttributeType]
     ): AttributeType = {
       attribute1.getOrElse(0) + attribute2.getOrElse(0)
     }
