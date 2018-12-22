@@ -2,26 +2,41 @@ package thebrains.youradventure.Adventure.TransformationPack
 
 import thebrains.youradventure.Adventure.AttributePack.PlayerAttribute._
 import thebrains.youradventure.Adventure.AttributePack._
+import thebrains.youradventure.Adventure.CollectionPack.AssemblyItemTrait
 import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.BirdUtils.BirdOperator._
 
 case class Transformation(
-  attribute:              Attribute,
-  forwardTransformation:  AttributeTransformation,
+  attribute: Attribute,
+  forwardTransformation: AttributeTransformation,
   backwardTransformation: AttributeTransformation,
-  value:                  AttributeType,
-  operation:              Operation,
-  modification:           Modification
+  value: AttributeType,
+  operation: Operation,
+  modification: Modification
+) extends AssemblyItemTrait(
+  attribute.getName,
+  attribute.getDescription
 ) {
   override def toString: String = s"${attribute.toString} -> $operation $modification $value"
 
-  def asCollection: TransformationCollection = TransformationCollection(this)
+  def ++(other: Transformation): Either[Error, TransformationCollection] = {
+    TransformationCollection(this) ++ other match {
+      case a: TransformationCollection => Right(a)
+      case _ => Left(Error("Cannot convert",
+        "Somehow, not able to combine two 'TransformationCollection' into one."))
+    }
+  }
 
-  def ++(other: Transformation): TransformationCollection = asCollection ++ other
-
-  def ++(other: TransformationCollection): TransformationCollection = other ++ this
+  def ++(other: TransformationCollection): Either[Error, TransformationCollection] = {
+    other ++ this match {
+      case a: TransformationCollection => Right(a)
+      case _ => Left(Error("Cannot convert",
+        "Somehow, not able to combine two 'TransformationCollection' into one."))
+    }
+  }
 
   private def execute(
-    action:          AttributeTransformation,
+    action: AttributeTransformation,
     playerAttribute: PlayerAttribute
   ): Either[Error, PlayerAttribute] = {
     if (playerAttribute.attribute === attribute) {
@@ -51,6 +66,53 @@ case class Transformation(
   def canApply(playerAttribute: PlayerAttribute): Boolean = {
     playerAttribute.attribute === this.attribute
   }
+
+  private def combineOperation(other: Transformation): Operation = {
+    (this.operation, other.operation) match {
+      case (a, b) if a == b => a
+      case _ => Combination
+    }
+  }
+
+  private def combineValue(other: Transformation): AttributeType = {
+    (this.operation, other.operation) match {
+      case (Addition, Addition) => this.value + other.value
+      case (Multiply, Multiply) => this.value * other.value
+      case _ => 0
+    }
+  }
+
+  override def |+|(
+    other: AssemblyItemTrait
+  ): Either[Error, Transformation] = {
+    other match {
+      case t: Transformation if this.attribute === t.attribute =>
+        val forward = (p: Int) => {
+          p |> this.forwardTransformation |> t.forwardTransformation
+        }
+        val backward = (p: Int) => {
+          p |> t.backwardTransformation |> this.backwardTransformation
+        }
+
+        Right(Transformation(
+          attribute = this.attribute,
+          forwardTransformation = forward,
+          backwardTransformation = backward,
+          value = this combineValue t,
+          operation = this combineOperation t,
+          modification = if (forward(10) >= 10) {
+            Increase
+          } else {
+            Decrease
+          }
+        ))
+      case t: Transformation => Left(Error("Canno combine",
+        s"Transformation applied to '${this.attribute.toString}' cannot combine " +
+          s"with transformation applied to '${t.attribute.toString}'."))
+      case _ => Left(Error("Cannot combine",
+        s"Cannot combine '${this.toString}' with '${other.toString}'"))
+    }
+  }
 }
 
 sealed trait Modification
@@ -71,11 +133,13 @@ case object Reduce extends FullOperation
 
 case object Divide extends FullOperation
 
+case object Combination extends Operation
+
 object TransformationBuilder {
 
-  case class TransformValue private (
+  case class TransformValue private(
     operation: Operation,
-    modify:    Modification
+    modify: Modification
   ) {
     private def positive(value: AttributeType)(attributeValue: AttributeType): AttributeType = {
       operation match {
@@ -113,11 +177,11 @@ object TransformationBuilder {
   }
 
   case class TransformationWithValue(
-    forwardTransformation:  AttributeTransformation,
+    forwardTransformation: AttributeTransformation,
     backwardTransformation: AttributeTransformation,
-    value:                  AttributeType,
-    operation:              Operation,
-    modify:                 Modification
+    value: AttributeType,
+    operation: Operation,
+    modify: Modification
   ) {
     def onAttribute(attribute: Attribute): Transformation = {
       Transformation(
@@ -135,14 +199,14 @@ object TransformationBuilder {
     operation match {
       case Addition => willDo(Addition, Increase)
       case Multiply => willDo(Multiply, Increase)
-      case Reduce   => willDo(Addition, Decrease)
-      case Divide   => willDo(Multiply, Decrease)
+      case Reduce => willDo(Addition, Decrease)
+      case Divide => willDo(Multiply, Decrease)
     }
   }
 
   def willDo(
     operation: Operation,
-    modify:    Modification
+    modify: Modification
   ): TransformValue = {
     TransformValue(operation, modify)
   }

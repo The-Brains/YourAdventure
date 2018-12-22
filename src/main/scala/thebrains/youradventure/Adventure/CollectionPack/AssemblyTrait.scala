@@ -6,7 +6,7 @@ import thebrains.youradventure.Utils.Error
 import scala.reflect.ClassTag
 
 abstract class AssemblyTrait[A <: AssemblyItemTrait : ClassTag](items: A*) {
-  protected def toCustomMap: Map[String, A] = {
+  def toCustomMap: Map[String, A] = {
     items.map(a => (a.getName, a)).toMap
   }
 

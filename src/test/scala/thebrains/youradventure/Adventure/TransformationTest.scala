@@ -12,8 +12,8 @@ class TransformationTest extends ParentTest {
 
     def testApply(
       transformation: Transformation,
-      initValue:      AttributeType,
-      expectedValue:  AttributeType
+      initValue: AttributeType,
+      expectedValue: AttributeType
     ): Assertion = {
       val playerAttribute = attribute.toPlayerAttribute(initValue)
       val result = transformation.>>(playerAttribute)
@@ -93,6 +93,24 @@ class TransformationTest extends ParentTest {
         "revert" in {
           testRevert(transformation)
         }
+      }
+    }
+
+    "Combination" - {
+      val transformation1 = TransformationBuilder
+        .willDo(Addition)
+        .byValueOf(10)
+        .onAttribute(attribute)
+
+      val transformation2 = TransformationBuilder
+        .willDo(Addition)
+        .byValueOf(20)
+        .onAttribute(attribute)
+
+      val transformation = (transformation1 |+| transformation2).right.get
+
+      "Should compute the right result" in {
+        testApply(transformation, 10, 40)
       }
     }
   }

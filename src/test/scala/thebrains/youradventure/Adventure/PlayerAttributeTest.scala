@@ -14,12 +14,12 @@ class PlayerAttributeTest extends ParentTest {
             Attributes.Constitution.toPlayerAttribute(10)).right.get
 
         val transformations: TransformationCollection =
-          TransformationBuilder
+          (TransformationBuilder
             .willDo(Addition, Increase)
             .byValueOf(1).onAttribute(Attributes.Strength) ++
             TransformationBuilder
               .willDo(Addition, Decrease)
-              .byValueOf(2).onAttribute(Attributes.Intelligence)
+              .byValueOf(2).onAttribute(Attributes.Intelligence)).right.get
 
         val newAttributes = attributes << transformations
 
