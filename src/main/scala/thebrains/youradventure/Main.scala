@@ -5,6 +5,7 @@ import thebrains.youradventure.Adventure.ActionPack.ActionCollection
 import thebrains.youradventure.Adventure.TransformationPack.TransformationCollection
 import thebrains.youradventure.Adventure._
 import thebrains.youradventure.FPTerminalIO._
+import thebrains.youradventure.Game.GameStatus
 import thebrains.youradventure.Utils.Error
 
 object Main extends App {
