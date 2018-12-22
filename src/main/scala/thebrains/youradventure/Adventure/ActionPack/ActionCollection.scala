@@ -2,6 +2,7 @@ package thebrains.youradventure.Adventure.ActionPack
 
 import scalaz.Maybe
 import scalaz.Maybe.Just
+import scalaz.zio.IO
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyTrait
 import thebrains.youradventure.Utils.Error
 
@@ -14,13 +15,13 @@ class ActionCollection(
 
   def getQuestion: Maybe[String] = question
 
-  def getAction(key: String): Either[Error, Maybe[Action]] = {
+  def getAction(key: String): IO[Error, Action] = {
     key match {
       case i if Try(i.toInt).toOption.isDefined =>
         getIndexedActionsMap.get(i.toInt) match {
-          case Some(a) => Right(Just(a))
+          case Some(a) => IO.sync(a)
           case None =>
-            Left(
+            IO.fail(
               Error(
                 "Action not found",
                 s"Could not find action for id '$i', " +
@@ -30,9 +31,9 @@ class ActionCollection(
         }
       case k =>
         getActions.find(a => a.getLowerCaseName == k.toLowerCase) match {
-          case Some(a) => Right(Just(a))
+          case Some(a) => IO.sync(a)
           case None =>
-            Left(
+            IO.fail(
               Error(
                 "Action not found",
                 s"Could not find action for '$k', among: ${validActions.mkString(", ")}"

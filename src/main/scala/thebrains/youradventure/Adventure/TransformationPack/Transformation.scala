@@ -1,5 +1,6 @@
 package thebrains.youradventure.Adventure.TransformationPack
 
+import scalaz.zio.IO
 import thebrains.youradventure.Adventure.AttributePack.PlayerAttribute._
 import thebrains.youradventure.Adventure.AttributePack._
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyItemTrait
@@ -38,15 +39,15 @@ case class Transformation(
   private def execute(
     action: AttributeTransformation,
     playerAttribute: PlayerAttribute
-  ): Either[Error, PlayerAttribute] = {
+  ): IO[Error, PlayerAttribute] = {
     if (playerAttribute.attribute === attribute) {
-      Right(
+      IO.sync(
         playerAttribute.copy(
           value = action(playerAttribute.value)
         )
       )
     } else {
-      Left(
+      IO.fail(
         Error(
           "Wrong attribute for transformation",
           s"Transformation apply to ${attribute.toString}, not for ${playerAttribute.toString}"
@@ -55,11 +56,11 @@ case class Transformation(
     }
   }
 
-  def >>(playerAttribute: PlayerAttribute): Either[Error, PlayerAttribute] = {
+  def >>(playerAttribute: PlayerAttribute): IO[Error, PlayerAttribute] = {
     execute(forwardTransformation, playerAttribute)
   }
 
-  def revert(playerAttribute: PlayerAttribute): Either[Error, PlayerAttribute] = {
+  def revert(playerAttribute: PlayerAttribute): IO[Error, PlayerAttribute] = {
     execute(backwardTransformation, playerAttribute)
   }
 
@@ -84,7 +85,7 @@ case class Transformation(
 
   override def |+|(
     other: AssemblyItemTrait
-  ): Either[Error, Transformation] = {
+  ): IO[Error, Transformation] = {
     other match {
       case t: Transformation if this.attribute === t.attribute =>
         val forward = (p: Int) => {
@@ -94,7 +95,7 @@ case class Transformation(
           p |> t.backwardTransformation |> this.backwardTransformation
         }
 
-        Right(Transformation(
+        IO.sync(Transformation(
           attribute = this.attribute,
           forwardTransformation = forward,
           backwardTransformation = backward,
@@ -106,10 +107,10 @@ case class Transformation(
             Decrease
           }
         ))
-      case t: Transformation => Left(Error("Canno combine",
+      case t: Transformation => IO.fail(Error("Cannot combine",
         s"Transformation applied to '${this.attribute.toString}' cannot combine " +
           s"with transformation applied to '${t.attribute.toString}'."))
-      case _ => Left(Error("Cannot combine",
+      case _ => IO.fail(Error("Cannot combine",
         s"Cannot combine '${this.toString}' with '${other.toString}'"))
     }
   }

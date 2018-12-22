@@ -1,34 +1,32 @@
 package thebrains.youradventure.Adventure.AttributePack
 
 import scalaz.Maybe
+import scalaz.zio.IO
 import thebrains.youradventure.Adventure.AttributePack.PlayerAttribute.AttributeType
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyTrait
 import thebrains.youradventure.Adventure.TransformationPack._
 import thebrains.youradventure.Utils.Error
+import scalaz.zio.IO
 
 class AttributeCollection(attributes: Set[PlayerAttribute])
   extends AssemblyTrait[PlayerAttribute](attributes.toSeq: _*) {
 
-  def <<(applyTransformations: TransformationCollection): AttributeCollection = {
-    val newAttributes = (this.toCustomMap.mapValues(p => (Some(p), None)).toList ++
+  def <<(applyTransformations: TransformationCollection): IO[Error, AttributeCollection] = {
+    IO.sequence((this.toCustomMap.mapValues(p => (Some(p), None)).toList ++
       applyTransformations.toCustomMap.mapValues(t => (None, Some(t))).toList)
       .groupBy(_._1)
       .map {
         case (_, attributeTransformations) =>
-          val transformations = attributeTransformations.flatMap(_._2._2)
           val attributesToTransform = attributeTransformations.flatMap(_._2._1)
+          val transformations = attributeTransformations.flatMap(_._2._2)
 
           val startedAttribute = AttributeCollection(attributesToTransform: _*).reduceAll
-          transformations.foldLeft[Either[Error, PlayerAttribute]](startedAttribute) {
-            case (Right(attribute), transformation: Transformation) => transformation >> attribute
-            case (error, _) => error
-          }
-      }
-      .filter(_.isRight)
-      .map(_.right.get)
-      .toSet
 
-    AttributeCollection(newAttributes)
+          transformations.foldLeft(startedAttribute) {
+            case (io, t: Transformation) => io.flatMap(a => t >> a)
+          }
+      })
+      .map(s => AttributeCollection(s.toSet))
   }
 
   def getAttribute[A <: Attribute](attribute: A): Maybe[PlayerAttribute] = {

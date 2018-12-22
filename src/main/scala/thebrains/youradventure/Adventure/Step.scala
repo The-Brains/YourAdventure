@@ -1,6 +1,7 @@
 package thebrains.youradventure.Adventure
 
 import scalaz.Maybe
+import scalaz.zio.IO
 import thebrains.youradventure.Adventure.ActionPack._
 import thebrains.youradventure.Adventure.TransformationPack.TransformationCollection
 import thebrains.youradventure.Utils.Error
@@ -12,6 +13,8 @@ class Step(
   transformations: TransformationCollection,
   availableActions: ActionCollection
 ) extends Things(name, description) {
+  @transient lazy val getLocation: Location = location
+
   private def playerMenu(player: Player): Step = {
     this match {
       case s: Steps.PlayerStatusStep => s.step.playerMenu(player)
@@ -19,15 +22,18 @@ class Step(
     }
   }
 
-  def getActions(playerMaybe: Maybe[Player]): Either[Error, ActionCollection] = {
+  def getActions(player: Player): IO[Error, ActionCollection] = {
     if (this.availableActions.isEmpty) {
-      Right(this.availableActions)
+      IO.sync(this.availableActions)
     } else {
-      playerMaybe
-        .map(player => Actions.playerStatusMenu(player, playerMenu)) match {
-        case Maybe.Just(playerMenu) => playerMenu ++ availableActions
-        case Maybe.Empty() => Right(availableActions)
-      }
+      Actions.playerStatusMenu(player, playerMenu) ++ availableActions
+    }
+  }
+
+  def getActions(playerMaybe: Maybe[Player]): IO[Error, ActionCollection] = {
+    playerMaybe match {
+      case Maybe.Just(p) => getActions(p)
+      case Maybe.Empty() => IO.sync(this.availableActions)
     }
   }
 }

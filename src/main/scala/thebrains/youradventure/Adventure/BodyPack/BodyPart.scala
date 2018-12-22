@@ -1,8 +1,8 @@
 package thebrains.youradventure.Adventure.BodyPack
 
+import scalaz.zio.IO
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyItemTrait
 import thebrains.youradventure.Adventure.PlayerBodyPart
-import thebrains.youradventure.Utils
 import thebrains.youradventure.Utils.Error
 
 // TODO: Set a BodyPart collection like Attribute and Transformation
@@ -31,14 +31,14 @@ case class BodyPart(
 
   override def |+|(
     other: AssemblyItemTrait
-  ): Either[Utils.Error, AssemblyItemTrait] = {
-    Left(Error("You cannot combine body parts", "Body parts cannot be combined"))
+  ): IO[Error, AssemblyItemTrait] = {
+    IO.fail(Error("You cannot combine body parts", "Body parts cannot be combined"))
   }
 
-  def ++(other: BodyPart): Either[Error, BodyCollection] = {
+  def ++(other: BodyPart): IO[Error, BodyCollection] = {
     BodyCollection(this) ++ BodyCollection(other) match {
-      case a: BodyCollection => Right(a)
-      case _ => Left(Error("Cannot convert",
+      case a: BodyCollection => IO.sync(a)
+      case _ => IO.fail(Error("Cannot convert",
         "Somehow, not able to combine two 'BodyCollection' into one."))
     }
   }

@@ -37,6 +37,32 @@ class TerminalPrint {
     }
   }
 
+  def display(message: TerminalMessage): IO[Error, Input] = {
+    for {
+      _ <- this.printToConsole(message.messageToShow)
+      s <- askQuestion(message)
+    } yield {
+      s
+    }
+  }
+
+  private def askQuestion(message: TerminalMessage): IO[Error, Input] = {
+    message.question match {
+      case Maybe.Just(q) => this.askText(q).map(InputFilled)
+      case Maybe.Empty() => IO.sync(InputEmpty)
+    }
+  }
+
+  def render(g: GameStatus): IO[Error, GameStatus] = {
+    for {
+      m <- g.getNextMessage
+      s <- this.display(m)
+      newState <- g.consume(s)
+    } yield {
+      newState
+    }
+  }
+
   /**
     * Protected for test
     */
@@ -82,7 +108,7 @@ class TerminalPrint {
 
   private def ask[A](getValue: => IO[Error, A])(
     question: String,
-    answer: Maybe[A] = Maybe.empty
+    answer: Maybe[A]
   ): IO[Error, A] = {
     for {
       _ <- printToConsole(question)

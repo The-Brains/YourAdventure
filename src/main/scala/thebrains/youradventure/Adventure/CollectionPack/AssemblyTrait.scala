@@ -1,6 +1,7 @@
 package thebrains.youradventure.Adventure.CollectionPack
 
 import scalaz.Maybe
+import scalaz.zio.IO
 import thebrains.youradventure.Utils.Error
 
 import scala.reflect.ClassTag
@@ -16,16 +17,20 @@ abstract class AssemblyTrait[A <: AssemblyItemTrait : ClassTag](items: A*) {
 
   def foreach(f: A => Unit): Unit = items.foreach(f)
 
-  protected def reduceAll: Either[Error, A] = {
-    items
-      .foldLeft[Either[Error, A]](Left(Error.Empty)) {
-      case (Right(a), b) => a |+| b match {
-        case Right(valid: A) => Right(valid)
-        case Left(error) => Left(error)
-        case Right(_) => Left(Error("Cannot convert",
-          "Somehow cannot convert to the right AssemblyTrait."))
+  protected def reduceAll: IO[Error, A] = {
+    items match {
+      case head :: second :: tail =>
+        val c = head |+| second
+        c.flatMap {
+          case a: A => wrap(a +: tail: _*).reduceAll
+          case _ => IO.fail(Error("Cannot convert", "Cannot convert to 'A'."))
+        }
+      case head :: second :: Nil => (head |+| second).flatMap {
+        case a: A => IO.sync(a)
+        case _ => IO.fail(Error("Cannot convert", "Cannot convert to 'A'."))
       }
-      case (Left(_), b) => Right(b)
+      case head :: Nil => IO.sync(head)
+      case Nil => IO.fail(Error("Empty list", "There is nothing to combine"))
     }
   }
 
