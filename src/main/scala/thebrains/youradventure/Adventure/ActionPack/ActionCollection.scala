@@ -2,28 +2,17 @@ package thebrains.youradventure.Adventure.ActionPack
 
 import scalaz.Maybe
 import scalaz.Maybe.Just
+import thebrains.youradventure.Adventure.CollectionPack.AssemblyTrait
 import thebrains.youradventure.Utils.Error
 
 import scala.util.Try
 
 class ActionCollection(
-  actions:  List[Action],
+  actions: List[Action],
   question: Maybe[String]
 ) extends BastardActionCollection(actions) {
 
   def getQuestion: Maybe[String] = question
-
-  override def ++(other: ActionCollection): ActionCollection = {
-    ActionCollection.append(this, other)
-  }
-
-  override def ++(other: BastardActionCollection): ActionCollection = {
-    ActionCollection.append(this, new ActionCollection(other.getActions, Maybe.empty))
-  }
-
-  override def ++(other: Action): ActionCollection = {
-    this ++ other.asCollection
-  }
 
   def getAction(key: String): Either[Error, Maybe[Action]] = {
     key match {
@@ -54,73 +43,32 @@ class ActionCollection(
   }
 }
 
-class BastardActionCollection(actions: List[Action]) {
-  def isEmpty: Boolean = actions.isEmpty
-
-  def nonEmpty: Boolean = actions.nonEmpty
+class BastardActionCollection(actions: List[Action])
+  extends AssemblyTrait[Action](actions: _*) {
 
   def getActions: List[Action] = actions
 
-  @transient lazy val getIndexedActions:    List[(Int, Action)] = actions.zipWithIndex.map(_.swap)
+  @transient lazy val getIndexedActions: List[(Int, Action)] = actions.zipWithIndex.map(_.swap)
   @transient lazy val getIndexedActionsMap: Map[Int, Action] = getIndexedActions.toMap
 
   @transient lazy val validActions: List[String] = getActions.map(_.getLowerCaseName)
 
-  def toCustomMap: Map[String, Action] = {
-    actions.map(a => (a.getName, a)).toMap
-  }
-
-  def map(f: Action => Action): List[Action] = {
-    actions.map(f)
-  }
-
-  def flatMap(f: Action => List[Action]): List[Action] = {
-    actions.flatMap(f)
-  }
-
-  def filter(p: Action ⇒ Boolean): List[Action] = {
-    actions.filter(p)
-  }
-
-  def foreach(f: Action => Unit): Unit = {
-    actions.foreach(f)
-  }
-
-  def ++(other: BastardActionCollection): BastardActionCollection = {
-    BastardActionCollection.append(this, other)
-  }
-
-  def ++(other: Action): BastardActionCollection = {
-    BastardActionCollection.append(this, other.asCollection)
-  }
-
-  def ++(other: ActionCollection): ActionCollection = {
-    ActionCollection.append(this, other)
+  override protected def wrap(items: Action*): BastardActionCollection = {
+    new BastardActionCollection(items.toList)
   }
 }
 
-object BastardActionCollection extends scalaz.Monoid[BastardActionCollection] {
+object BastardActionCollection {
   def apply(action: Action): BastardActionCollection = {
     new BastardActionCollection(List(action))
   }
 
   case object Empty extends BastardActionCollection(Nil)
 
-  override def zero: BastardActionCollection = Empty
-
-  override def append(
-    f1: BastardActionCollection,
-    f2: => BastardActionCollection
-  ): BastardActionCollection = {
-    new BastardActionCollection(f1.getActions ++ f2.getActions)
-  }
 }
 
-object ActionCollection extends scalaz.Monoid[ActionCollection] {
-  def apply(
-    action:   Action,
-    question: String
-  ): ActionCollection = {
+object ActionCollection {
+  def apply(action: Action, question: String): ActionCollection = {
     new ActionCollection(List(action), Just(question))
   }
 
@@ -130,19 +78,4 @@ object ActionCollection extends scalaz.Monoid[ActionCollection] {
 
   case object Empty extends ActionCollection(Nil, Maybe.empty)
 
-  override def zero: ActionCollection = Empty
-
-  override def append(
-    f1: ActionCollection,
-    f2: => ActionCollection
-  ): ActionCollection = {
-    new ActionCollection(f1.getActions ++ f2.getActions, f1.getQuestion orElse f2.getQuestion)
-  }
-
-  def append(
-    f1: BastardActionCollection,
-    f2: => ActionCollection
-  ): ActionCollection = {
-    new ActionCollection(f1.getActions ++ f2.getActions, f2.getQuestion)
-  }
 }

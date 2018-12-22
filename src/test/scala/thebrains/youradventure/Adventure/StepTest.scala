@@ -6,7 +6,6 @@ import thebrains.youradventure.Adventure.AttributePack.Attributes
 import thebrains.youradventure.Adventure.TransformationPack._
 import thebrains.youradventure.ParentTest
 import thebrains.youradventure.TerminalUIPack._
-import thebrains.youradventure.Utils.BirdUtils.BirdOperator._
 import thebrains.youradventure.Utils.Error
 
 class StepTest extends ParentTest {
@@ -50,8 +49,9 @@ class StepTest extends ParentTest {
           case (tp, message) =>
             message match {
               case Left(m: DisplayQuestion) =>
-                m.displayWithQuestionAnd(tp, answer) |>
-                  step.getActions(player).getAction
+                  step
+                    .getActions(player)
+                    .flatMap(_.getAction(m.displayWithQuestionAnd(tp, answer)))
               case Right(m: DisplayMessage) =>
                 m displayWith tp
                 Right(Maybe.empty)

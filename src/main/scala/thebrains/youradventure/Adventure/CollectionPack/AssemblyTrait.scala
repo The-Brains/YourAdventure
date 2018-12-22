@@ -10,6 +10,12 @@ abstract class AssemblyTrait[A <: AssemblyItemTrait : ClassTag](items: A*) {
     items.map(a => (a.getName, a)).toMap
   }
 
+  def isEmpty: Boolean = items.isEmpty
+
+  def nonEmpty: Boolean = items.nonEmpty
+
+  def foreach(f: A => Unit): Unit = items.foreach(f)
+
   protected def reduceAll: Either[Error, A] = {
     items
       .foldLeft[Either[Error, A]](Left(Error.Empty)) {

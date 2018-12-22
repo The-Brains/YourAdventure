@@ -34,24 +34,30 @@ class Renderer(tp: TerminalPrint) {
   }
 
   def display(
-    step:   Step,
+    step: Step,
     player: Maybe[Player]
   ): Maybe[(TerminalPrint, Either[DisplayQuestion, DisplayMessage])] = {
-    Just(
-      tp,
-      display(
-        TerminalMessageBuilder
-          .start()
-          .addLine(s"--- ${step.getCapitalizeName} ---")
-          .addLine(step.getDescription)
-          .addEmptyLine,
-        step.getActions(player)
-      )
-    )
+    step.getActions(player) match {
+      case Right(a) =>
+        Just(
+          tp,
+          display(
+            TerminalMessageBuilder
+              .start()
+              .addLine(s"--- ${
+                step.getCapitalizeName
+              } ---")
+              .addLine(step.getDescription)
+              .addEmptyLine,
+            a
+          )
+        )
+      case Left(error) => display(error).map { case (t, message) => (t, Right(message)) }
+    }
   }
 
   private def display(
-    buffer:  TerminalMessageBuilder.MessageAssembly,
+    buffer: TerminalMessageBuilder.MessageAssembly,
     actions: ActionCollection
   ): Either[DisplayQuestion, DisplayMessage] = {
     actions.getIndexedActions
@@ -62,7 +68,7 @@ class Renderer(tp: TerminalPrint) {
 
   private def display(
     buffer: TerminalMessageBuilder.MessageAssembly,
-    id:     Int,
+    id: Int,
     action: Action
   ): TerminalMessageBuilder.MessageAssembly = {
     buffer
