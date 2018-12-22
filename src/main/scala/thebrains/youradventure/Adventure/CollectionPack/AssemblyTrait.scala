@@ -10,12 +10,15 @@ abstract class AssemblyTrait[A <: AssemblyItemTrait : ClassTag](items: A*) {
     items.map(a => (a.getName, a)).toMap
   }
 
-  protected def combine(a: A, b: A): Either[Error, A]
-
   protected def reduceAll: Either[Error, A] = {
     items
       .foldLeft[Either[Error, A]](Left(Error.Empty)) {
-      case (Right(a), b) => combine(a, b)
+      case (Right(a), b) => a |+| b match {
+        case Right(valid: A) => Right(valid)
+        case Left(error) => Left(error)
+        case Right(_) => Left(Error("Cannot convert",
+          "Somehow cannot convert to the right AssemblyTrait."))
+      }
       case (Left(_), b) => Right(b)
     }
   }

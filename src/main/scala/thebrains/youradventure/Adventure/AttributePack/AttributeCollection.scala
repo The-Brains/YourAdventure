@@ -44,13 +44,6 @@ class AttributeCollection(attributes: Set[PlayerAttribute])
   ): AssemblyTrait[PlayerAttribute] = {
     new AttributeCollection(items.toSet)
   }
-
-  override protected def combine(
-    a: PlayerAttribute,
-    b: PlayerAttribute
-  ): Either[Error, PlayerAttribute] = {
-    a |+| b
-  }
 }
 
 object AttributeCollection {

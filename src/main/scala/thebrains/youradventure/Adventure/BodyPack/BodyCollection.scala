@@ -1,17 +1,21 @@
 package thebrains.youradventure.Adventure.BodyPack
 
-class BodyCollection {}
+import thebrains.youradventure.Adventure.CollectionPack.AssemblyTrait
+import thebrains.youradventure.Utils
+import thebrains.youradventure.Utils.Error
 
-object BodyCollection extends scalaz.Monoid[BodyCollection] {
+class BodyCollection(bodyParts: BodyPart*) extends AssemblyTrait[BodyPart](bodyParts: _*) {
+  override protected def wrap(
+    items: BodyPart*
+  ): BodyCollection = {
+    new BodyCollection(items: _*)
+  }
+}
+
+object BodyCollection {
 
   case object Empty extends BodyCollection()
 
-  override def zero: BodyCollection = Empty
+  def apply(bodyParts: BodyPart*): BodyCollection = new BodyCollection(bodyParts: _*)
 
-  override def append(
-    f1: BodyCollection,
-    f2: => BodyCollection
-  ): BodyCollection = {
-    ???
-  }
 }
