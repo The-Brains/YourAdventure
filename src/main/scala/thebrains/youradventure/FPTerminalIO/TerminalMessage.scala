@@ -3,7 +3,7 @@ package thebrains.youradventure.FPTerminalIO
 import scalaz.Maybe
 
 case class TerminalMessage(
-  messages: List[String],
+  messages:   List[String],
   isQuestion: Boolean
 ) {
   lazy val question: Maybe[String] = if (isQuestion) Maybe.Just(messages.last) else Maybe.empty
@@ -28,8 +28,8 @@ object TerminalMessageBuilder {
 
     def finishWithQuestion(text: Maybe[String]): TerminalMessage = {
       text match {
-        case Maybe.Just(question) => TerminalMessage(messages = this.messages :+ question,
-          isQuestion = true)
+        case Maybe.Just(question) =>
+          TerminalMessage(messages = this.messages :+ question, isQuestion = true)
         case Maybe.Empty() => complete()
       }
     }

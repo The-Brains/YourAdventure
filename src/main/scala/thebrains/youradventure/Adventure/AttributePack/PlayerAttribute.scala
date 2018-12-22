@@ -6,11 +6,11 @@ import thebrains.youradventure.Utils.Error
 
 case class PlayerAttribute(
   attribute: Attribute,
-  value: PlayerAttribute.AttributeType
+  value:     PlayerAttribute.AttributeType
 ) extends AssemblyItemTrait(
-  attribute.getName,
-  attribute.getDescription
-) {
+      attribute.getName,
+      attribute.getDescription
+    ) {
 
   def |+|(other: PlayerAttribute): Either[Error, PlayerAttribute] = {
     if (this === other) {
@@ -25,23 +25,29 @@ case class PlayerAttribute(
     }
   }
 
-  override def |+|(
-    other: AssemblyItemTrait
-  ): IO[Error, PlayerAttribute] = {
+  override def |+|(other: AssemblyItemTrait): IO[Error, PlayerAttribute] = {
     other match {
       case p: PlayerAttribute => this |+| p
-      case _ => IO.fail(Error(
-        "Impossible merge",
-        s"Impossible to merge '${this.toString}' with ${other.toString}"
-      ))
+      case _ =>
+        IO.fail(
+          Error(
+            "Impossible merge",
+            s"Impossible to merge '${this.toString}' with ${other.toString}"
+          )
+        )
     }
   }
 
   def ++(other: PlayerAttribute): IO[Error, AttributeCollection] = {
     AttributeCollection(this) ++ AttributeCollection(other) match {
       case a: AttributeCollection => IO.sync(a)
-      case _ => IO.fail(Error("Cannot convert",
-        "Somehow, not able to combine two 'AttributeCollection' into one."))
+      case _ =>
+        IO.fail(
+          Error(
+            "Cannot convert",
+            "Somehow, not able to combine two 'AttributeCollection' into one."
+          )
+        )
     }
   }
 }

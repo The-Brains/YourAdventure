@@ -27,42 +27,49 @@ class Renderer() {
       .makeQuestion(PlayerBuilder.RaceQuestion)
   }
 
-  def display(error: Error): TerminalMessage = {
-    TerminalMessageBuilder
-      .start()
-      .addLine(error.getCapitalizeName)
-      .addLine(error.getDescription)
-      .complete()
+  def display(error: Error): IO[Nothing, TerminalMessage] = {
+    IO.sync(
+      TerminalMessageBuilder
+        .start()
+        .addLine(error.getCapitalizeName)
+        .addLine(error.getDescription)
+        .complete()
+    )
   }
 
   def display(
-    step: Step,
+    step:   Step,
     player: Maybe[Player]
   ): IO[Error, TerminalMessage] = {
     for {
       actions <- step.getActions(player)
     } yield {
-      display(TerminalMessageBuilder
-        .start()
-        .addLine(s"--- ${step.getCapitalizeName} ---")
-        .addLine(step.getDescription)
-        .addEmptyLine, actions)
+      display(
+        TerminalMessageBuilder
+          .start()
+          .addLine(s"--- ${step.getCapitalizeName} ---")
+          .addLine(step.getDescription)
+          .addEmptyLine,
+        actions
+      )
     }
   }
 
   private def display(
-    buffer: TerminalMessageBuilder.MessageAssembly,
+    buffer:  TerminalMessageBuilder.MessageAssembly,
     actions: ActionCollection
   ): TerminalMessage = {
     actions.getIndexedActions
-      .foldLeft(buffer) { case (b, (i, a)) => display(b, i, a) }
+      .foldLeft(buffer) {
+        case (b, (i, a)) => display(b, i, a)
+      }
       .addEmptyLine
       .finishWithQuestion(actions.getQuestion)
   }
 
   private def display(
     buffer: TerminalMessageBuilder.MessageAssembly,
-    id: Int,
+    id:     Int,
     action: Action
   ): TerminalMessageBuilder.MessageAssembly = {
     buffer

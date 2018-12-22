@@ -1,7 +1,7 @@
 package thebrains.youradventure.Adventure
 
 class Things(
-  name: String,
+  name:        String,
   description: String
 ) {
   override def toString: String = s"'$name'"

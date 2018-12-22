@@ -25,16 +25,15 @@ object Main extends App {
       )
     )
 
-    myAppLogic(tp, game)
-      .attempt
-      .map(_.fold(e => {
-        tp.display(Renderer().display(e))
-        1
-      }, _ => 0))
+    myAppLogic(tp, game).attempt
+      .map(_.fold(_ => 1, _ => 0))
       .map(ExitStatus.ExitNow(_))
   }
 
-  def myAppLogic(tp: TerminalPrint, game: GameStatus): IO[Error, GameStatus] = {
+  def myAppLogic(
+    tp:   TerminalPrint,
+    game: GameStatus
+  ): IO[Error, GameStatus] = {
     for {
       n <- tp.render(game)
       g <- myAppLogic(tp, n)

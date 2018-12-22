@@ -2,7 +2,7 @@ package thebrains.youradventure.Adventure
 
 class Universe(
   availableRaces: List[Race],
-  startingStep: Step
+  startingStep:   Step
 ) {
   @transient lazy val getAvailableRaces: List[Race] = availableRaces
 
@@ -29,14 +29,14 @@ class Universe(
 object Universe {
 
   case object Void
-    extends Universe(
-      availableRaces = Nil,
-      startingStep = Steps.EmptyStep
-    )
+      extends Universe(
+        availableRaces = Nil,
+        startingStep = Steps.EmptyStep
+      )
 
   def apply(
     availableRaces: List[Race],
-    startingStep: Step
+    startingStep:   Step
   ): Universe = {
     new Universe(availableRaces, startingStep)
   }

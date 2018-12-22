@@ -49,9 +49,9 @@ class StepTest extends ParentTest {
           case (tp, message) =>
             message match {
               case Left(m: DisplayQuestion) =>
-                  step
-                    .getActions(player)
-                    .flatMap(_.getAction(m.displayWithQuestionAnd(tp, answer)))
+                step
+                  .getActions(player)
+                  .flatMap(_.getAction(m.displayWithQuestionAnd(tp, answer)))
               case Right(m: DisplayMessage) =>
                 m displayWith tp
                 Right(Maybe.empty)

@@ -6,12 +6,12 @@ import thebrains.youradventure.Adventure.TransformationPack.TransformationCollec
 import thebrains.youradventure.Utils.Error
 
 case class Player(
-  name: String,
-  journey: List[Step],
-  consumables: List[Consumable],
-  bodyParts: List[PlayerBodyPart],
+  name:           String,
+  journey:        List[Step],
+  consumables:    List[Consumable],
+  bodyParts:      List[PlayerBodyPart],
   baseAttributes: AttributeCollection,
-  race: Race
+  race:           Race
 ) extends PlayerTrait {
   private def equipments: List[Equipment] = bodyParts.flatMap(_.equipment)
 
@@ -51,9 +51,14 @@ object PlayerBuilder {
     def selectRace(availableRaces: List[Race])(race: String): IO[Error, Player] = {
       availableRaces.find(_.getLowerCaseName == race.toLowerCase) match {
         case Some(r) => IO.sync(selectRace(r))
-        case None => IO.fail(Error("Not found race",
-          s"Could not found '$race' among: " +
-            s"${availableRaces.map(_.getCapitalizeName).mkString(", ")}"))
+        case None =>
+          IO.fail(
+            Error(
+              "Not found race",
+              s"Could not found '$race' among: " +
+                s"${availableRaces.map(_.getCapitalizeName).mkString(", ")}"
+            )
+          )
       }
     }
   }

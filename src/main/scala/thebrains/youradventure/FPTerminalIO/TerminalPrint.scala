@@ -55,8 +55,8 @@ class TerminalPrint {
 
   def render(g: GameStatus): IO[Error, GameStatus] = {
     for {
-      m <- g.getNextMessage
-      s <- this.display(m)
+      m        <- g.getNextMessage
+      s        <- this.display(m)
       newState <- g.consume(s)
     } yield {
       newState
@@ -106,20 +106,23 @@ class TerminalPrint {
     }
   }
 
-  private def ask[A](getValue: => IO[Error, A])(
+  private def ask[A](
+    getValue: => IO[Error, A]
+  )(
     question: String,
-    answer: Maybe[A]
+    answer:   Maybe[A]
   ): IO[Error, A] = {
     for {
       _ <- printToConsole(question)
       _ <- printSameLine("?> ")
       output <- {
         answer match {
-          case Maybe.Just(a) => for {
-            _ <- printToConsole(a.toString)
-          } yield {
-            a
-          }
+          case Maybe.Just(a) =>
+            for {
+              _ <- printToConsole(a.toString)
+            } yield {
+              a
+            }
           case Maybe.Empty() => getValue
         }
       }
@@ -130,14 +133,14 @@ class TerminalPrint {
 
   def askText(
     question: String,
-    answer: Maybe[String] = Maybe.empty
+    answer:   Maybe[String] = Maybe.empty
   ): IO[Error, String] = {
     ask(getString)(question, answer)
   }
 
   def askInt(
     question: String,
-    answer: Maybe[Int] = Maybe.empty
+    answer:   Maybe[Int] = Maybe.empty
   ): IO[Error, Int] = {
     ask(getInt)(question, answer)
   }
@@ -160,9 +163,9 @@ object TerminalPrint {
 
   private def terminalWidth: Option[Int] = terminalSize.map(_.getColumns)
 
-  private val NewLineChar: String = "\n"
+  private val NewLineChar:         String = "\n"
   private val DefaultTerminalSize: Int = 80
-  private val Margin: Int = 10
+  private val Margin:              Int = 10
 
   def maxLineLength: Int = terminalWidth.getOrElse(DefaultTerminalSize) - Margin
 
