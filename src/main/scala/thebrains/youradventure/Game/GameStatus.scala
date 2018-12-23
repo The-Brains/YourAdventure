@@ -64,13 +64,16 @@ object GameStatus {
     )
   }
 
-  def apply(universe: Universe): GameStatus = {
+  def apply(
+    renderer: Renderer,
+    universe: Universe
+  ): GameStatus = {
     new GameStatus(
       universe,
       universe.getStartingStep,
       Maybe.empty,
       Maybe.empty,
-      Renderer(),
+      renderer,
       Maybe.empty
     )
   }

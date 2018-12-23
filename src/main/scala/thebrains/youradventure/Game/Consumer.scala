@@ -13,25 +13,20 @@ private[Game] class Consumer(
   updater: Updater
 ) {
 
+  import Consumer._
+
   def consume(input: Input): IO[Error, GameStatus] = {
     this
       .consumeError(input)
-      .flatMap {
-        case (i: InputFilled, g) =>
-          g.consumer
-            .updatePlayer(i)
-            .flatMap {
-              case (i: InputFilled, gg) => gg.consumer updateWith i
-              case (InputEmpty, gg) => IO.sync(gg)
-            }
-        case (InputEmpty, g) => IO.sync(g)
-      }
+      .mightJumpNextChain { case CMsgS(i, g) => g.consumer.updatePlayer(i) }
+      .tailChain { case CMsgS(i, g) => g.consumer.updateWith(i) }
   }
 
-  private def consumeError(input: Input): IO[Error, (Input, GameStatus)] = {
+  private def consumeError(input: Input): IO[Error, CMsg] = {
     game.getCurrentError match {
-      case Maybe.Just(_) => IO.sync((InputEmpty, updater.removeError()))
-      case Maybe.Empty() => IO.sync((input, game))
+      case Maybe.Just(_) =>
+        IO.sync(CMsg(InputEmpty, updater.removeError(), passNext = true))
+      case Maybe.Empty() => IO.sync(CMsg(input, game, passNext = false))
     }
   }
 
@@ -74,7 +69,7 @@ private[Game] class Consumer(
     }
   }
 
-  private def updatePlayer(input: Input): IO[Error, (Input, GameStatus)] = {
+  private def updatePlayer(input: Input): IO[Error, CMsg] = {
     game.getPlayer match {
       case Maybe.Empty() =>
         for {
@@ -82,7 +77,7 @@ private[Game] class Consumer(
           player    <- PlayerBuilder.create(inputData.input)
           game      <- updater.withPlayer(player)
         } yield {
-          (InputEmpty, game)
+          CMsg(InputEmpty, game, passNext = true)
         }
       case Maybe.Just(p: PlayerWithName) =>
         (for {
@@ -93,10 +88,62 @@ private[Game] class Consumer(
           (InputEmpty, game)
         }).attempt
           .map {
-            case Left(error)   => (InputEmpty, updater.withError(error))
-            case Right((i, g)) => (i, g)
+            case Left(error)   => CMsg(InputEmpty, updater.withError(error), passNext = true)
+            case Right((i, g)) => CMsg(i, g, passNext = true)
           }
-      case _ => IO.sync((input, game))
+      case _ => IO.sync(CMsg(input, game, passNext = false))
     }
   }
+}
+
+object Consumer {
+
+  private case class CMsg(
+    input:    Input,
+    game:     GameStatus,
+    passNext: Boolean
+  ) {
+    def toStable: CMsgS = CMsgS(input, game)
+  }
+
+  private case class CMsgS(
+    input: Input,
+    game:  GameStatus
+  )
+
+  implicit private class JumpIO(io: IO[Error, CMsg]) {
+    def mightJumpNext(next: CMsgS => IO[Error, CMsgS]): IO[Error, CMsgS] = {
+      io.flatMap {
+        case CMsg(_, _, test) =>
+          if (test) {
+            io.map(_.toStable)
+          } else {
+            io.map(_.toStable).flatMap(next)
+          }
+      }
+    }
+
+    def mightJumpNextChain(next: CMsgS => IO[Error, CMsg]): IO[Error, CMsg] = {
+      io.flatMap {
+        case CMsg(_, _, test) =>
+          if (test) {
+            io
+          } else {
+            io.map(_.toStable).flatMap(next)
+          }
+      }
+    }
+
+    def tailChain(next: CMsgS => IO[Error, GameStatus]): IO[Error, GameStatus] = {
+      io.flatMap {
+        case CMsg(_, _, test) =>
+          if (test) {
+            io.map { case CMsg(_, g, _) => g }
+          } else {
+            io.map(_.toStable).flatMap(next)
+          }
+      }
+    }
+  }
+
 }

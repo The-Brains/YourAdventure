@@ -10,8 +10,10 @@ import thebrains.youradventure.Utils.Error
 
 object Main extends App {
   override def run(args: List[String]): IO[Nothing, ExitStatus] = {
+    val renderer = Renderer()
     val tp = TerminalPrint()
     val game = GameStatus(
+      renderer,
       Universe(
         availableRaces = List(
           Races.Human
@@ -27,8 +29,30 @@ object Main extends App {
     )
 
     myAppLogic(tp, game).attempt
-      .map(_.fold(_ => 1, _ => 0))
-      .map(ExitStatus.ExitNow(_))
+      .flatMap[Error, Unit] {
+        case Left(e) =>
+          (for {
+            m <- renderer.display(e)
+            _ <- tp.display(m)
+            m <- renderer.displayEmptyLine
+            _ <- tp.display(m)
+          } yield {
+            ()
+          }).flatMap { _ =>
+            IO.fail(e)
+          }
+        case Right(g) =>
+          for {
+            m <- renderer.display(g.toString)
+            _ <- tp.display(m)
+          } yield {}
+      }
+      .attempt
+      .map[Int] {
+        case Left(_: Error) => 1
+        case Right(_) => 0
+      }
+      .map[ExitStatus](ExitStatus.ExitNow(_))
   }
 
   def myAppLogic(

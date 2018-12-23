@@ -27,6 +27,15 @@ class Renderer() {
       .makeQuestion(PlayerBuilder.RaceQuestion)
   }
 
+  def display(txt: String): IO[Nothing, TerminalMessage] = {
+    IO.sync(
+      TerminalMessageBuilder
+        .start()
+        .addLine(txt)
+        .complete()
+    )
+  }
+
   def display(error: Error): IO[Nothing, TerminalMessage] = {
     IO.sync(
       TerminalMessageBuilder
@@ -35,6 +44,10 @@ class Renderer() {
         .addLine(error.getDescription)
         .complete()
     )
+  }
+
+  def displayEmptyLine: IO[Nothing, TerminalMessage] = {
+    IO.sync(TerminalMessageBuilder.start().complete())
   }
 
   def display(

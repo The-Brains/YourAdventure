@@ -82,11 +82,11 @@ class TerminalPrint {
     txt.mkString(TerminalPrint.NewLineChar)
   }
 
-  def printToConsole(txt: Seq[String]): IO[Nothing, Unit] = {
+  private def printToConsole(txt: Seq[String]): IO[Nothing, Unit] = {
     txt |> previewTextToPrint |> assemble |> printText
   }
 
-  def printToConsole(txt: String): IO[Nothing, Unit] = {
+  private def printToConsole(txt: String): IO[Nothing, Unit] = {
     txt |> previewTextToPrint |> assemble |> printText
   }
 
@@ -132,14 +132,14 @@ class TerminalPrint {
     }
   }
 
-  def askText(
+  private def askText(
     question: String,
     answer:   Maybe[String] = Maybe.empty
   ): IO[Error, String] = {
     ask(getString)(question, answer)
   }
 
-  def askInt(
+  private def askInt(
     question: String,
     answer:   Maybe[Int] = Maybe.empty
   ): IO[Error, Int] = {
