@@ -1,5 +1,6 @@
 package thebrains.youradventure.Adventure.CollectionPack
 
+import io.circe.Json
 import scalaz.Maybe
 import scalaz.zio.IO
 import thebrains.youradventure.Utils.Error
@@ -10,6 +11,10 @@ abstract class AssemblyTrait[A <: AssemblyItemTrait: ClassTag](items: A*) {
   def toCustomMap: Map[String, A] = {
     items.map(a => (a.getName, a)).toMap
   }
+
+  def encoded: List[Json] = items.map(_.encoded).toList
+
+  override def toString: String = s"[${items.map(_.toString).mkString(", ")}]"
 
   def isEmpty: Boolean = items.isEmpty
 

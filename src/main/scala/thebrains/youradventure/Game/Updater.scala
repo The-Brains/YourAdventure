@@ -18,7 +18,7 @@ private[Game] class Updater(game: GameStatus) {
   ): GameStatus = {
     new GameStatus(
       universe = universe.getOrElse(this.game.getUniverse),
-      currentStep = currentStep.getOrElse(this.game.getCurrentStep),
+      currentStep = currentStep.orElse(this.game.getCurrentStep),
       currentAction = currentAction.orElse(this.game.getCurrentAction),
       player = player.orElse(this.game.getPlayer),
       renderer = renderer.getOrElse(this.game.getRenderer),
@@ -51,6 +51,19 @@ private[Game] class Updater(game: GameStatus) {
         player = this.game.getPlayer,
         renderer = this.game.getRenderer,
         currentError = this.game.getCurrentError
+      )
+    )
+  }
+
+  def removeStep(): IO[Error, GameStatus] = {
+    IO.sync(
+      new GameStatus(
+        universe = this.game.getUniverse,
+        currentStep = Maybe.empty,
+        currentAction = Maybe.empty,
+        player = this.game.getPlayer,
+        renderer = this.game.getRenderer,
+        currentError = Maybe.empty
       )
     )
   }

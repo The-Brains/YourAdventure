@@ -2,7 +2,7 @@ package thebrains.youradventure.Game
 
 import scalaz.Maybe
 import scalaz.zio.IO
-import thebrains.youradventure.Adventure.ActionPack.Action
+import thebrains.youradventure.Adventure.ActionPack.{Action, ActionCollection}
 import thebrains.youradventure.Adventure.PlayerBuilder.PlayerWithName
 import thebrains.youradventure.Adventure._
 import thebrains.youradventure.FPTerminalIO._
@@ -18,8 +18,16 @@ private[Game] class Consumer(
   def consume(input: Input): IO[Error, GameStatus] = {
     this
       .consumeError(input)
+      .mightJumpNextChain { case CMsgS(i, g) => g.consumer.endGame(i) }
       .mightJumpNextChain { case CMsgS(i, g) => g.consumer.updatePlayer(i) }
       .tailChain { case CMsgS(i, g) => g.consumer.updateWith(i) }
+  }
+
+  private def endGame(i: Input): IO[Error, CMsg] = {
+    game.getCurrentStep match {
+      case Maybe.Just(_) => IO.sync(CMsg(i, game, passNext = false))
+      case Maybe.Empty() => IO.sync(CMsg(InputEmpty, game, passNext = true))
+    }
   }
 
   private def consumeError(input: Input): IO[Error, CMsg] = {
@@ -34,8 +42,21 @@ private[Game] class Consumer(
     game match {
       case GameStatus(_, _, _, Maybe.Just(a), Maybe.Just(p: Player), _) =>
         this.applyAction(a, p)
-      case GameStatus(_, _, s, Maybe.Empty(), Maybe.Just(p: Player), _) =>
-        this.selectAction(input, s, p)
+      case GameStatus(_, _, Maybe.Just(s), Maybe.Empty(), Maybe.Just(p: Player), _) =>
+        pickAction(input, s, p)
+    }
+  }
+
+  private def pickAction(
+    input: Input,
+    s:     Step,
+    p:     Player
+  ): IO[Error, GameStatus] = {
+    for {
+      actions <- s.getActions(p)
+      g       <- if (actions.nonEmpty) selectAction(input, actions) else game.updater.removeStep()
+    } yield {
+      g
     }
   }
 
@@ -55,12 +76,10 @@ private[Game] class Consumer(
   }
 
   private def selectAction(
-    input: Input,
-    s:     Step,
-    p:     Player
+    input:   Input,
+    actions: ActionCollection
   ): IO[Error, GameStatus] = {
     for {
-      actions   <- s.getActions(p)
       inputData <- Input.getContent(input)
       action    <- actions.getAction(inputData.input)
       game      <- updater.withAction(action)

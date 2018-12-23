@@ -1,18 +1,19 @@
 package thebrains.youradventure.Adventure.BodyPack
 
+import io.circe.{Encoder, Json}
+import scalaz.Maybe
 import scalaz.zio.IO
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyItemTrait
-import thebrains.youradventure.Adventure.PlayerBodyPart
 import thebrains.youradventure.Utils.Error
-
-// TODO: Set a BodyPart collection like Attribute and Transformation
+import io.circe.generic.auto._
+import io.circe.syntax._
 
 case class BodyPart(
   name:        String,
   description: String,
   descriptor:  String
 ) extends AssemblyItemTrait(name, description) {
-  def toPlayerBodyPart: PlayerBodyPart = PlayerBodyPart(this, None)
+  def toPlayerBodyPart: PlayerBodyPart = PlayerBodyPart(this, Maybe.empty)
 
   def samePart(other: BodyPart): Boolean = name == other.name
 
@@ -21,13 +22,14 @@ case class BodyPart(
     this.descriptor == other.descriptor
   }
 
-  override def toString: String = {
-    if (descriptor.isEmpty) {
-      super.toString
-    } else {
-      s"'$descriptor $name'"
+  implicit private val jsonEncoder: Encoder[BodyPart] =
+    Encoder.forProduct2[BodyPart, String, String]("name", "descriptor") {
+      case BodyPart(n, _, d) => (n, d)
     }
-  }
+
+  override def encoded: Json = this.asJson
+
+  override def toString: String = encoded.noSpaces
 
   override def |+|(other: AssemblyItemTrait): IO[Error, AssemblyItemTrait] = {
     IO.fail(Error("You cannot combine body parts", "Body parts cannot be combined"))

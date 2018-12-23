@@ -46,6 +46,10 @@ class Renderer() {
     )
   }
 
+  def displayEndGame: IO[Nothing, TerminalMessage] = {
+    display("Thanks for playing. The End.")
+  }
+
   def displayEmptyLine: IO[Nothing, TerminalMessage] = {
     IO.sync(TerminalMessageBuilder.start().complete())
   }

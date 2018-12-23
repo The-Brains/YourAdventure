@@ -44,7 +44,7 @@ object Main extends App {
         case Right(g) =>
           for {
             m <- renderer.display(g.toString)
-            _ <- tp.display(m)
+            _ <- tp.display(m, ignoreLineLength = true)
           } yield {}
       }
       .attempt
@@ -61,7 +61,7 @@ object Main extends App {
   ): IO[Error, GameStatus] = {
     for {
       n <- tp.render(game)
-      g <- myAppLogic(tp, n)
+      g <- if (game.isCompleted) IO.sync(game) else myAppLogic(tp, n)
     } yield {
       g
     }

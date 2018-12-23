@@ -1,8 +1,11 @@
 package thebrains.youradventure.Adventure.AttributePack
 
+import io.circe.{Encoder, Json}
 import scalaz.zio.IO
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyItemTrait
 import thebrains.youradventure.Utils.Error
+import io.circe.generic.auto._
+import io.circe.syntax._
 
 case class PlayerAttribute(
   attribute: Attribute,
@@ -11,6 +14,14 @@ case class PlayerAttribute(
       attribute.getName,
       attribute.getDescription
     ) {
+  implicit private val jsonEncoder: Encoder[PlayerAttribute] =
+    Encoder.forProduct2[PlayerAttribute, String, PlayerAttribute.AttributeType]("name", "value") {
+      case PlayerAttribute(a, v) => (a.getName, v)
+    }
+
+  override def encoded: Json = this.asJson
+
+  override def toString: String = this.asJson.noSpaces
 
   def |+|(other: PlayerAttribute): Either[Error, PlayerAttribute] = {
     if (this === other) {

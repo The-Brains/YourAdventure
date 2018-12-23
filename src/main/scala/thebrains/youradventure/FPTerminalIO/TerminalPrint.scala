@@ -23,33 +23,48 @@ class TerminalPrint {
     txt.reverse.dropWhile(_ != ' ').length
   }
 
-  private def splitLine(txt: String): List[String] = {
-    if (txt.length > TerminalPrint.maxLineLength) {
-      val newLimit = lengthToFarSparce(txt.substring(0, TerminalPrint.maxLineLength))
-      val finalEdge = if (newLimit < TerminalPrint.maxLineLength / 2) {
-        TerminalPrint.maxLineLength
-      } else {
-        newLimit
-      }
-      txt.substring(0, finalEdge) +:
-        splitLine(txt.substring(finalEdge))
-    } else {
+  private def splitLine(
+    txt:              String,
+    ignoreLineLength: Boolean
+  ): List[String] = {
+    if (ignoreLineLength) {
       List(txt)
+    } else {
+      if (txt.length > TerminalPrint.maxLineLength) {
+        val newLimit = lengthToFarSparce(txt.substring(0, TerminalPrint.maxLineLength))
+        val finalEdge = if (newLimit < TerminalPrint.maxLineLength / 2) {
+          TerminalPrint.maxLineLength
+        } else {
+          newLimit
+        }
+        txt.substring(0, finalEdge) +:
+          splitLine(txt.substring(finalEdge), ignoreLineLength)
+      } else {
+        List(txt)
+      }
     }
   }
 
-  def display(message: TerminalMessage): IO[Error, Input] = {
+  def display(
+    message:          TerminalMessage,
+    answer:           Maybe[String] = Maybe.empty,
+    ignoreLineLength: Boolean = false
+  ): IO[Error, Input] = {
     for {
-      _ <- this.printToConsole(message.messageToShow)
-      s <- askQuestion(message)
+      _ <- this.printToConsole(message.messageToShow, ignoreLineLength)
+      s <- askQuestion(message, answer, ignoreLineLength)
     } yield {
       s
     }
   }
 
-  private def askQuestion(message: TerminalMessage): IO[Error, Input] = {
+  private def askQuestion(
+    message:          TerminalMessage,
+    answer:           Maybe[String] = Maybe.empty,
+    ignoreLineLength: Boolean
+  ): IO[Error, Input] = {
     message.question match {
-      case Maybe.Just(q) => this.askText(q).map(InputFilled)
+      case Maybe.Just(q) => this.askText(q, answer, ignoreLineLength).map(InputFilled)
       case Maybe.Empty() => IO.sync(InputEmpty)
     }
   }
@@ -67,27 +82,39 @@ class TerminalPrint {
   /**
     * Protected for test
     */
-  protected def previewTextToPrint(txt: Seq[String]): Seq[String] = {
-    txt.flatMap(splitLine)
+  protected def previewTextToPrint(
+    txt:              Seq[String],
+    ignoreLineLength: Boolean
+  ): Seq[String] = {
+    txt.flatMap(t => splitLine(t, ignoreLineLength))
   }
 
   /**
     * Protected for test
     */
-  protected def previewTextToPrint(txt: String): Seq[String] = {
-    previewTextToPrint(txt.split(TerminalPrint.NewLineChar))
+  protected def previewTextToPrint(
+    txt:              String,
+    ignoreLineLength: Boolean
+  ): Seq[String] = {
+    previewTextToPrint(txt.split(TerminalPrint.NewLineChar), ignoreLineLength)
   }
 
   private def assemble(txt: Seq[String]): String = {
     txt.mkString(TerminalPrint.NewLineChar)
   }
 
-  private def printToConsole(txt: Seq[String]): IO[Nothing, Unit] = {
-    txt |> previewTextToPrint |> assemble |> printText
+  private def printToConsole(
+    txt:              Seq[String],
+    ignoreLineLength: Boolean
+  ): IO[Nothing, Unit] = {
+    txt |> (previewTextToPrint(_, ignoreLineLength)) |> assemble |> printText
   }
 
-  private def printToConsole(txt: String): IO[Nothing, Unit] = {
-    txt |> previewTextToPrint |> assemble |> printText
+  private def printToConsole(
+    txt:              String,
+    ignoreLineLength: Boolean
+  ): IO[Nothing, Unit] = {
+    txt |> (previewTextToPrint(_, ignoreLineLength)) |> assemble |> printText
   }
 
   private def printSameLine(txt: String): IO[Nothing, Unit] = {
@@ -110,17 +137,18 @@ class TerminalPrint {
   private def ask[A](
     getValue: => IO[Error, A]
   )(
-    question: String,
-    answer:   Maybe[A]
+    question:         String,
+    answer:           Maybe[A],
+    ignoreLineLength: Boolean
   ): IO[Error, A] = {
     for {
-      _ <- printToConsole(question)
+      _ <- printToConsole(question, ignoreLineLength)
       _ <- printSameLine("?> ")
       output <- {
         answer match {
           case Maybe.Just(a) =>
             for {
-              _ <- printToConsole(a.toString)
+              _ <- printToConsole(a.toString, ignoreLineLength)
             } yield {
               a
             }
@@ -133,17 +161,19 @@ class TerminalPrint {
   }
 
   private def askText(
-    question: String,
-    answer:   Maybe[String] = Maybe.empty
+    question:         String,
+    answer:           Maybe[String] = Maybe.empty,
+    ignoreLineLength: Boolean
   ): IO[Error, String] = {
-    ask(getString)(question, answer)
+    ask(getString)(question, answer, ignoreLineLength)
   }
 
   private def askInt(
-    question: String,
-    answer:   Maybe[Int] = Maybe.empty
+    question:         String,
+    answer:           Maybe[Int] = Maybe.empty,
+    ignoreLineLength: Boolean
   ): IO[Error, Int] = {
-    ask(getInt)(question, answer)
+    ask(getInt)(question, answer, ignoreLineLength)
   }
 }
 
