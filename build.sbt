@@ -41,9 +41,9 @@ addCommandAlias("checkAll", "; fixCheck; fmtCheck; styleCheck")
 // SCALAZ
 val scalaZVersion = "7.2.27"
 libraryDependencies ++= Seq(
-  "org.scalaz" %% "scalaz-core"   % scalaZVersion,
-  "org.scalaz" %% "scalaz-effect" % scalaZVersion,
-  "org.scalaz" %% "scalaz-zio"    % "0.5.1"
+  "org.scalaz" %% "scalaz-core" % scalaZVersion,
+//  "org.scalaz" %% "scalaz-effect" % scalaZVersion,
+  "org.scalaz" %% "scalaz-zio" % "0.5.1"
 )
 //////////////
 

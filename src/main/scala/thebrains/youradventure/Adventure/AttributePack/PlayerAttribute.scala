@@ -1,15 +1,27 @@
 package thebrains.youradventure.Adventure.AttributePack
 
+import io.circe.{Encoder, Json}
+import scalaz.zio.IO
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyItemTrait
 import thebrains.youradventure.Utils.Error
+import io.circe.generic.auto._
+import io.circe.syntax._
 
 case class PlayerAttribute(
   attribute: Attribute,
-  value: PlayerAttribute.AttributeType
+  value:     PlayerAttribute.AttributeType
 ) extends AssemblyItemTrait(
-  attribute.getName,
-  attribute.getDescription
-) {
+      attribute.getName,
+      attribute.getDescription
+    ) {
+  implicit private val jsonEncoder: Encoder[PlayerAttribute] =
+    Encoder.forProduct2[PlayerAttribute, String, PlayerAttribute.AttributeType]("name", "value") {
+      case PlayerAttribute(a, v) => (a.getName, v)
+    }
+
+  override def encoded: Json = this.asJson
+
+  override def toString: String = this.asJson.noSpaces
 
   def |+|(other: PlayerAttribute): Either[Error, PlayerAttribute] = {
     if (this === other) {
@@ -24,23 +36,29 @@ case class PlayerAttribute(
     }
   }
 
-  override def |+|(
-    other: AssemblyItemTrait
-  ): Either[Error, PlayerAttribute] = {
+  override def |+|(other: AssemblyItemTrait): IO[Error, PlayerAttribute] = {
     other match {
       case p: PlayerAttribute => this |+| p
-      case _ => Left(Error(
-        "Impossible merge",
-        s"Impossible to merge '${this.toString}' with ${other.toString}"
-      ))
+      case _ =>
+        IO.fail(
+          Error(
+            "Impossible merge",
+            s"Impossible to merge '${this.toString}' with ${other.toString}"
+          )
+        )
     }
   }
 
-  def ++(other: PlayerAttribute): Either[Error, AttributeCollection] = {
+  def ++(other: PlayerAttribute): IO[Error, AttributeCollection] = {
     AttributeCollection(this) ++ AttributeCollection(other) match {
-      case a: AttributeCollection => Right(a)
-      case _ => Left(Error("Cannot convert",
-        "Somehow, not able to combine two 'AttributeCollection' into one."))
+      case a: AttributeCollection => IO.sync(a)
+      case _ =>
+        IO.fail(
+          Error(
+            "Cannot convert",
+            "Somehow, not able to combine two 'AttributeCollection' into one."
+          )
+        )
     }
   }
 }

@@ -12,8 +12,8 @@ class TransformationTest extends ParentTest {
 
     def testApply(
       transformation: Transformation,
-      initValue: AttributeType,
-      expectedValue: AttributeType
+      initValue:      AttributeType,
+      expectedValue:  AttributeType
     ): Assertion = {
       val playerAttribute = attribute.toPlayerAttribute(initValue)
       val result = transformation.>>(playerAttribute)

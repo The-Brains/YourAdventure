@@ -1,9 +1,15 @@
 package thebrains.youradventure.Adventure
 
+import io.circe.Json
+import io.circe.generic.auto._
+import io.circe.syntax._
+
 class Things(
-  name: String,
+  name:        String,
   description: String
 ) {
+  def encoded: Json = name.asJson
+
   override def toString: String = s"'$name'"
 
   def ===(other: Things): Boolean = this.getName == other.getName
@@ -17,9 +23,9 @@ class Things(
     }
   }
 
-  lazy val getDescription: String = description
+  lazy val getDescription: String = description.trim
 
-  lazy val getName: String = name
+  lazy val getName: String = name.trim
 
   lazy val getLowerCaseName: String = name.toLowerCase
 

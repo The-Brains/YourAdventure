@@ -1,5 +1,6 @@
 package thebrains.youradventure.Adventure
 
+import scalaz.zio.IO
 import thebrains.youradventure.Adventure.AttributePack.{AttributeCollection, Attributes}
 import thebrains.youradventure.Adventure.BodyPack.{BodyPart, BodyParts}
 import thebrains.youradventure.Utils.Error
@@ -44,11 +45,11 @@ object Races {
 
   lazy private val ListOfAllRaces: String = AllRaces.map(_.getName).mkString(", ")
 
-  def fromString(race: String): Either[Error, Race] = {
+  def fromString(race: String): IO[Error, Race] = {
     race.toLowerCase match {
-      case Human.getLowerCaseName => Right(Human)
+      case Human.getLowerCaseName => IO.sync(Human)
       case _ =>
-        Left(
+        IO.fail(
           Error(
             "Unknown Race",
             s"The race '$race' was not found among: $ListOfAllRaces"

@@ -3,10 +3,8 @@ package thebrains.youradventure.Adventure.TransformationPack
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyTrait
 
 class TransformationCollection(transformations: List[Transformation])
-  extends AssemblyTrait[Transformation](transformations: _*) {
-  override protected def wrap(
-    items: Transformation*
-  ): AssemblyTrait[Transformation] = {
+    extends AssemblyTrait[Transformation](transformations: _*) {
+  override protected def wrap(items: Transformation*): AssemblyTrait[Transformation] = {
     new TransformationCollection(items.toList)
   }
 
