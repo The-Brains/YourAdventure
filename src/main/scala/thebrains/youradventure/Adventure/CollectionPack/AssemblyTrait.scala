@@ -7,12 +7,14 @@ import thebrains.youradventure.Utils.Error
 
 import scala.reflect.ClassTag
 
-abstract class AssemblyTrait[A <: AssemblyItemTrait: ClassTag](items: A*) {
+abstract class AssemblyTrait[THIS <: AssemblyTrait[THIS,A], A <: AssemblyItemTrait : ClassTag](
+  items: List[A]
+) {
   def toCustomMap: Map[String, A] = {
     items.map(a => (a.getName, a)).toMap
   }
 
-  def encoded: List[Json] = items.map(_.encoded).toList
+  def encoded: List[Json] = items.map(_.encoded)
 
   override def toString: String = s"[${items.map(_.toString).mkString(", ")}]"
 
@@ -36,27 +38,29 @@ abstract class AssemblyTrait[A <: AssemblyItemTrait: ClassTag](items: A*) {
           case _ => IO.fail(Error("Cannot convert", "Cannot convert to 'A'."))
         }
       case head :: Nil => IO.sync(head)
-      case Nil         => IO.fail(Error("Empty list", "There is nothing to combine"))
+      case Nil => IO.fail(Error("Empty list", "There is nothing to combine"))
     }
   }
 
   def find(p: A => Boolean): Maybe[A] = Maybe.fromOption(items.find(p))
 
-  def map(f: A => A): AssemblyTrait[A] = wrap(items.map(f): _*)
+  def map(f: A => A): THIS = wrap(items.map(f): _*)
 
-  def flatMap(f: A => AssemblyTrait[A]): AssemblyTrait[A] = {
+  def outMap[B](f: A => B): List[B] = items.map(f)
+
+  def flatMap(f: A => THIS): THIS = {
     items.map(f).reduce(_ ++ _)
   }
 
-  protected def wrap(items: A*): AssemblyTrait[A]
+  protected def wrap(items: A*): THIS
 
-  def getItems: Seq[A] = items
+  def getItems: List[A] = items
 
-  def ++(other: AssemblyTrait[A]): AssemblyTrait[A] = {
+  def ++(other: THIS): THIS = {
     wrap(this.getItems ++ other.getItems: _*)
   }
 
-  def ++(other: A): AssemblyTrait[A] = {
+  def ++(other: A): THIS = {
     wrap(this.getItems :+ other: _*)
   }
 

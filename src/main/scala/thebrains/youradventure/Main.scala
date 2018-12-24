@@ -2,6 +2,7 @@ package thebrains.youradventure
 
 import scalaz.zio.{App, IO}
 import thebrains.youradventure.Adventure.ActionPack.ActionCollection
+import thebrains.youradventure.Adventure.StepPack.{Step, StepCollection}
 import thebrains.youradventure.Adventure.TransformationPack.TransformationCollection
 import thebrains.youradventure.Adventure._
 import thebrains.youradventure.FPTerminalIO._
@@ -12,12 +13,12 @@ object Main extends App {
   override def run(args: List[String]): IO[Nothing, ExitStatus] = {
     val renderer = Renderer()
     val tp = TerminalPrint()
-    val game = GameStatus(
-      renderer,
-      Universe(
+    (for {
+      universe <- Universe(
         availableRaces = List(
           Races.Human
         ),
+        availableSteps = StepCollection.Empty,
         startingStep = Step(
           name = "Starting step",
           description = "bla bla bla",
@@ -26,37 +27,43 @@ object Main extends App {
           availableActions = ActionCollection.Empty
         )
       )
-    )
+      game = GameStatus(
+        renderer,
+        universe
+      )
+      exit <- myAppLogic(tp, game).attempt
 
-    myAppLogic(tp, game).attempt
+    } yield {
+      exit
+    })
       .flatMap[Error, Unit] {
-        case Left(e) =>
-          (for {
-            m <- renderer.display(e)
-            _ <- tp.display(m)
-            m <- renderer.displayEmptyLine
-            _ <- tp.display(m)
-          } yield {
-            ()
-          }).flatMap { _ =>
-            IO.fail(e)
-          }
-        case Right(g) =>
-          for {
-            m <- renderer.display(g.toString)
-            _ <- tp.display(m, ignoreLineLength = true)
-          } yield {}
-      }
+      case Left(e) =>
+        (for {
+          m <- renderer.display(e)
+          _ <- tp.display(m)
+          m <- renderer.displayEmptyLine
+          _ <- tp.display(m)
+        } yield {
+          ()
+        }).flatMap { _ =>
+          IO.fail(e)
+        }
+      case Right(g) =>
+        for {
+          m <- renderer.display(g.toString)
+          _ <- tp.display(m, ignoreLineLength = true)
+        } yield {}
+    }
       .attempt
       .map[Int] {
-        case Left(_: Error) => 1
-        case Right(_) => 0
-      }
+      case Left(_: Error) => 1
+      case Right(_) => 0
+    }
       .map[ExitStatus](ExitStatus.ExitNow(_))
   }
 
   def myAppLogic(
-    tp:   TerminalPrint,
+    tp: TerminalPrint,
     game: GameStatus
   ): IO[Error, GameStatus] = {
     for {

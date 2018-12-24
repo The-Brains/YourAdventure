@@ -4,6 +4,7 @@ import scalaz.Maybe
 import scalaz.zio.IO
 import thebrains.youradventure.Adventure.ActionPack.{Action, ActionCollection}
 import thebrains.youradventure.Adventure.PlayerBuilder.PlayerWithName
+import thebrains.youradventure.Adventure.StepPack.Step
 import thebrains.youradventure.Adventure._
 import thebrains.youradventure.FPTerminalIO._
 import thebrains.youradventure.Utils.Error
@@ -65,7 +66,7 @@ private[Game] class Consumer(
     p: Player
   ): IO[Error, GameStatus] = {
     for {
-      newStep <- a.getStep
+      newStep <- a.getStep(game.getUniverse.getAvailableSteps)
       player  <- p.addHistory(newStep)
       game    <- updater.withStep(newStep)
       game    <- game.updater.withPlayer(player)

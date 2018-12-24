@@ -6,6 +6,7 @@ import io.circe.syntax._
 import scalaz.Maybe
 import scalaz.zio.IO
 import thebrains.youradventure.Adventure.ActionPack.Action
+import thebrains.youradventure.Adventure.StepPack.Step
 import thebrains.youradventure.Adventure._
 import thebrains.youradventure.FPTerminalIO._
 import thebrains.youradventure.Utils.Error

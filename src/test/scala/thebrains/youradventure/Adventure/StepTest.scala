@@ -3,6 +3,7 @@ package thebrains.youradventure.Adventure
 import scalaz.Maybe
 import thebrains.youradventure.Adventure.ActionPack.{Action, ActionCollection}
 import thebrains.youradventure.Adventure.AttributePack.Attributes
+import thebrains.youradventure.Adventure.StepPack.{Step, Steps}
 import thebrains.youradventure.Adventure.TransformationPack._
 import thebrains.youradventure.ParentTest
 import thebrains.youradventure.TerminalUIPack._

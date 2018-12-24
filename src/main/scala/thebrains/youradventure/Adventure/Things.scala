@@ -1,7 +1,6 @@
 package thebrains.youradventure.Adventure
 
 import io.circe.Json
-import io.circe.generic.auto._
 import io.circe.syntax._
 
 class Things(

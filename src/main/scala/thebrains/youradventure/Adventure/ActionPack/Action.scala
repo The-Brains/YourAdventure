@@ -1,15 +1,18 @@
 package thebrains.youradventure.Adventure.ActionPack
 
+import scalaz.Maybe
 import scalaz.zio.IO
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyItemTrait
+import thebrains.youradventure.Adventure.StepPack.{Step, StepCollection}
+import thebrains.youradventure.Adventure.StepPack.Step.StepName
 import thebrains.youradventure.Adventure._
 import thebrains.youradventure.Utils
 import thebrains.youradventure.Utils.Error
 
 case class Action(
-  name:        String,
+  name: String,
   description: String,
-  targetStep:  Step
+  targetStep: Either[StepName, Step]
 ) extends AssemblyItemTrait(name, description) {
   def ++(availableActions: ActionCollection): IO[Error, ActionCollection] = {
     BastardActionCollection(this) ++ availableActions match {
@@ -27,16 +30,24 @@ case class Action(
     )
   }
 
-  def getStep: IO[Nothing, Step] = {
-    IO.sync(targetStep)
+  def getStep(availableSteps: StepCollection): IO[Error, Step] = {
+    targetStep match {
+      case Right(step) => IO.sync(step)
+      case Left(stepName) => availableSteps.getStep(stepName) match {
+        case Maybe.Just(step) => IO.sync(step)
+        case Maybe.Empty() => IO.fail(Error("Could not find Step",
+          s"The step with the name '$stepName' could not be found."))
+      }
+
+    }
   }
 }
 
 object Actions {
   def playerStatusMenu(
     player: Player,
-    p:      Player => Step
+    p: Player => Step
   ): Action = {
-    Action("Player Status", "Look at your player status", p(player))
+    Action("Player Status", "Look at your player status", Right(p(player)))
   }
 }

@@ -9,10 +9,11 @@ import thebrains.youradventure.Utils.Error
 import io.circe.generic.auto._
 import io.circe.syntax._
 import scalaz.Maybe
+import thebrains.youradventure.Adventure.StepPack.{Step, StepCollection}
 
 case class Player(
   name:           String,
-  journey:        List[Step],
+  journey:        StepCollection,
   consumables:    List[Consumable],
   bodyParts:      List[PlayerBodyPart],
   baseAttributes: AttributeCollection,
@@ -49,7 +50,7 @@ case class Player(
       ) { p: Player =>
         (
           p.name,
-          p.journey.map(_.encoded),
+          p.journey.outMap(_.encoded),
           p.consumables.map(_.encoded),
           p.bodyParts.map(_.encoded),
           p.baseAttributes.encoded,
@@ -74,7 +75,7 @@ object PlayerBuilder {
     def selectRace(race: Race): Player = {
       Player(
         name = name.trim,
-        journey = Nil,
+        journey = StepCollection.Empty,
         consumables = Nil,
         bodyParts = race.bodyParts.map(_.toPlayerBodyPart),
         baseAttributes = race.baseAttributes,
