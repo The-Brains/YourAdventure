@@ -27,20 +27,29 @@ object Main extends App {
           location = Locations.Earth,
           transformations = TransformationCollection.Empty,
           availableActions = ActionCollection("What are you doing?")(
-            Action("Scream", "You are screaming to open up your lungs", Right(Step(
-              name = "Alive",
-              description = "You are alive",
-              location = Locations.Earth,
-              transformations = TransformationCollection(
-                TransformationBuilder
-                  .willDo(Addition)
-                  .byValueOf(1)
-                  .onAttribute(Attributes.Strength)
-              ),
-              availableActions = ActionCollection.Empty
-            ))),
-            Action("Die", "You are one of the numerous baby which don't make it",
-              Right(Steps.EmptyStep))
+            Action(
+              "Scream",
+              "You are screaming to open up your lungs",
+              Right(
+                Step(
+                  name = "Alive",
+                  description = "You are alive",
+                  location = Locations.Earth,
+                  transformations = TransformationCollection(
+                    TransformationBuilder
+                      .willDo(Addition)
+                      .byValueOf(1)
+                      .onAttribute(Attributes.Strength)
+                  ),
+                  availableActions = ActionCollection.Empty
+                )
+              )
+            ),
+            Action(
+              "Die",
+              "You are one of the numerous baby which don't make it",
+              Right(Steps.EmptyStep)
+            )
           )
         )
       )
@@ -52,33 +61,33 @@ object Main extends App {
     } yield {
       exit
     }).flatMap[Error, Unit] {
-      case Left(e) =>
-        (for {
-          m <- renderer.displayErrorAsMessage(e)
-          _ <- tp.display(m)
-          m <- renderer.displayEmptyLine
-          _ <- tp.display(m)
-        } yield {
-          ()
-        }).flatMap { _ =>
-          IO.fail(e)
-        }
-      case Right(g) =>
-        for {
-          m <- renderer.display(g.toString)
-          _ <- tp.display(m, ignoreLineLength = true)
-        } yield {}
-    }
+        case Left(e) =>
+          (for {
+            m <- renderer.displayErrorAsMessage(e)
+            _ <- tp.display(m)
+            m <- renderer.displayEmptyLine
+            _ <- tp.display(m)
+          } yield {
+            ()
+          }).flatMap { _ =>
+            IO.fail(e)
+          }
+        case Right(g) =>
+          for {
+            m <- renderer.display(g.toString)
+            _ <- tp.display(m, ignoreLineLength = true)
+          } yield {}
+      }
       .attempt
       .map[Int] {
-      case Left(_: Error) => 1
-      case Right(_) => 0
-    }
+        case Left(_: Error) => 1
+        case Right(_) => 0
+      }
       .map[ExitStatus](ExitStatus.ExitNow(_))
   }
 
   def myAppLogic(
-    tp: TerminalPrint,
+    tp:   TerminalPrint,
     game: GameStatus
   ): IO[Error, GameStatus] = {
     for {

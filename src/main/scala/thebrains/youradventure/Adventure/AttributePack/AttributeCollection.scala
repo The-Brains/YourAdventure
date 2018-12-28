@@ -41,6 +41,8 @@ class AttributeCollection(attributes: Set[PlayerAttribute])
   override protected def wrap(items: PlayerAttribute*): AttributeCollection = {
     new AttributeCollection(items.toSet)
   }
+
+  override protected def empty: AttributeCollection = AttributeCollection.Empty
 }
 
 object AttributeCollection {

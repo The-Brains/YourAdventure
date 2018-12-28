@@ -30,6 +30,8 @@ class StepCollection(steps: Step*) extends AssemblyTrait[StepCollection, Step](s
   }
 
   def getExtras: List[Step] = getItems.getExtras
+
+  override protected def empty: StepCollection = StepCollection.Empty
 }
 
 object StepCollection {

@@ -39,10 +39,6 @@ class Step(
       case Maybe.Empty() => IO.sync(this.availableActions)
     }
   }
-
-  override def |+|(other: AssemblyItemTrait): IO[Error, Step] = {
-    IO.fail(Error("You cannot combine Steps", "Steps cannot be combined"))
-  }
 }
 
 object Steps {

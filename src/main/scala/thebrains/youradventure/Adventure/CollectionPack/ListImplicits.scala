@@ -10,6 +10,14 @@ object ListImplicits {
     def getExtras: List[A] = {
       l.diff(l.distinct).distinct
     }
+
+    def safeReduce(f: (A, A) => A)(orElse: A): A = {
+      if (l.isEmpty) {
+        orElse
+      } else {
+        l.reduce(f)
+      }
+    }
   }
 
 }

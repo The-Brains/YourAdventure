@@ -9,11 +9,13 @@ import thebrains.youradventure.Utils.Error
 import scala.util.Try
 
 class ActionCollection(
-  actions:  List[Action],
+  actions: List[Action],
   question: Maybe[String]
 ) extends BastardActionCollection(actions) {
 
   def getQuestion: Maybe[String] = question
+
+  override protected def empty: ActionCollection = ActionCollection.Empty
 
   def getAction(key: String): IO[Error, Action] = {
     key match {
@@ -45,11 +47,11 @@ class ActionCollection(
 }
 
 class BastardActionCollection(actions: List[Action])
-    extends AssemblyTrait[BastardActionCollection, Action](actions) {
+  extends AssemblyTrait[BastardActionCollection, Action](actions) {
 
   def getActions: List[Action] = actions
 
-  @transient lazy val getIndexedActions:    List[(Int, Action)] = actions.zipWithIndex.map(_.swap)
+  @transient lazy val getIndexedActions: List[(Int, Action)] = actions.zipWithIndex.map(_.swap)
   @transient lazy val getIndexedActionsMap: Map[Int, Action] = getIndexedActions.toMap
 
   @transient lazy val validActions: List[String] = getActions.map(_.getLowerCaseName)
@@ -61,6 +63,8 @@ class BastardActionCollection(actions: List[Action])
   def ++(other: ActionCollection): ActionCollection = {
     new ActionCollection(actions = this.getActions ++ other.getActions, other.getQuestion)
   }
+
+  override protected def empty: BastardActionCollection = BastardActionCollection.Empty
 }
 
 object BastardActionCollection {
@@ -74,7 +78,7 @@ object BastardActionCollection {
 
 object ActionCollection {
   def apply(
-    action:   Action,
+    action: Action,
     question: String
   ): ActionCollection = {
     new ActionCollection(List(action), Just(question))

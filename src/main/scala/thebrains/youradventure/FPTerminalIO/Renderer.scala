@@ -105,7 +105,7 @@ class Renderer() {
     action: Action
   ): TerminalMessageBuilder.MessageAssembly = {
     buffer
-      .addLine(s"$id - ${action.name} - ${action.description}")
+      .addLine(s"$id - ${action.getName} - ${action.getDescription}")
   }
 
   def emptyMessage: IO[Error, TerminalMessage] = IO.sync(TerminalMessageBuilder.EmptyMessage)

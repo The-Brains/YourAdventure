@@ -1,38 +1,54 @@
 package thebrains.youradventure.Adventure
 
+import io.circe.generic.auto._
+import io.circe.syntax._
 import io.circe.{Encoder, Json}
 import scalaz.zio.IO
 import thebrains.youradventure.Adventure.AttributePack.AttributeCollection
-import thebrains.youradventure.Adventure.BodyPack.PlayerBodyPart
+import thebrains.youradventure.Adventure.BodyPack.PlayerBodyCollection
+import thebrains.youradventure.Adventure.StepPack.{Step, StepCollection}
 import thebrains.youradventure.Adventure.TransformationPack.TransformationCollection
 import thebrains.youradventure.Utils.Error
-import io.circe.generic.auto._
-import io.circe.syntax._
-import scalaz.Maybe
-import thebrains.youradventure.Adventure.StepPack.{Step, StepCollection}
+import thebrains.youradventure.Adventure.CollectionPack.ListImplicits._
 
-case class Player(
-  name:           String,
-  journey:        StepCollection,
-  consumables:    List[Consumable],
-  bodyParts:      List[PlayerBodyPart],
+class Player(
+  name: String,
+  journey: StepCollection,
+  consumables: List[Consumable],
+  bodyParts: PlayerBodyCollection,
   baseAttributes: AttributeCollection,
-  race:           Race
+  race: Race
 ) extends PlayerTrait {
-  private def equipments: List[Maybe[Equipment]] = bodyParts.map(_.equipment).filter(_.isJust)
-
-  private def equipmentModifier: TransformationCollection = {
+  @transient lazy val getName: String = name
+  @transient lazy val getJourney: StepCollection = journey
+  @transient lazy val getConsumables: List[Consumable] = consumables
+  @transient lazy val getBodyParts: PlayerBodyCollection = bodyParts
+  @transient lazy val getBaseAttributes: AttributeCollection = baseAttributes
+  @transient lazy val getRace: Race = race
+  @transient lazy private val equipments: List[Equipment] = bodyParts.equipments
+  @transient lazy private val equipmentModifier: TransformationCollection = {
     equipments
-      .map(_.map(_.modifiers))
-      .foldLeft[TransformationCollection](TransformationCollection.Empty) {
-        case (tc, Maybe.Just(tc2)) => tc ++ tc2
-        case (tc, Maybe.Empty())   => tc
-      }
+      .map(_.modifiers)
+      .safeReduce(_ ++ _)(TransformationCollection.Empty)
   }
 
-  def currentAttributes: IO[Error, AttributeCollection] = baseAttributes << equipmentModifier
+  @transient lazy val currentAttributes: IO[Error, AttributeCollection] =
+    baseAttributes << equipmentModifier
+
+  def isWearing(e: Equipment): Boolean = equipments.exists(_ === e)
 
   def toStatus: String = ""
+
+  def copy(
+    name: String = this.name,
+    journey: StepCollection = this.journey,
+    consumables: List[Consumable] = this.consumables,
+    bodyParts: PlayerBodyCollection = this.bodyParts,
+    baseAttributes: AttributeCollection = this.baseAttributes,
+    race: Race = this.race
+  ): Player = {
+    new Player(name, journey, consumables, bodyParts, baseAttributes, race)
+  }
 
   def addHistory(s: Step): IO[Nothing, Player] = {
     IO.sync(this.copy(journey = journey :+ s))
@@ -41,22 +57,22 @@ case class Player(
   implicit private val jsonEncoder: Encoder[Player] =
     Encoder
       .forProduct6[Player, String, List[Json], List[Json], List[Json], List[Json], Json](
-        "name",
-        "journey",
-        "consumables",
-        "bodyParts",
-        "attributes",
-        "race"
-      ) { p: Player =>
-        (
-          p.name,
-          p.journey.outMap(_.encoded),
-          p.consumables.map(_.encoded),
-          p.bodyParts.map(_.encoded),
-          p.baseAttributes.encoded,
-          p.race.encoded
-        )
-      }
+      "name",
+      "journey",
+      "consumables",
+      "bodyParts",
+      "attributes",
+      "race"
+    ) { p: Player =>
+      (
+        p.getName,
+        p.getJourney.encoded,
+        p.getConsumables.map(_.encoded),
+        p.getBodyParts.encoded,
+        p.getBaseAttributes.encoded,
+        p.getRace.encoded
+      )
+    }
 
   override def encoded: Json = this.asJson
 
@@ -71,13 +87,16 @@ object PlayerBuilder {
   val NameQuestion: String = "What is your name?"
   val RaceQuestion: String = "What race are you part of ?"
 
+  val Empty: Player = PlayerWithName("")
+    .selectRace(Races.Void)
+
   case class PlayerWithName(name: String) extends PlayerTrait {
     def selectRace(race: Race): Player = {
-      Player(
+      new Player(
         name = name.trim,
         journey = StepCollection.Empty,
         consumables = Nil,
-        bodyParts = race.bodyParts.map(_.toPlayerBodyPart),
+        bodyParts = race.bodyParts.toPlayerBodyCollection,
         baseAttributes = race.baseAttributes,
         race = race
       )

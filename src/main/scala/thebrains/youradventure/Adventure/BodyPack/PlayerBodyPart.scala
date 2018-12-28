@@ -4,13 +4,18 @@ import io.circe.{Encoder, Json}
 import io.circe.generic.auto._
 import io.circe.syntax._
 import scalaz.Maybe
+import scalaz.zio.IO
+import thebrains.youradventure.Adventure.CollectionPack.AssemblyItemTrait
 import thebrains.youradventure.Adventure.Equipment
-import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.{Error, FatalError}
 
 case class PlayerBodyPart(
   bodyPart:  BodyPart,
   equipment: Maybe[Equipment]
-) {
+) extends AssemblyItemTrait(
+      bodyPart.getName,
+      bodyPart.getDescription
+    ) {
 
   implicit private val jsonEncoder: Encoder[PlayerBodyPart] =
     Encoder.forProduct2[PlayerBodyPart, Json, Maybe[Json]]("name", "equipment") {
@@ -18,7 +23,7 @@ case class PlayerBodyPart(
         (b.encoded, e.map(_.encoded))
     }
 
-  def encoded: Json = this.asJson
+  override def encoded: Json = this.asJson
 
   def canEquip(equipment: Equipment): Boolean = {
     bodyPart samePart equipment.bodyPart
@@ -38,6 +43,5 @@ case class PlayerBodyPart(
         )
       )
     }
-
   }
 }

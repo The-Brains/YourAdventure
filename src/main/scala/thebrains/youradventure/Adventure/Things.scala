@@ -11,7 +11,9 @@ class Things(
 
   override def toString: String = s"'$name'"
 
-  def ===(other: Things): Boolean = this.getName == other.getName
+  def ===(other: Things): Boolean = {
+    this.getClass == other.getClass && this.getName == other.getName
+  }
 
   override def hashCode(): Int = getName.hashCode
 

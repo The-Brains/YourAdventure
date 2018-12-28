@@ -4,10 +4,10 @@ import io.circe.Json
 import scalaz.Maybe
 import scalaz.zio.IO
 import thebrains.youradventure.Utils.Error
-
+import ListImplicits._
 import scala.reflect.ClassTag
 
-abstract class AssemblyTrait[THIS <: AssemblyTrait[THIS, A], A <: AssemblyItemTrait: ClassTag](
+abstract class AssemblyTrait[THIS <: AssemblyTrait[THIS, A], A <: AssemblyItemTrait : ClassTag](
   items: List[A]
 ) {
   def toCustomMap: Map[String, A] = {
@@ -38,7 +38,7 @@ abstract class AssemblyTrait[THIS <: AssemblyTrait[THIS, A], A <: AssemblyItemTr
           case _ => IO.fail(Error("Cannot convert", "Cannot convert to 'A'."))
         }
       case head :: Nil => IO.sync(head)
-      case Nil         => IO.fail(Error("Empty list", "There is nothing to combine"))
+      case Nil => IO.fail(Error("Empty list", "There is nothing to combine"))
     }
   }
 
@@ -49,8 +49,10 @@ abstract class AssemblyTrait[THIS <: AssemblyTrait[THIS, A], A <: AssemblyItemTr
   def outMap[B](f: A => B): List[B] = items.map(f)
 
   def flatMap(f: A => THIS): THIS = {
-    items.map(f).reduce(_ ++ _)
+    items.map(f).safeReduce(_ ++ _)(empty)
   }
+
+  protected def empty: THIS
 
   protected def wrap(items: A*): THIS
 
