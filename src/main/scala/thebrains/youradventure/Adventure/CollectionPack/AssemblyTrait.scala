@@ -7,7 +7,7 @@ import thebrains.youradventure.Utils.Error
 
 import scala.reflect.ClassTag
 
-abstract class AssemblyTrait[THIS <: AssemblyTrait[THIS,A], A <: AssemblyItemTrait : ClassTag](
+abstract class AssemblyTrait[THIS <: AssemblyTrait[THIS, A], A <: AssemblyItemTrait: ClassTag](
   items: List[A]
 ) {
   def toCustomMap: Map[String, A] = {
@@ -38,7 +38,7 @@ abstract class AssemblyTrait[THIS <: AssemblyTrait[THIS,A], A <: AssemblyItemTra
           case _ => IO.fail(Error("Cannot convert", "Cannot convert to 'A'."))
         }
       case head :: Nil => IO.sync(head)
-      case Nil => IO.fail(Error("Empty list", "There is nothing to combine"))
+      case Nil         => IO.fail(Error("Empty list", "There is nothing to combine"))
     }
   }
 

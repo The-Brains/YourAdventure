@@ -35,35 +35,34 @@ object Main extends App {
 
     } yield {
       exit
-    })
-      .flatMap[Error, Unit] {
-      case Left(e) =>
-        (for {
-          m <- renderer.display(e)
-          _ <- tp.display(m)
-          m <- renderer.displayEmptyLine
-          _ <- tp.display(m)
-        } yield {
-          ()
-        }).flatMap { _ =>
-          IO.fail(e)
-        }
-      case Right(g) =>
-        for {
-          m <- renderer.display(g.toString)
-          _ <- tp.display(m, ignoreLineLength = true)
-        } yield {}
-    }
+    }).flatMap[Error, Unit] {
+        case Left(e) =>
+          (for {
+            m <- renderer.displayErrorAsMessage(e)
+            _ <- tp.display(m)
+            m <- renderer.displayEmptyLine
+            _ <- tp.display(m)
+          } yield {
+            ()
+          }).flatMap { _ =>
+            IO.fail(e)
+          }
+        case Right(g) =>
+          for {
+            m <- renderer.display(g.toString)
+            _ <- tp.display(m, ignoreLineLength = true)
+          } yield {}
+      }
       .attempt
       .map[Int] {
-      case Left(_: Error) => 1
-      case Right(_) => 0
-    }
+        case Left(_: Error) => 1
+        case Right(_) => 0
+      }
       .map[ExitStatus](ExitStatus.ExitNow(_))
   }
 
   def myAppLogic(
-    tp: TerminalPrint,
+    tp:   TerminalPrint,
     game: GameStatus
   ): IO[Error, GameStatus] = {
     for {

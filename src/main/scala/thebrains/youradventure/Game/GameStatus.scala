@@ -12,14 +12,13 @@ import thebrains.youradventure.FPTerminalIO._
 import thebrains.youradventure.Utils.Error
 
 class GameStatus(
-  universe:      Universe,
-  currentStep:   Maybe[Step],
+  universe: Universe,
+  currentStep: Maybe[Step],
   currentAction: Maybe[Action],
-  player:        Maybe[PlayerTrait],
-  renderer:      Renderer,
-  currentError:  Maybe[Error]
+  player: Maybe[PlayerTrait],
+  renderer: Renderer,
+  currentError: Maybe[Error]
 ) {
-
   implicit private val jsonEncoder: Encoder[GameStatus] =
     Encoder.forProduct4[GameStatus, Maybe[Json], Maybe[Json], Maybe[Json], Maybe[Json]](
       "step",
@@ -36,6 +35,10 @@ class GameStatus(
   def consume(input: Input): IO[Error, GameStatus] = consumer.consume(input)
 
   def getNextMessage: IO[Error, TerminalMessage] = producer.getNextMessage
+
+  def consumeAction(a: Action): IO[Error, GameStatus] = {
+    this.consumer.consumeAction(this.universe, a)
+  }
 
   @transient lazy val updater: Updater = new Updater(this)
 

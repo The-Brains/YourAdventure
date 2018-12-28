@@ -9,7 +9,7 @@ import thebrains.youradventure.Utils.Error
 import scala.util.Try
 
 class ActionCollection(
-  actions: List[Action],
+  actions:  List[Action],
   question: Maybe[String]
 ) extends BastardActionCollection(actions) {
 
@@ -45,11 +45,11 @@ class ActionCollection(
 }
 
 class BastardActionCollection(actions: List[Action])
-  extends AssemblyTrait[BastardActionCollection, Action](actions) {
+    extends AssemblyTrait[BastardActionCollection, Action](actions) {
 
   def getActions: List[Action] = actions
 
-  @transient lazy val getIndexedActions: List[(Int, Action)] = actions.zipWithIndex.map(_.swap)
+  @transient lazy val getIndexedActions:    List[(Int, Action)] = actions.zipWithIndex.map(_.swap)
   @transient lazy val getIndexedActionsMap: Map[Int, Action] = getIndexedActions.toMap
 
   @transient lazy val validActions: List[String] = getActions.map(_.getLowerCaseName)
@@ -70,7 +70,7 @@ object BastardActionCollection {
 
 object ActionCollection {
   def apply(
-    action: Action,
+    action:   Action,
     question: String
   ): ActionCollection = {
     new ActionCollection(List(action), Just(question))

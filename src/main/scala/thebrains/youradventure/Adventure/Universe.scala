@@ -8,7 +8,7 @@ import thebrains.youradventure.Utils.Error
 class Universe(
   availableRaces: List[Race],
   availableSteps: StepCollection,
-  startingStep: Step
+  startingStep:   Step
 ) {
   @transient lazy val getAvailableRaces: List[Race] = availableRaces
 
@@ -37,25 +37,27 @@ class Universe(
 object Universe {
 
   case object Void
-    extends Universe(
-      availableRaces = Nil,
-      availableSteps = StepCollection.Empty,
-      startingStep = Steps.EmptyStep
-    )
+      extends Universe(
+        availableRaces = Nil,
+        availableSteps = StepCollection.Empty,
+        startingStep = Steps.EmptyStep
+      )
 
   def apply(
     availableRaces: List[Race],
     availableSteps: StepCollection,
-    startingStep: Step
+    startingStep:   Step
   ): IO[Error, Universe] = {
     if (availableSteps.outMap(_.getName).isUnique) {
       IO.sync(new Universe(availableRaces, availableSteps, startingStep))
     } else {
-      IO.fail(Error(
-        "Step list is not unique",
-        s"The list of steps have duplicate names: " +
-          s"${availableSteps.getExtras.map(_.getName).mkString(", ")}"
-      ))
+      IO.fail(
+        Error(
+          "Step list is not unique",
+          s"The list of steps have duplicate names: " +
+            s"${availableSteps.getExtras.map(_.getName).mkString(", ")}"
+        )
+      )
     }
   }
 }

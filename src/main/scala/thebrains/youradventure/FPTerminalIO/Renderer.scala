@@ -6,29 +6,30 @@ import thebrains.youradventure.Adventure.ActionPack.{Action, ActionCollection}
 import thebrains.youradventure.Adventure.PlayerBuilder.PlayerWithName
 import thebrains.youradventure.Adventure.StepPack.Step
 import thebrains.youradventure.Adventure._
-import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.{Error, FatalError}
 
 class Renderer() {
-  def display(p: Maybe[PlayerTrait]): TerminalMessage = {
+  def display(p: Maybe[PlayerTrait]): IO[Error, MessageToDisplay] = {
     p match {
       case Maybe.Empty() => displayEmptyPlayerQuestion
       case Maybe.Just(p: PlayerWithName) => display(p)
+      case _ => display(FatalError("Invalid case", s"No case for Player: '${p.toString}'."))
     }
   }
 
-  private def displayEmptyPlayerQuestion: TerminalMessage = {
-    TerminalMessageBuilder
+  private def displayEmptyPlayerQuestion: IO[Error, MessageToDisplay] = {
+    IO.sync(TerminalMessageBuilder
       .start()
-      .makeQuestion(PlayerBuilder.NameQuestion)
+      .makeQuestion(PlayerBuilder.NameQuestion))
   }
 
-  private def display(p: PlayerBuilder.PlayerWithName): TerminalMessage = {
-    TerminalMessageBuilder
+  private def display(p: PlayerBuilder.PlayerWithName): IO[Error, MessageToDisplay] = {
+    IO.sync(TerminalMessageBuilder
       .start()
-      .makeQuestion(PlayerBuilder.RaceQuestion)
+      .makeQuestion(PlayerBuilder.RaceQuestion))
   }
 
-  def display(txt: String): IO[Nothing, TerminalMessage] = {
+  def display(txt: String): IO[Nothing, MessageToDisplay] = {
     IO.sync(
       TerminalMessageBuilder
         .start()
@@ -37,28 +38,37 @@ class Renderer() {
     )
   }
 
-  def display(error: Error): IO[Nothing, TerminalMessage] = {
+  def displayErrorAsMessage(error: Error): IO[Nothing, MessageToDisplay] = {
     IO.sync(
       TerminalMessageBuilder
         .start()
-        .addLine(error.getCapitalizeName)
-        .addLine(error.getDescription)
+        .addLine(error.getCapitalizeName, cutLength = !error.isFatal)
+        .addLine(error.getDescription, cutLength = !error.isFatal)
+        .addLineMaybe(error.stackAsString, cutLength = false)
         .complete()
     )
   }
 
-  def displayEndGame: IO[Nothing, TerminalMessage] = {
+  def display(error: Error): IO[Error, MessageToDisplay] = {
+    if (error.isFatal) {
+      IO.fail(error)
+    } else {
+      displayErrorAsMessage(error)
+    }
+  }
+
+  def displayEndGame: IO[Nothing, MessageToDisplay] = {
     display("Thanks for playing. The End.")
   }
 
-  def displayEmptyLine: IO[Nothing, TerminalMessage] = {
+  def displayEmptyLine: IO[Nothing, MessageToDisplay] = {
     IO.sync(TerminalMessageBuilder.start().complete())
   }
 
   def display(
-    step:   Step,
+    step: Step,
     player: Maybe[Player]
-  ): IO[Error, TerminalMessage] = {
+  ): IO[Error, MessageToDisplay] = {
     for {
       actions <- step.getActions(player)
     } yield {
@@ -74,9 +84,9 @@ class Renderer() {
   }
 
   private def display(
-    buffer:  TerminalMessageBuilder.MessageAssembly,
+    buffer: TerminalMessageBuilder.MessageAssembly,
     actions: ActionCollection
-  ): TerminalMessage = {
+  ): MessageToDisplay = {
     actions.getIndexedActions
       .foldLeft(buffer) {
         case (b, (i, a)) => display(b, i, a)
@@ -87,12 +97,15 @@ class Renderer() {
 
   private def display(
     buffer: TerminalMessageBuilder.MessageAssembly,
-    id:     Int,
+    id: Int,
     action: Action
   ): TerminalMessageBuilder.MessageAssembly = {
     buffer
       .addLine(s"$id - ${action.name} - ${action.description}")
   }
+
+  def emptyMessage: IO[Error, TerminalMessage] = IO.sync(TerminalMessageBuilder.EmptyMessage)
+
 }
 
 object Renderer {

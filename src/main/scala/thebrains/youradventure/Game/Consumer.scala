@@ -114,6 +114,18 @@ private[Game] class Consumer(
       case _ => IO.sync(CMsg(input, game, passNext = false))
     }
   }
+
+  def consumeAction(
+    universe: Universe,
+    a:        Action
+  ): IO[Error, GameStatus] = {
+    for {
+      nextStep <- a.getStep(universe.getAvailableSteps)
+      game     <- game.updater.withStep(nextStep)
+    } yield {
+      game
+    }
+  }
 }
 
 object Consumer {
