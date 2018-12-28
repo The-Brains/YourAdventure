@@ -18,15 +18,19 @@ class Renderer() {
   }
 
   private def displayEmptyPlayerQuestion: IO[Error, MessageToDisplay] = {
-    IO.sync(TerminalMessageBuilder
-      .start()
-      .makeQuestion(PlayerBuilder.NameQuestion))
+    IO.sync(
+      TerminalMessageBuilder
+        .start()
+        .makeQuestion(PlayerBuilder.NameQuestion)
+    )
   }
 
   private def display(p: PlayerBuilder.PlayerWithName): IO[Error, MessageToDisplay] = {
-    IO.sync(TerminalMessageBuilder
-      .start()
-      .makeQuestion(PlayerBuilder.RaceQuestion))
+    IO.sync(
+      TerminalMessageBuilder
+        .start()
+        .makeQuestion(PlayerBuilder.RaceQuestion)
+    )
   }
 
   def display(txt: String): IO[Nothing, MessageToDisplay] = {
@@ -66,7 +70,7 @@ class Renderer() {
   }
 
   def display(
-    step: Step,
+    step:   Step,
     player: Maybe[Player]
   ): IO[Error, MessageToDisplay] = {
     for {
@@ -84,7 +88,7 @@ class Renderer() {
   }
 
   private def display(
-    buffer: TerminalMessageBuilder.MessageAssembly,
+    buffer:  TerminalMessageBuilder.MessageAssembly,
     actions: ActionCollection
   ): MessageToDisplay = {
     actions.getIndexedActions
@@ -97,7 +101,7 @@ class Renderer() {
 
   private def display(
     buffer: TerminalMessageBuilder.MessageAssembly,
-    id: Int,
+    id:     Int,
     action: Action
   ): TerminalMessageBuilder.MessageAssembly = {
     buffer

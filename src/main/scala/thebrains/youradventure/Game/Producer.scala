@@ -13,9 +13,6 @@ private[Game] class Producer(game: GameStatus) {
       case GameStatus(_, Maybe.Just(error), _, _, _, r) =>
         // An error should be displayed
         r.display(error)
-      case GameStatus(_, _, _, _, p, r) =>
-        // Display player / Create player
-        r.display(p)
       case GameStatus(_, _, Maybe.Empty(), _, _, r) =>
         // No step
         r.displayEndGame
@@ -25,6 +22,9 @@ private[Game] class Producer(game: GameStatus) {
       case GameStatus(_, _, Maybe.Just(s), Maybe.Empty(), Maybe.Just(p: Player), r) =>
         // When step but no action
         r.display(s, Maybe.Just(p))
+      case GameStatus(_, _, _, _, p, r) =>
+        // Display player / Create player
+        r.display(p)
       case _ =>
         IO.fail(Error("End State", "No more state"))
     }

@@ -5,12 +5,12 @@ import scalaz.Maybe
 sealed trait TerminalMessage
 
 case class Line(
-  content: String,
+  content:   String,
   cutLength: Boolean = true
 )
 
 class MessageToDisplay(
-  messages: List[Line],
+  messages:   List[Line],
   isQuestion: Boolean
 ) extends TerminalMessage {
   lazy val question: Maybe[Line] = if (isQuestion) Maybe.Just(messages.last) else Maybe.empty
@@ -21,14 +21,20 @@ class MessageToDisplay(
 object TerminalMessageBuilder {
 
   case class MessageAssembly(messages: List[Line]) {
-    def addLine(text: String, cutLength: Boolean = true): MessageAssembly = {
+    def addLine(
+      text:      String,
+      cutLength: Boolean = true
+    ): MessageAssembly = {
       this.copy(messages = this.messages :+ Line(text, cutLength))
     }
 
-    def addLineMaybe(text: Maybe[String], cutLength: Boolean = true): MessageAssembly = {
+    def addLineMaybe(
+      text:      Maybe[String],
+      cutLength: Boolean = true
+    ): MessageAssembly = {
       text match {
         case Maybe.Just(line) => this.addLine(line, cutLength)
-        case Maybe.Empty() => this
+        case Maybe.Empty()    => this
       }
     }
 

@@ -57,6 +57,10 @@ class BastardActionCollection(actions: List[Action])
   override protected def wrap(items: Action*): BastardActionCollection = {
     new BastardActionCollection(items.toList)
   }
+
+  def ++(other: ActionCollection): ActionCollection = {
+    new ActionCollection(actions = this.getActions ++ other.getActions, other.getQuestion)
+  }
 }
 
 object BastardActionCollection {

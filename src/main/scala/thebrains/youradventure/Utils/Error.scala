@@ -6,10 +6,10 @@ import scalaz.Maybe
 import thebrains.youradventure.Adventure.Things
 
 class Error(
-  name: String,
+  name:        String,
   description: String,
-  fatal: Boolean,
-  stack: List[StackTraceElement]
+  fatal:       Boolean,
+  stack:       List[StackTraceElement]
 ) extends Things(name, description) {
   @transient lazy val toDisplay: String = s"Error: $name - $description"
 
@@ -17,41 +17,45 @@ class Error(
 
   @transient lazy val stackAsString: Maybe[String] = (fatal, stack) match {
     case (false, _) => Maybe.empty
-    case (_, Nil) => Maybe.empty
-    case (true, e) => Maybe.just("\n" + e.map(s => s.toString).mkString("\n"))
+    case (_, Nil)   => Maybe.empty
+    case (true, e)  => Maybe.just("\n" + e.map(s => s.toString).mkString("\n"))
   }
 
   def copy(
-    name: String = this.name,
+    name:        String = this.name,
     description: String = this.description,
-    fatal: Boolean = this.fatal,
-    stack: List[StackTraceElement] = this.stack
+    fatal:       Boolean = this.fatal,
+    stack:       List[StackTraceElement] = this.stack
   ): Error = {
     new Error(name, description, fatal, stack)
   }
 }
 
 case class FatalError(
-  name: String,
+  name:        String,
   description: String,
-  stackTrace: List[StackTraceElement] = Thread.getAllStackTraces.get(Thread.currentThread()).toList
+  stackTrace:  List[StackTraceElement] = Thread.getAllStackTraces.get(Thread.currentThread()).toList
 ) extends Error(
-  name,
-  description,
-  fatal = true,
-  stackTrace
-)
+      name,
+      description,
+      fatal = true,
+      stackTrace
+    )
 
 object Error {
   val Empty: Error = new Error(name = "", description = "", fatal = false, Nil)
 
   def apply(
-    name: String,
+    name:        String,
     description: String,
-    isFatal: Boolean = false
+    isFatal:     Boolean = false
   ): Error = {
-    new Error(name, description, isFatal,
-      Thread.getAllStackTraces.get(Thread.currentThread()).toList)
+    new Error(
+      name,
+      description,
+      isFatal,
+      Thread.getAllStackTraces.get(Thread.currentThread()).toList
+    )
   }
 
   private def createFrom(ex: Throwable): FatalError = {

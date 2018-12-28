@@ -14,10 +14,7 @@ case class Action(
   targetStep:  Either[StepName, Step]
 ) extends AssemblyItemTrait(name, description) {
   def ++(availableActions: ActionCollection): IO[Error, ActionCollection] = {
-    BastardActionCollection(this) ++ availableActions match {
-      case a: ActionCollection => IO.sync(a)
-      case _ => IO.fail(Error("Cannot convert", "Cannot convert to 'ActionCollection'."))
-    }
+    IO.sync(BastardActionCollection(this) ++ availableActions)
   }
 
   override def |+|(other: AssemblyItemTrait): IO[Utils.Error, AssemblyItemTrait] = {
