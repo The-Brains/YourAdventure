@@ -4,7 +4,7 @@ import scalaz.zio.IO
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyItemTrait
 import thebrains.youradventure.Adventure.ConditionPack.Condition
 import thebrains.youradventure.Adventure.StepPack.Step.StepName
-import thebrains.youradventure.Adventure.StepPack.{Step, StepCollection}
+import thebrains.youradventure.Adventure.StepPack._
 import thebrains.youradventure.Adventure._
 import thebrains.youradventure.Utils
 import thebrains.youradventure.Utils.Error
@@ -15,8 +15,12 @@ class Action(
   targetStep: Either[StepName, Step],
   conditions: List[Condition] = Nil
 ) extends AssemblyItemTrait(name, description) {
-  def ++(availableActions: ActionCollection): IO[Error, ActionCollection] = {
-    IO.sync(BastardActionCollection(this) ++ availableActions)
+  def ++(availableActions: ActionCollection): ActionCollection = {
+    BastardActionCollection(this) ++ availableActions
+  }
+
+  def ++(availableActions: Action): BastardActionCollection = {
+    BastardActionCollection(this) ++ BastardActionCollection(availableActions)
   }
 
   override def |+|(other: AssemblyItemTrait): IO[Utils.Error, AssemblyItemTrait] = {
@@ -41,8 +45,12 @@ object Actions {
     player: Player,
     p: Player => Step
   ): Action = {
-    new Action("Player Status", "Look at your player status", Right(p(player)))
+    Action("Player Status", "Look at your player status", p(player), Nil)
   }
+
+  case object Exit
+    extends Action("Exit", "You are about to leave the game.", Right(Steps.ExitStep), Nil)
+
 }
 
 object Action {

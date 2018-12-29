@@ -8,16 +8,16 @@ import thebrains.youradventure.Utils.Error
 import thebrains.youradventure.Utils.BirdUtils.BirdOperator._
 
 case class Transformation(
-  attribute: Attribute,
-  forwardTransformation: AttributeTransformation,
+  attribute:              Attribute,
+  forwardTransformation:  AttributeTransformation,
   backwardTransformation: AttributeTransformation,
-  value: AttributeType,
-  operation: Operation,
-  modification: Modification
+  value:                  AttributeType,
+  operation:              Operation,
+  modification:           Modification
 ) extends AssemblyItemTrait(
-  attribute.getName,
-  attribute.getDescription
-) {
+      attribute.getName,
+      attribute.getDescription
+    ) {
   override def toString: String = s"${attribute.toString} -> $operation $modification $value"
 
   def ++(other: Transformation): TransformationCollection = {
@@ -29,7 +29,7 @@ case class Transformation(
   }
 
   private def execute(
-    action: AttributeTransformation,
+    action:          AttributeTransformation,
     playerAttribute: PlayerAttribute
   ): IO[Error, PlayerAttribute] = {
     if (playerAttribute.attribute === attribute) {
@@ -63,7 +63,7 @@ case class Transformation(
   private def combineOperation(other: Transformation): Operation = {
     (this.operation, other.operation) match {
       case (a, b) if a == b => a
-      case _ => Combination
+      case _                => Combination
     }
   }
 
@@ -71,7 +71,7 @@ case class Transformation(
     (this.operation, other.operation) match {
       case (Addition, Addition) => this.value + other.value
       case (Multiply, Multiply) => this.value * other.value
-      case _ => 0
+      case _                    => 0
     }
   }
 
@@ -137,9 +137,9 @@ case object Combination extends Operation
 
 object TransformationBuilder {
 
-  case class TransformValue private(
+  case class TransformValue private (
     operation: Operation,
-    modify: Modification
+    modify:    Modification
   ) {
     private def positive(value: AttributeType)(attributeValue: AttributeType): AttributeType = {
       operation match {
@@ -177,11 +177,11 @@ object TransformationBuilder {
   }
 
   case class TransformationWithValue(
-    forwardTransformation: AttributeTransformation,
+    forwardTransformation:  AttributeTransformation,
     backwardTransformation: AttributeTransformation,
-    value: AttributeType,
-    operation: Operation,
-    modify: Modification
+    value:                  AttributeType,
+    operation:              Operation,
+    modify:                 Modification
   ) {
     def onAttribute(attribute: Attribute): Transformation = {
       Transformation(
@@ -199,14 +199,14 @@ object TransformationBuilder {
     operation match {
       case Addition => willDo(Addition, Increase)
       case Multiply => willDo(Multiply, Increase)
-      case Reduce => willDo(Addition, Decrease)
-      case Divide => willDo(Multiply, Decrease)
+      case Reduce   => willDo(Addition, Decrease)
+      case Divide   => willDo(Multiply, Decrease)
     }
   }
 
   def willDo(
     operation: Operation,
-    modify: Modification
+    modify:    Modification
   ): TransformValue = {
     TransformValue(operation, modify)
   }

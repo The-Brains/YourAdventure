@@ -1,6 +1,9 @@
 package thebrains.youradventure.FPTerminalIO
 
+import io.circe.{Encoder, Json}
 import scalaz.Maybe
+import io.circe.generic.auto._
+import io.circe.syntax._
 
 sealed trait TerminalMessage
 
@@ -13,9 +16,17 @@ class MessageToDisplay(
   messages:   List[Line],
   isQuestion: Boolean
 ) extends TerminalMessage {
-  lazy val question: Maybe[Line] = if (isQuestion) Maybe.Just(messages.last) else Maybe.empty
-  lazy val messageToShow: Seq[Line] =
-    if (isQuestion) messages.dropRight(1) else messages
+  lazy val question:      Maybe[Line] = if (isQuestion) Maybe.Just(messages.last) else Maybe.empty
+  lazy val messageToShow: Seq[Line] = if (isQuestion) messages.dropRight(1) else messages
+
+  implicit private val jsonEncoder: Encoder[MessageToDisplay] =
+    Encoder.forProduct2[MessageToDisplay, Seq[Line], Maybe[Line]]("question", "question") { msg =>
+      (msg.messageToShow, msg.question)
+    }
+
+  @transient lazy val encoded: Json = this.asJson
+
+  override def toString: String = encoded.noSpaces
 }
 
 object TerminalMessageBuilder {

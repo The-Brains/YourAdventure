@@ -20,12 +20,12 @@ scalacOptions ++= List(
 )
 
 // Code Style
-lazy val scalafmtSettings = Seq(
-  scalafmtOnCompile := true
-)
-libraryDependencies += compilerPlugin(scalafixSemanticdb)
-scalastyleFailOnError   := true
-scalastyleFailOnWarning := true
+//lazy val scalafmtSettings = Seq(
+//  scalafmtOnCompile := true
+//)
+//libraryDependencies += compilerPlugin(scalafixSemanticdb)
+//scalastyleFailOnError   := true
+//scalastyleFailOnWarning := true
 
 addCommandAlias("fix", "; compile:scalafix; test:scalafix")
 addCommandAlias("fixCheck", "; compile:scalafix --check; test:scalafix --check")

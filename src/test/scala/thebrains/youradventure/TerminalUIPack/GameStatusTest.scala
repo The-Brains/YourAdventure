@@ -56,10 +56,10 @@ class GameStatusTest extends ParentTest {
         "tom",
         "not really a good race",
         Races.Human.getName
-      )
-        .map(InputFilled)
-        .foldLeft(baseGame) { case (currentGame, input) =>
-          currentGame.flatMap(g => g.consume(input))
+      ).map(InputFilled)
+        .foldLeft(baseGame) {
+          case (currentGame, input) =>
+            currentGame.flatMap(g => g.consume(input))
         }
 
       val unpackGame = unsafeRunSync(finalGame).toEither

@@ -6,9 +6,7 @@ import thebrains.youradventure.ParentTest
 class TerminalPrintTest extends ParentTest {
   "TerminalPrint" - {
     object TerminalPrintForTest extends TerminalPrint {
-      def previewTextToPrint(
-        txt: String
-      ): Seq[String] = {
+      def previewTextToPrint(txt: String): Seq[String] = {
         super.previewTextToPrint(Line(txt), ignoreLineLength = false)
       }
     }

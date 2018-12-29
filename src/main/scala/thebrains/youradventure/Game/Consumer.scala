@@ -10,7 +10,7 @@ import thebrains.youradventure.FPTerminalIO._
 import thebrains.youradventure.Utils.Error
 
 private[Game] class Consumer(
-  game: GameStatus,
+  game:    GameStatus,
   updater: Updater
 ) {
 
@@ -64,13 +64,13 @@ private[Game] class Consumer(
 
   private def pickAction(
     input: Input,
-    s: Step,
-    p: Player
+    s:     Step,
+    p:     Player
   ): IO[Error, GameStatus] = {
     debugPrint(s"pick action")
     for {
       actions <- s.getActions(p)
-      g <- if (actions.nonEmpty) selectAction(input, actions) else game.updater.removeStep()
+      g       <- if (actions.nonEmpty) selectAction(input, actions) else game.updater.removeStep()
     } yield {
       g
     }
@@ -82,23 +82,23 @@ private[Game] class Consumer(
   ): IO[Error, GameStatus] = {
     for {
       newStep <- a.getStep(game.getUniverse.getAvailableSteps)
-      player <- p.addHistory(newStep)
-      game <- updater.withStep(newStep)
-      game <- game.updater.withPlayer(player)
-      game <- game.updater.removeAction()
+      player  <- p.addHistory(newStep)
+      game    <- updater.withStep(newStep)
+      game    <- game.updater.withPlayer(player)
+      game    <- game.updater.removeAction()
     } yield {
       game
     }
   }
 
   private def selectAction(
-    input: Input,
+    input:   Input,
     actions: ActionCollection
   ): IO[Error, GameStatus] = {
     for {
       inputData <- Input.getContent(input)
-      action <- actions.getAction(inputData.input)
-      game <- updater.withAction(action)
+      action    <- actions.getAction(inputData.input)
+      game      <- updater.withAction(action)
     } yield {
       game
     }
@@ -111,16 +111,16 @@ private[Game] class Consumer(
       case Maybe.Empty() =>
         for {
           inputData <- Input.getContent(input)
-          player <- PlayerBuilder.create(inputData.input)
-          game <- updater.withPlayer(player)
+          player    <- PlayerBuilder.create(inputData.input)
+          game      <- updater.withPlayer(player)
         } yield {
           CMsg(InputEmpty, game, passNext = true)
         }
       case Maybe.Just(p: PlayerWithName) =>
         for {
           inputData <- Input.getContent(input)
-          player <- p.selectRace(game.getUniverse.getAvailableRaces)(inputData.input)
-          game <- updater.withPlayer(player)
+          player    <- p.selectRace(game.getUniverse.getAvailableRaces)(inputData.input)
+          game      <- updater.withPlayer(player)
         } yield {
           CMsg(InputEmpty, game, passNext = true)
         }
@@ -130,11 +130,11 @@ private[Game] class Consumer(
 
   def consumeAction(
     universe: Universe,
-    a: Action
+    a:        Action
   ): IO[Error, GameStatus] = {
     for {
       nextStep <- a.getStep(universe.getAvailableSteps)
-      game <- game.updater.withStep(nextStep)
+      game     <- game.updater.withStep(nextStep)
     } yield {
       game
     }
@@ -145,8 +145,8 @@ object Consumer {
   private def debugPrint(txt: String): Unit = if (false) println(s"[DEBUG] $txt")
 
   private case class CMsg(
-    input: Input,
-    game: GameStatus,
+    input:    Input,
+    game:     GameStatus,
     passNext: Boolean
   ) {
     def toStable: CMsgS = CMsgS(input, game)
@@ -154,7 +154,7 @@ object Consumer {
 
   private case class CMsgS(
     input: Input,
-    game: GameStatus
+    game:  GameStatus
   )
 
   implicit private class JumpIO(io: IO[Error, CMsg]) {

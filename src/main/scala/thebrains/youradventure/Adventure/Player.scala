@@ -12,19 +12,19 @@ import thebrains.youradventure.Utils.Error
 import thebrains.youradventure.Adventure.CollectionPack.ListImplicits._
 
 class Player(
-  name: String,
-  journey: StepCollection,
-  consumables: List[Consumable],
-  bodyParts: PlayerBodyCollection,
+  name:           String,
+  journey:        StepCollection,
+  consumables:    List[Consumable],
+  bodyParts:      PlayerBodyCollection,
   baseAttributes: AttributeCollection,
-  race: Race
+  race:           Race
 ) extends PlayerTrait {
-  @transient lazy val getName: String = name
-  @transient lazy val getJourney: StepCollection = journey
-  @transient lazy val getConsumables: List[Consumable] = consumables
-  @transient lazy val getBodyParts: PlayerBodyCollection = bodyParts
-  @transient lazy val getBaseAttributes: AttributeCollection = baseAttributes
-  @transient lazy val getRace: Race = race
+  @transient lazy val getName:            String = name
+  @transient lazy val getJourney:         StepCollection = journey
+  @transient lazy val getConsumables:     List[Consumable] = consumables
+  @transient lazy val getBodyParts:       PlayerBodyCollection = bodyParts
+  @transient lazy val getBaseAttributes:  AttributeCollection = baseAttributes
+  @transient lazy val getRace:            Race = race
   @transient lazy private val equipments: List[Equipment] = bodyParts.equipments
   @transient lazy private val equipmentModifier: TransformationCollection = {
     equipments
@@ -40,12 +40,12 @@ class Player(
   def toStatus: String = ""
 
   def copy(
-    name: String = this.name,
-    journey: StepCollection = this.journey,
-    consumables: List[Consumable] = this.consumables,
-    bodyParts: PlayerBodyCollection = this.bodyParts,
+    name:           String = this.name,
+    journey:        StepCollection = this.journey,
+    consumables:    List[Consumable] = this.consumables,
+    bodyParts:      PlayerBodyCollection = this.bodyParts,
     baseAttributes: AttributeCollection = this.baseAttributes,
-    race: Race = this.race
+    race:           Race = this.race
   ): Player = {
     new Player(name, journey, consumables, bodyParts, baseAttributes, race)
   }
@@ -57,22 +57,22 @@ class Player(
   implicit private val jsonEncoder: Encoder[Player] =
     Encoder
       .forProduct6[Player, String, List[Json], List[Json], List[Json], List[Json], Json](
-      "name",
-      "journey",
-      "consumables",
-      "bodyParts",
-      "attributes",
-      "race"
-    ) { p: Player =>
-      (
-        p.getName,
-        p.getJourney.encoded,
-        p.getConsumables.map(_.encoded),
-        p.getBodyParts.encoded,
-        p.getBaseAttributes.encoded,
-        p.getRace.encoded
-      )
-    }
+        "name",
+        "journey",
+        "consumables",
+        "bodyParts",
+        "attributes",
+        "race"
+      ) { p: Player =>
+        (
+          p.getName,
+          p.getJourney.encoded,
+          p.getConsumables.map(_.encoded),
+          p.getBodyParts.encoded,
+          p.getBaseAttributes.encoded,
+          p.getRace.encoded
+        )
+      }
 
   override def encoded: Json = this.asJson
 

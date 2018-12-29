@@ -13,7 +13,7 @@ import thebrains.youradventure.Utils.Error
 import thebrains.youradventure.Adventure.CollectionPack.ListImplicits._
 
 object Main extends App {
-  private lazy val CurrentSteps: Step = Step(
+  lazy private val CurrentSteps: Step = Step(
     name = "Your birth",
     description = "You open your eye and see the darkness of the cave your" +
       " civilization is evolving.",
@@ -45,14 +45,14 @@ object Main extends App {
       )
     )
   )
-  private lazy val CurrentUniverse: IO[Error, Universe] = Universe(
+  lazy private val CurrentUniverse: IO[Error, Universe] = Universe(
     availableRaces = List(
       Races.Human
     ),
     availableSteps = StepCollection.Empty,
     startingStep = CurrentSteps
   )
-  private lazy val Answers: List[Maybe[String]] = List(
+  lazy private val Answers: List[Maybe[String]] = List(
     Maybe.just("leo"),
     Maybe.just("human")
   )
@@ -68,34 +68,34 @@ object Main extends App {
     } yield {
       exit
     }).flatMap[Error, Unit] {
-      case Left(e) =>
-        (for {
-          m <- renderer.displayErrorAsMessage(e)
-          _ <- tp.display(m)
-          m <- renderer.displayEmptyLine
-          _ <- tp.display(m)
-        } yield {
-          ()
-        }).flatMap { _ =>
-          IO.fail(e)
-        }
-      case Right(g) =>
-        for {
-          m <- renderer.display(g.toString)
-          _ <- tp.display(m, ignoreLineLength = true)
-        } yield {}
-    }
+        case Left(e) =>
+          (for {
+            m <- renderer.displayErrorAsMessage(e)
+            _ <- tp.display(m)
+            m <- renderer.displayEmptyLine
+            _ <- tp.display(m)
+          } yield {
+            ()
+          }).flatMap { _ =>
+            IO.fail(e)
+          }
+        case Right(g) =>
+          for {
+            m <- renderer.display(g.toString)
+            _ <- tp.display(m, ignoreLineLength = true)
+          } yield {}
+      }
       .attempt
       .map[Int] {
-      case Left(_: Error) => 1
-      case Right(_) => 0
-    }
+        case Left(_: Error) => 1
+        case Right(_) => 0
+      }
       .map[ExitStatus](ExitStatus.ExitNow(_))
   }
 
   def myAppLogic(
-    tp: TerminalPrint,
-    game: GameStatus,
+    tp:      TerminalPrint,
+    game:    GameStatus,
     answers: List[Maybe[String]]
   ): IO[Error, GameStatus] = {
     for {

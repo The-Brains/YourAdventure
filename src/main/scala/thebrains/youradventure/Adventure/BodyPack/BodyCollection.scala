@@ -3,7 +3,7 @@ package thebrains.youradventure.Adventure.BodyPack
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyTrait
 
 class BodyCollection(bodyPart: List[BodyPart])
-  extends AssemblyTrait[BodyCollection, BodyPart](bodyPart) {
+    extends AssemblyTrait[BodyCollection, BodyPart](bodyPart) {
   override protected def wrap(items: BodyPart*): BodyCollection = {
     new BodyCollection(items.toList)
   }

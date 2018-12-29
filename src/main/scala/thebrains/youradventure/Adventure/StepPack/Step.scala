@@ -25,11 +25,13 @@ class Step(
     }
   }
 
-  def getActions(player: Player): IO[Error, ActionCollection] = {
-    if (this.availableActions.isEmpty) {
-      IO.sync(this.availableActions)
-    } else {
-      Actions.playerStatusMenu(player, playerMenu) ++ availableActions
+  def getActions(player: Player): IO[Nothing, ActionCollection] = {
+    IO.sync {
+     if (this.availableActions.isEmpty) {
+        this.availableActions
+      } else {
+        Actions.Exit ++ Actions.playerStatusMenu(player, playerMenu) ++ availableActions
+      }
     }
   }
 
@@ -60,6 +62,15 @@ object Steps {
       extends Step(
         name = "Void",
         description = "This is a dead end",
+        location = Locations.Void,
+        transformations = TransformationCollection.Empty,
+        availableActions = ActionCollection.Empty
+      )
+
+  case object ExitStep
+      extends Step(
+        name = "Exit",
+        description = "You are exiting the game.",
         location = Locations.Void,
         transformations = TransformationCollection.Empty,
         availableActions = ActionCollection.Empty

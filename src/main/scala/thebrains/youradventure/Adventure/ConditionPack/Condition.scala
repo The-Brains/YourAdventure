@@ -9,30 +9,30 @@ import thebrains.youradventure.Adventure._
 import thebrains.youradventure.Utils._
 
 abstract class ConditionOn(
-  name: String,
+  name:        String,
   description: String
 ) extends AssemblyItemTrait(name, description) {
   def isTrueFor(p: Player): IO[Error, Boolean]
 }
 
 case class RaceCondition(equalTo: Race)
-  extends ConditionOn(
-    name = "Condition on race",
-    description = s"Condition to be part of '${equalTo.getCapitalizeName}'."
-  ) {
+    extends ConditionOn(
+      name = "Condition on race",
+      description = s"Condition to be part of '${equalTo.getCapitalizeName}'."
+    ) {
   override def isTrueFor(p: Player): IO[Error, Boolean] = IO.sync(p.getRace === equalTo)
 }
 
 case class AttributeCondition(
-  attribute: Attribute,
-  minValue: AttributeType = AttributeMinValue,
-  maxValue: AttributeType = AttributeMaxValue,
+  attribute:                        Attribute,
+  minValue:                         AttributeType = AttributeMinValue,
+  maxValue:                         AttributeType = AttributeMaxValue,
   defaultWhenAttributeDoesNotExist: Boolean
 ) extends ConditionOn(
-  name = "Condition on Attribute",
-  description = s"Condition for attribute '${attribute.getCapitalizeName}' " +
-    s"to be between $minValue and $maxValue."
-) {
+      name = "Condition on Attribute",
+      description = s"Condition for attribute '${attribute.getCapitalizeName}' " +
+        s"to be between $minValue and $maxValue."
+    ) {
   override def isTrueFor(p: Player): IO[Error, Boolean] = {
     for {
       attributes <- p.currentAttributes
@@ -48,10 +48,10 @@ case class AttributeCondition(
 }
 
 case class EquipmentCondition(equipment: Equipment)
-  extends ConditionOn(
-    name = "Condition on Equipment",
-    description = s"Condition to wear equipment '${equipment.getCapitalizeName}'."
-  ) {
+    extends ConditionOn(
+      name = "Condition on Equipment",
+      description = s"Condition to wear equipment '${equipment.getCapitalizeName}'."
+    ) {
   override def isTrueFor(p: Player): IO[Error, Boolean] = IO.sync(p isWearing equipment)
 }
 
@@ -66,9 +66,9 @@ class Condition(
 ) extends AssemblyTrait[Condition, ConditionOn](conditions) {
   def isTrueFor(p: Player): IO[Error, Boolean] = {
     IO.sequence(
-      conditions
-        .map(_ isTrueFor p)
-    )
+        conditions
+          .map(_ isTrueFor p)
+      )
       .map(_.reduce(_ && _))
   }
 

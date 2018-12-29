@@ -22,7 +22,7 @@ class TerminalPrint {
   private def lengthToFarSparse(txt: String): Int = txt.reverse.dropWhile(_ != ' ').length
 
   private def splitLine(
-    line: Line,
+    line:             Line,
     ignoreLineLength: Boolean
   ): List[String] = {
     if (ignoreLineLength || !line.cutLength) {
@@ -45,8 +45,8 @@ class TerminalPrint {
   }
 
   def display(
-    message: MessageToDisplay,
-    answer: Maybe[String] = Maybe.empty,
+    message:          MessageToDisplay,
+    answer:           Maybe[String] = Maybe.empty,
     ignoreLineLength: Boolean = false
   ): IO[Error, Input] = {
     for {
@@ -58,8 +58,8 @@ class TerminalPrint {
   }
 
   private def askQuestion(
-    message: MessageToDisplay,
-    answer: Maybe[String] = Maybe.empty,
+    message:          MessageToDisplay,
+    answer:           Maybe[String] = Maybe.empty,
     ignoreLineLength: Boolean
   ): IO[Error, Input] = {
     message.question match {
@@ -69,8 +69,8 @@ class TerminalPrint {
   }
 
   def render(
-    g: GameStatus,
-    answer: Maybe[String] = Maybe.empty,
+    g:      GameStatus,
+    answer: Maybe[String] = Maybe.empty
   ): IO[Error, GameStatus] = {
     for {
       m <- g.getNextMessage
@@ -88,7 +88,7 @@ class TerminalPrint {
     * Protected for test
     */
   protected def previewTextToPrint(
-    txt: Seq[Line],
+    txt:              Seq[Line],
     ignoreLineLength: Boolean
   ): Seq[String] = {
     txt.flatMap(t => splitLine(t, ignoreLineLength))
@@ -98,7 +98,7 @@ class TerminalPrint {
     * Protected for test
     */
   protected def previewTextToPrint(
-    txt: Line,
+    txt:              Line,
     ignoreLineLength: Boolean
   ): Seq[String] = {
     previewTextToPrint(
@@ -112,14 +112,14 @@ class TerminalPrint {
   }
 
   private def printToConsole(
-    txt: Seq[Line],
+    txt:              Seq[Line],
     ignoreLineLength: Boolean
   ): IO[Nothing, Unit] = {
     txt |> (previewTextToPrint(_, ignoreLineLength)) |> assemble |> printText
   }
 
   private def printToConsole(
-    txt: Line,
+    txt:              Line,
     ignoreLineLength: Boolean
   ): IO[Nothing, Unit] = {
     txt |> (previewTextToPrint(_, ignoreLineLength)) |> assemble |> printText
@@ -145,8 +145,8 @@ class TerminalPrint {
   private def ask[A](
     getValue: => IO[Error, A]
   )(
-    question: Line,
-    answer: Maybe[A],
+    question:         Line,
+    answer:           Maybe[A],
     ignoreLineLength: Boolean
   ): IO[Error, A] = {
     for {
@@ -155,11 +155,8 @@ class TerminalPrint {
       output <- {
         answer match {
           case Maybe.Just(a) =>
-            for {
-              _ <- printToConsole(Line(a.toString), ignoreLineLength)
-            } yield {
-              a
-            }
+            printToConsole(Line(a.toString), ignoreLineLength)
+              .map(_ => a)
           case Maybe.Empty() => getValue
         }
       }
@@ -169,16 +166,16 @@ class TerminalPrint {
   }
 
   private def askText(
-    question: Line,
-    answer: Maybe[String] = Maybe.empty,
+    question:         Line,
+    answer:           Maybe[String] = Maybe.empty,
     ignoreLineLength: Boolean
   ): IO[Error, String] = {
     ask(getString)(question, answer, ignoreLineLength)
   }
 
   private def askInt(
-    question: Line,
-    answer: Maybe[Int] = Maybe.empty,
+    question:         Line,
+    answer:           Maybe[Int] = Maybe.empty,
     ignoreLineLength: Boolean
   ): IO[Error, Int] = {
     ask(getInt)(question, answer, ignoreLineLength)
@@ -202,9 +199,9 @@ object TerminalPrint {
 
   private def terminalWidth: Option[Int] = terminalSize.map(_.getColumns)
 
-  private val NewLineChar: String = "\n"
+  private val NewLineChar:         String = "\n"
   private val DefaultTerminalSize: Int = 80
-  private val Margin: Int = 10
+  private val Margin:              Int = 10
 
   def maxLineLength: Int = terminalWidth.getOrElse(DefaultTerminalSize) - Margin
 

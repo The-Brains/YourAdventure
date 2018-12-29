@@ -63,7 +63,7 @@ abstract class AssemblyTrait[THIS <: AssemblyTrait[THIS, A], A <: AssemblyItemTr
   }
 
   def ++(other: A): THIS = {
-    wrap(this.getItems :+ other: _*)
+    this ++ wrap(other)
   }
 
   def iterator: Iterator[A] = items.toIterator
