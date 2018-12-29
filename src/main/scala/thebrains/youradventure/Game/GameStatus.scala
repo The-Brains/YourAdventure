@@ -36,10 +36,6 @@ class GameStatus(
 
   def getNextMessage: IO[Error, TerminalMessage] = producer.getNextMessage
 
-  def consumeAction(a: Action): IO[Error, GameStatus] = {
-    this.consumer.consumeAction(this.universe, a)
-  }
-
   @transient lazy val updater: Updater = new Updater(this)
 
   @transient lazy val consumer: Consumer = new Consumer(this, updater)

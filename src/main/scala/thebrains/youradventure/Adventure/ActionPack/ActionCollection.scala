@@ -17,31 +17,39 @@ class ActionCollection(
 
   override protected def empty: ActionCollection = ActionCollection.Empty
 
+  private def findAction(actionName: String): IO[Error, Action] = {
+    getActions.find(a => a.getLowerCaseName == actionName.toLowerCase) match {
+      case Some(a) => IO.sync(a)
+      case None =>
+        IO.fail(
+          Error(
+            "Action not found",
+            s"Could not find action for '$actionName', among: ${validActions.mkString(", ")}"
+          )
+        )
+    }
+  }
+
+  private def findAction(actionIndex: Int): IO[Error, Action] = {
+    getIndexedActionsMap.get(actionIndex) match {
+      case Some(a) => IO.sync(a)
+      case None =>
+        IO.fail(
+          Error(
+            "Action not found",
+            s"Could not find action for id '$actionIndex', " +
+              s"among: ${getIndexedActionsMap.keys.mkString(", ")}"
+          )
+        )
+    }
+  }
+
   def getAction(key: String): IO[Error, Action] = {
     key match {
-      case i if Try(i.toInt).toOption.isDefined =>
-        getIndexedActionsMap.get(i.toInt) match {
-          case Some(a) => IO.sync(a)
-          case None =>
-            IO.fail(
-              Error(
-                "Action not found",
-                s"Could not find action for id '$i', " +
-                  s"among: ${getIndexedActionsMap.keys.mkString(", ")}"
-              )
-            )
-        }
-      case k =>
-        getActions.find(a => a.getLowerCaseName == k.toLowerCase) match {
-          case Some(a) => IO.sync(a)
-          case None =>
-            IO.fail(
-              Error(
-                "Action not found",
-                s"Could not find action for '$k', among: ${validActions.mkString(", ")}"
-              )
-            )
-        }
+      case i if Try(i.toInt).toOption.isDefined => findAction(i.toInt)
+      case k if k.nonEmpty => findAction(k)
+      case k: String if k.isEmpty =>
+        IO.fail(Error("Empty input", "You have not entered anything"))
     }
   }
 }

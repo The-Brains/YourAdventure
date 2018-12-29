@@ -1,5 +1,7 @@
 package thebrains.youradventure.Adventure.CollectionPack
 
+import scalaz.Maybe
+
 object ListImplicits {
 
   implicit class Uniqueness[A](l: List[A]) {
@@ -18,6 +20,10 @@ object ListImplicits {
         l.reduce(f)
       }
     }
+  }
+
+  implicit class OptionsMaybes[A](l: List[Maybe[A]]) {
+    def headMaybe: Maybe[A] = Maybe.fromOption(l.headOption).flatMap(identity)
   }
 
 }
