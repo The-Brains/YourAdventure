@@ -36,7 +36,7 @@ test:
 
 test_coverage:
 	sbt clean coverage test coverageReport
-	open ./target/scala-2.11/scoverage-report/index.html
+	open ./target/scala-2.12/scoverage-report/index.html
 
 #  make SEARCH="MY TEST NAME" test_only
 test_only:
