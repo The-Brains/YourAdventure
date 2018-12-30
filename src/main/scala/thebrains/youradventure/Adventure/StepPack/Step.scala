@@ -27,7 +27,7 @@ class Step(
 
   def getActions(player: Player): IO[Nothing, ActionCollection] = {
     IO.sync {
-     if (this.availableActions.isEmpty) {
+      if (this.availableActions.isEmpty) {
         this.availableActions
       } else {
         Actions.Exit ++ Actions.playerStatusMenu(player, playerMenu) ++ availableActions

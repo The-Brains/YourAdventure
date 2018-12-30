@@ -56,11 +56,11 @@ class ActionCollection(
     }
   }
 
-  override def ++(
-    other: ActionCollection
-  ): ActionCollection = {
-    new ActionCollection(this.getActions ++ other.getActions,
-      this.getQuestion.orElse(other.getQuestion))
+  override def ++(other: ActionCollection): ActionCollection = {
+    new ActionCollection(
+      this.getActions ++ other.getActions,
+      this.getQuestion.orElse(other.getQuestion)
+    )
   }
 
   override protected def wrap(items: Action*): ActionCollection = {

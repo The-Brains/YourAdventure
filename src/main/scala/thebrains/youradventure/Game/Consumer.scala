@@ -159,38 +159,38 @@ object Consumer {
 
   implicit private class JumpIO(io: IO[Error, CMsg]) {
     def mightJumpNext(next: CMsgS => IO[Error, CMsgS]): IO[Error, CMsgS] = {
-      io.flatMap { msg: CMsg =>
-        val passNext = msg.passNext
-        debugPrint(s"mightJumpNext: test: $passNext")
-        if (passNext) {
-          IO.sync(msg.toStable)
-        } else {
-          next(msg.toStable)
-        }
+      io.flatMap {
+        case msg @ CMsg(_, _, passNext) =>
+          debugPrint(s"mightJumpNext: test: $passNext")
+          if (passNext) {
+            IO.sync(msg.toStable)
+          } else {
+            next(msg.toStable)
+          }
       }
     }
 
     def mightJumpNextChain(next: CMsgS => IO[Error, CMsg]): IO[Error, CMsg] = {
-      io.flatMap { msg: CMsg =>
-        val passNext = msg.passNext
-        debugPrint(s"mightJumpNextChain: test: $passNext")
-        if (passNext) {
-          IO.sync(msg)
-        } else {
-          next(msg.toStable)
-        }
+      io.flatMap {
+        case msg @ CMsg(_, _, passNext) =>
+          debugPrint(s"mightJumpNextChain: test: $passNext")
+          if (passNext) {
+            IO.sync(msg)
+          } else {
+            next(msg.toStable)
+          }
       }
     }
 
     def tailChain(next: CMsgS => IO[Error, GameStatus]): IO[Error, GameStatus] = {
-      io.flatMap { msg: CMsg =>
-        val passNext = msg.passNext
-        debugPrint(s"tailChain: test: $passNext")
-        if (passNext) {
-          IO.sync(msg.game)
-        } else {
-          next(msg.toStable)
-        }
+      io.flatMap {
+        case msg @ CMsg(_, _, passNext) =>
+          debugPrint(s"tailChain: test: $passNext")
+          if (passNext) {
+            IO.sync(msg.game)
+          } else {
+            next(msg.toStable)
+          }
       }
     }
   }
