@@ -1,6 +1,5 @@
-package thebrains.youradventure.TerminalUIPack
+package thebrains.youradventure.FPTerminalIO
 
-import thebrains.youradventure.FPTerminalIO.{Line, TerminalPrint}
 import thebrains.youradventure.ParentTest
 
 class TerminalPrintTest extends ParentTest {

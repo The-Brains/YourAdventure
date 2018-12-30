@@ -1,9 +1,8 @@
-package thebrains.youradventure.Adventure
+package thebrains.youradventure.Adventure.TransformationPack
 
 import org.scalatest.Assertion
 import thebrains.youradventure.Adventure.AttributePack.Attributes
 import thebrains.youradventure.Adventure.AttributePack.PlayerAttribute.AttributeType
-import thebrains.youradventure.Adventure.TransformationPack._
 import thebrains.youradventure.ParentTest
 
 class TransformationTest extends ParentTest {

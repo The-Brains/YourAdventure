@@ -6,7 +6,7 @@ import thebrains.youradventure.Adventure.CollectionPack.ListImplicits._
 import thebrains.youradventure.Adventure.StepPack.Step.StepName
 import thebrains.youradventure.Utils.Error
 
-class StepCollection(steps: Step*) extends AssemblyTrait[StepCollection, Step](steps.toList) {
+class StepCollection(steps: List[Step]) extends AssemblyTrait[StepCollection, Step](steps) {
   def getStep(stepName: StepName): IO[Error, Step] = {
     steps.find(_.getName == stepName) match {
       case Some(step) => IO.sync(step)
@@ -35,10 +35,10 @@ class StepCollection(steps: Step*) extends AssemblyTrait[StepCollection, Step](s
 }
 
 object StepCollection {
-  val Empty: StepCollection = new StepCollection()
+  val Empty: StepCollection = new StepCollection(Nil)
 
-  def apply(steps: Step*): StepCollection = new StepCollection(steps: _*)
+  def apply(steps: Step*): StepCollection = new StepCollection(steps.toList)
 
-  def apply(steps: List[Step]): StepCollection = new StepCollection(steps: _*)
+  def apply(steps: List[Step]): StepCollection = new StepCollection(steps)
 
 }

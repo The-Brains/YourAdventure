@@ -1,7 +1,6 @@
-package thebrains.youradventure.Adventure
+package thebrains.youradventure.Adventure.AttributePack
 
 import scalaz.Maybe
-import thebrains.youradventure.Adventure.AttributePack.{AttributeCollection, Attributes}
 import thebrains.youradventure.Adventure.TransformationPack._
 import thebrains.youradventure.ParentTest
 

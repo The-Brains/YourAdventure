@@ -1,11 +1,10 @@
-package thebrains.youradventure.TerminalUIPack
+package thebrains.youradventure.FPTerminalIO
 
 import thebrains.youradventure.Adventure.ActionPack._
 import thebrains.youradventure.Adventure.AttributePack._
 import thebrains.youradventure.Adventure.StepPack._
 import thebrains.youradventure.Adventure.TransformationPack._
 import thebrains.youradventure.Adventure._
-import thebrains.youradventure.FPTerminalIO._
 import thebrains.youradventure.Game.GameStatus
 import thebrains.youradventure.ParentTest
 

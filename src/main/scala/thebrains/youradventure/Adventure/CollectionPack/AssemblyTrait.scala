@@ -5,7 +5,9 @@ import scalaz.Maybe
 import scalaz.zio.IO
 import thebrains.youradventure.Utils.Error
 import ListImplicits._
+
 import scala.reflect.ClassTag
+import scala.util.Try
 
 abstract class AssemblyTrait[THIS <: AssemblyTrait[THIS, A], A <: AssemblyItemTrait: ClassTag](
   items: List[A]
@@ -13,6 +15,9 @@ abstract class AssemblyTrait[THIS <: AssemblyTrait[THIS, A], A <: AssemblyItemTr
   def toCustomMap: Map[String, A] = {
     items.map(a => (a.getName, a)).toMap
   }
+
+  @transient lazy val length: Int = items.length
+  @transient lazy val size:   Int = length
 
   def encoded: List[Json] = items.map(_.encoded)
 
@@ -68,7 +73,7 @@ abstract class AssemblyTrait[THIS <: AssemblyTrait[THIS, A], A <: AssemblyItemTr
 
   def iterator: Iterator[A] = items.toIterator
 
-  def apply(idx: Int): A = items.toArray.apply(idx)
-
-  def length: Int = items.length
+  def get(idx: Int): Maybe[A] = {
+    Maybe.fromOption(Try(items.toArray.apply(idx)).toOption)
+  }
 }
