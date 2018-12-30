@@ -19,6 +19,10 @@ class Action(
     BastardActionCollection(this) ++ availableActions
   }
 
+  def ++(availableActions: BastardActionCollection): BastardActionCollection = {
+    BastardActionCollection(this) ++ availableActions
+  }
+
   def ++(availableActions: Action): BastardActionCollection = {
     BastardActionCollection(this) ++ BastardActionCollection(availableActions)
   }

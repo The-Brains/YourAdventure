@@ -88,8 +88,8 @@ class BastardActionCollection(actions: List[Action])
 }
 
 object BastardActionCollection {
-  def apply(action: Action): BastardActionCollection = {
-    new BastardActionCollection(List(action))
+  def apply(action: Action*): BastardActionCollection = {
+    new BastardActionCollection(action.toList)
   }
 
   case object Empty extends BastardActionCollection(Nil)

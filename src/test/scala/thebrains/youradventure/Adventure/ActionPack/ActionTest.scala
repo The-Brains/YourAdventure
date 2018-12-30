@@ -3,11 +3,16 @@ package thebrains.youradventure.Adventure.ActionPack
 import scalaz.Maybe
 import thebrains.youradventure.Adventure.StepPack.{StepCollection, Steps}
 import thebrains.youradventure.ParentTest
+import thebrains.youradventure.FactoriesTest._
 
 class ActionTest extends ParentTest {
   "Action" - {
-    val a = Action("action A name", "action A description", Steps.EmptyStep, Nil)
-    val b = Action("action B name", "action B description", "Exit", Nil)
+    val a = FAction(
+      targetStep = Maybe.just(Right(Steps.EmptyStep))
+    )
+    val b = FAction(
+      targetStep = Maybe.just(Left("Exit"))
+    )
 
     "Exit step" - {
       val e = Actions.Exit
@@ -34,14 +39,16 @@ class ActionTest extends ParentTest {
     }
 
     "Interaction with collection" - {
-      val question = "question"
-      val collection = a ++ ActionCollection(question)(b)
+      val startingCollection = FActionCollection(lengthAction = Maybe.just(1))
+      val collection = a ++ b ++ startingCollection
+      val indexOfEmptyAction = 3
 
       "Should assemble with collection" in {
-        assertEquals(Maybe.just(question), collection.getQuestion)
+        assertEquals(startingCollection.getQuestion, collection.getQuestion)
         assertEquals(Maybe.just(a.getName), collection.get(0).map(_.getName))
         assertEquals(Maybe.just(b.getName), collection.get(1).map(_.getName))
-        assertEquals(Maybe.empty, collection.get(2).map(_.getName))
+        assert(collection.get(2).isJust)
+        assert(collection.get(indexOfEmptyAction).isEmpty)
       }
     }
 
@@ -62,7 +69,7 @@ class ActionTest extends ParentTest {
       }
 
       "Should fail if invalid step" in {
-        val c = Action("action C name", "action C description", Left("not a real step"))
+        val c = FAction(targetStep = Maybe.just(Left("not a real step")))
         val io = c.getStep(stepCollection)
         val output = unsafeRunToEither(io)
         assert(output.isLeft)
