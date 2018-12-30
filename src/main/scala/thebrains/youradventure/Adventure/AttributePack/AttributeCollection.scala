@@ -8,25 +8,33 @@ import thebrains.youradventure.Adventure.TransformationPack._
 import thebrains.youradventure.Utils.Error
 
 class AttributeCollection(attributes: Set[PlayerAttribute])
-    extends AssemblyTrait[AttributeCollection, PlayerAttribute](attributes.toList) {
+  extends AssemblyTrait[AttributeCollection, PlayerAttribute](attributes.toList) {
 
   def <<(applyTransformations: TransformationCollection): IO[Error, AttributeCollection] = {
     IO.sequence(
-        (this.toCustomMap.mapValues(p => (Some(p), None)).toList ++
-          applyTransformations.toCustomMap.mapValues(t => (None, Some(t))).toList)
-          .groupBy(_._1)
-          .map {
-            case (_, attributeTransformations) =>
-              val attributesToTransform = attributeTransformations.flatMap(_._2._1)
-              val transformations = attributeTransformations.flatMap(_._2._2)
-
-              val startedAttribute = AttributeCollection(attributesToTransform: _*).reduceAll
-
-              transformations.foldLeft(startedAttribute) {
-                case (io, t: Transformation) => io.flatMap(a => t >> a)
+      (this.toCustomMap.mapValues(p => (Some(p), None)).toList ++
+        applyTransformations.toCustomMap.mapValues(t => (None, Some(t))).toList)
+        .groupBy(_._1)
+        .map { case (_, attributeTransformations) =>
+          (
+            attributeTransformations.flatMap(_._2._1),
+            attributeTransformations.flatMap(_._2._2)
+          )
+        }
+        .map {
+          case (Nil, _) => IO.sync(Maybe.empty)
+          case (attributesToTransform, Nil) =>
+            AttributeCollection(attributesToTransform: _*).reduceAll.map(Maybe.just)
+          case (attributesToTransform, transformations) =>
+            val startedAttribute = AttributeCollection(attributesToTransform: _*).reduceAll
+            transformations
+              .foldLeft(startedAttribute) {
+                case (io, t: Transformation) => io.flatMap(a => t appliedTo a)
               }
-          }
-      )
+              .map(Maybe.just)
+        }
+    )
+      .map(_.flatMap(_.toOption))
       .map(s => AttributeCollection(s.toSet))
   }
 

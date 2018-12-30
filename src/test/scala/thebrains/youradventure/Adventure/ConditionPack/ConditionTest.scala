@@ -1,6 +1,5 @@
 package thebrains.youradventure.Adventure.ConditionPack
 
-import scalaz.zio.IO
 import thebrains.youradventure.Adventure._
 import thebrains.youradventure.ParentTest
 

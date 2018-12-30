@@ -16,14 +16,14 @@ class TransformationTest extends ParentTest {
       expectedValue:  AttributeType
     ): Assertion = {
       val playerAttribute = attribute.toPlayerAttribute(initValue)
-      val result = unsafeRunSync(transformation.>>(playerAttribute)).toEither
+      val result = unsafeRunSync(transformation.appliedTo(playerAttribute)).toEither
       assert(result.isRight)
       assertEquals(expectedValue, result.right.get.value)
     }
 
     def testRevert(transformation: Transformation): Assertion = {
       val playerAttribute = attribute.toPlayerAttribute(10)
-      val tmp = unsafeRunSync(transformation.>>(playerAttribute)).toEither
+      val tmp = unsafeRunSync(transformation.appliedTo(playerAttribute)).toEither
       assert(tmp.isRight)
 
       val revert = unsafeRunSync(transformation.revert(tmp.right.get)).toEither

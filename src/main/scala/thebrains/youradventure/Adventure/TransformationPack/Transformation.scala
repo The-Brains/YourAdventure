@@ -48,7 +48,7 @@ case class Transformation(
     }
   }
 
-  def >>(playerAttribute: PlayerAttribute): IO[Error, PlayerAttribute] = {
+  def appliedTo(playerAttribute: PlayerAttribute): IO[Error, PlayerAttribute] = {
     execute(forwardTransformation, playerAttribute)
   }
 
