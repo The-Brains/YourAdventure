@@ -1,12 +1,9 @@
 package thebrains.youradventure.Adventure.BodyPack
 
+import io.circe.syntax._
 import io.circe.{Encoder, Json}
 import scalaz.Maybe
-import scalaz.zio.IO
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyItemTrait
-import thebrains.youradventure.Utils.{Error, FatalError}
-import io.circe.generic.auto._
-import io.circe.syntax._
 
 case class BodyPart(
   name:        String,

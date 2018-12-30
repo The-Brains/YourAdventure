@@ -4,7 +4,6 @@ import io.circe.{Encoder, Json}
 import scalaz.zio.IO
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyItemTrait
 import thebrains.youradventure.Utils.Error
-import io.circe.generic.auto._
 import io.circe.syntax._
 
 case class PlayerAttribute(
@@ -23,7 +22,7 @@ case class PlayerAttribute(
 
   override def encoded: Json = this.asJson
 
-  override def toString: String = this.asJson.noSpaces
+  override def toString: String = encoded.noSpaces
 
   override def |+|(other: AssemblyItemTrait): IO[Error, PlayerAttribute] = {
     other match {
