@@ -9,11 +9,14 @@ class PlayerAttributeTest extends ParentTest {
   "PlayerAttribute" - {
     "as List" - {
       "With Transformation" in {
-        val attributes: AttributeCollection =
-          unsafeRun(
+        val attributesIO =
+          unsafeRunToEither(
             Attributes.Strength.toPlayerAttribute(10) ++
               Attributes.Constitution.toPlayerAttribute(10)
           )
+
+        assert(attributesIO.isRight)
+        val attributes = attributesIO.right.get
 
         val transformations: TransformationCollection =
           TransformationBuilder

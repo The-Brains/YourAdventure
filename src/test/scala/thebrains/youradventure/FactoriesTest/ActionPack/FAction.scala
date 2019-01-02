@@ -9,12 +9,9 @@ import thebrains.youradventure.FactoriesTest.StepPack.FStep
 import thebrains.youradventure.FactoriesTest.Utils.RandomMachine
 
 import scala.util.Random
+import thebrains.youradventure.FactoriesTest.DefaultValues._
 
 object FAction {
-  private val DefaultNameLength:           Int = 5
-  private val DefaultDescriptionLength:    Int = 144
-  private val DefaultTargetStepNameLength: Int = 5
-
   def apply(
     name:        Maybe[String] = Maybe.empty,
     description: Maybe[String] = Maybe.empty,

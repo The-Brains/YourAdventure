@@ -1,5 +1,6 @@
 package thebrains.youradventure.FactoriesTest.StepPack
 
+import thebrains.youradventure.FactoriesTest.DefaultValues._
 import scalaz.Maybe
 import thebrains.youradventure.Adventure.ActionPack.ActionCollection
 import thebrains.youradventure.Adventure.Location
@@ -11,9 +12,6 @@ import thebrains.youradventure.FactoriesTest.Utils.RandomMachine
 import scala.util.Random
 
 object FStep {
-  private val DefaultNameLength:        Int = 5
-  private val DefaultDescriptionLength: Int = 144
-
   def apply(
     name:             Maybe[String] = Maybe.empty,
     description:      Maybe[String] = Maybe.empty,

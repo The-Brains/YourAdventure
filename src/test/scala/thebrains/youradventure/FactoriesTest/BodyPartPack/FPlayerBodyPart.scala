@@ -16,6 +16,7 @@ object FPlayerBodyPart {
     )
   }
 }
+
 object FPlayerBodyPartEquipped {
   def apply(
     bodyPart:  Maybe[BodyPart] = Maybe.empty,

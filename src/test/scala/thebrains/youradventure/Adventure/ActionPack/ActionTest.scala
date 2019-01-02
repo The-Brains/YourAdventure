@@ -4,7 +4,6 @@ import scalaz.Maybe
 import thebrains.youradventure.Adventure.StepPack.{StepCollection, Steps}
 import thebrains.youradventure.FactoriesTest.ActionPack.{FAction, FActionCollection}
 import thebrains.youradventure.ParentTest
-import thebrains.youradventure.FactoriesTest._
 import thebrains.youradventure.Utils.ToOption._
 
 class ActionTest extends ParentTest {

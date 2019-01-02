@@ -5,11 +5,9 @@ import thebrains.youradventure.Adventure.ActionPack.{Action, ActionCollection}
 import thebrains.youradventure.FactoriesTest.Utils.RandomMachine
 
 import scala.util.Random
+import thebrains.youradventure.FactoriesTest.DefaultValues._
 
 object FActionCollection {
-  private val DefaultQuestionLength:  Int = 128
-  private val DefaultMaxActionLength: Int = 5
-
   def apply(
     question:     Maybe[String] = Maybe.empty,
     lengthAction: Maybe[Int] = Maybe.empty,
@@ -21,7 +19,7 @@ object FActionCollection {
       question = question getOrElse RandomMachine.getString(DefaultQuestionLength)
     )(
       actions = actions.getOrElse(
-        (0 until (lengthAction getOrElse RandomMachine.getInt(1, DefaultMaxActionLength)))
+        (0 until (lengthAction getOrElse RandomMachine.getInt(1, DefaultListMaxLength)))
           .map(_ => FAction())
           .toList
       ): _*

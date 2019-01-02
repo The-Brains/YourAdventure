@@ -7,12 +7,10 @@ import thebrains.youradventure.Adventure.TransformationPack.TransformationCollec
 import thebrains.youradventure.FactoriesTest.BodyPartPack.FBodyPart
 import thebrains.youradventure.FactoriesTest.TransformationPack.FTransformationCollection
 import thebrains.youradventure.FactoriesTest.Utils.RandomMachine
-
+import thebrains.youradventure.FactoriesTest.DefaultValues._
 import scala.util.Random
 
 object FEquipment {
-  private val DefaultNameLength:        Int = 5
-  private val DefaultDescriptionLength: Int = 144
 
   def apply(
     name:            Maybe[String] = Maybe.empty,

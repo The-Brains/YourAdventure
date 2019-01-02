@@ -2,13 +2,12 @@ package thebrains.youradventure.FactoriesTest.TransformationPack
 
 import scalaz.Maybe
 import thebrains.youradventure.Adventure.TransformationPack._
+import thebrains.youradventure.FactoriesTest.DefaultValues.DefaultListMaxLength
 import thebrains.youradventure.FactoriesTest.Utils.RandomMachine
 
 import scala.util.Random
 
 object FTransformationCollection {
-  private val DefaultMaxActionLength: Int = 5
-
   def apply(
     lengthTransformation: Maybe[Int] = Maybe.empty,
     transformations:      Maybe[List[Transformation]] = Maybe.empty
@@ -17,7 +16,7 @@ object FTransformationCollection {
   ): TransformationCollection = {
     TransformationCollection(
       transformations = transformations.getOrElse(
-        (0 until (lengthTransformation getOrElse RandomMachine.getInt(1, DefaultMaxActionLength)))
+        (0 until (lengthTransformation getOrElse RandomMachine.getInt(1, DefaultListMaxLength)))
           .map(_ => FTransformation())
           .toList
       ): _*

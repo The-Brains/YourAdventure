@@ -59,8 +59,8 @@ object AttributeCollection {
 
   final case object Empty extends AttributeCollection(Set.empty)
 
-  def apply(a: PlayerAttribute*): AttributeCollection = {
-    new AttributeCollection(a.toSet)
+  def apply(attributes: PlayerAttribute*): AttributeCollection = {
+    new AttributeCollection(attributes.toSet)
   }
 
   def apply(a: Set[PlayerAttribute]): AttributeCollection = new AttributeCollection(a)
