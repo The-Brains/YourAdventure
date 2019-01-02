@@ -4,6 +4,7 @@ import java.io.IOException
 
 import scalaz.Maybe
 import thebrains.youradventure.Adventure.Things
+import ToOption._
 
 class Error(
   name:        String,
@@ -18,7 +19,7 @@ class Error(
   @transient lazy val stackAsString: Maybe[String] = (fatal, stack) match {
     case (false, _) => Maybe.empty
     case (_, Nil)   => Maybe.empty
-    case (true, e)  => Maybe.just("\n" + e.map(s => s.toString).mkString("\n"))
+    case (true, e)  => ("\n" + e.map(s => s.toString).mkString("\n")).just
   }
 
   def copy(

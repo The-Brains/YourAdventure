@@ -11,6 +11,7 @@ import thebrains.youradventure.FPTerminalIO._
 import thebrains.youradventure.Game.GameStatus
 import thebrains.youradventure.Utils.Error
 import thebrains.youradventure.Adventure.CollectionPack.ListImplicits._
+import thebrains.youradventure.Utils.ToOption._
 
 object Main extends App {
   lazy private val CurrentSteps: Step = Step(
@@ -53,8 +54,8 @@ object Main extends App {
     startingStep = CurrentSteps
   )
   lazy private val Answers: List[Maybe[String]] = List(
-    Maybe.just("leo"),
-    Maybe.just("human")
+    "leo".just,
+    "human".just
   )
 
   override def run(args: List[String]): IO[Nothing, ExitStatus] = {

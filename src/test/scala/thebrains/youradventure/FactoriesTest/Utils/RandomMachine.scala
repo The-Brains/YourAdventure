@@ -1,7 +1,7 @@
 package thebrains.youradventure.FactoriesTest.Utils
 
 import scalaz.Maybe
-
+import thebrains.youradventure.Utils.ToOption._
 import scala.util.Random
 
 private[FactoriesTest] object RandomMachine {
@@ -75,9 +75,9 @@ private[FactoriesTest] object RandomMachine {
     }
   }
 
-  def getMaybe[A](just: => A)(implicit r: Random): Maybe[A] = {
+  def getMaybe[A](value: => A)(implicit r: Random): Maybe[A] = {
     if (getBoolean) {
-      Maybe.just(just)
+      value.just
     } else {
       Maybe.empty
     }

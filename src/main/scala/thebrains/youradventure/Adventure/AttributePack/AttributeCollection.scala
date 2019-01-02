@@ -26,14 +26,14 @@ class AttributeCollection(attributes: Set[PlayerAttribute])
           .map {
             case (Nil, _) => IO.sync(Maybe.empty)
             case (attributesToTransform, Nil) =>
-              AttributeCollection(attributesToTransform: _*).reduceAll.map(Maybe.just)
+              AttributeCollection(attributesToTransform: _*).reduceAll.map(_.just)
             case (attributesToTransform, transformations) =>
               val startedAttribute = AttributeCollection(attributesToTransform: _*).reduceAll
               transformations
                 .foldLeft(startedAttribute) {
                   case (io, t: Transformation) => io.flatMap(a => t appliedTo a)
                 }
-                .map(Maybe.just)
+                .map(_.just)
           }
       )
       .map(_.flatMap(_.toOption))

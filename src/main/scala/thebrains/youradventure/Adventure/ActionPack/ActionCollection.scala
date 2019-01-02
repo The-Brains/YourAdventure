@@ -1,7 +1,7 @@
 package thebrains.youradventure.Adventure.ActionPack
 
 import scalaz.Maybe
-import scalaz.Maybe.Just
+import thebrains.youradventure.Utils.ToOption._
 import scalaz.zio.IO
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyTrait
 import thebrains.youradventure.Utils.Error
@@ -101,11 +101,11 @@ object ActionCollection {
     action:   Action,
     question: String
   ): ActionCollection = {
-    new ActionCollection(List(action), Just(question))
+    new ActionCollection(List(action), question.just)
   }
 
   def apply(question: String)(actions: Action*): ActionCollection = {
-    new ActionCollection(actions.toList, Just(question))
+    new ActionCollection(actions.toList, question.just)
   }
 
   final case object Empty extends ActionCollection(Nil, Maybe.empty)

@@ -81,7 +81,7 @@ object GameStatus {
   ): GameStatus = {
     new GameStatus(
       universe,
-      Maybe.just(universe.getStartingStep),
+      universe.getStartingStep.just,
       Maybe.empty,
       Maybe.empty,
       renderer,

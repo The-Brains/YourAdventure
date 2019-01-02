@@ -8,11 +8,11 @@ import thebrains.youradventure.Utils.ToOption._
 class ActionCollectionTest extends ParentTest {
   "ActionCollection" - {
     val a = FactoriesTest.FAction(
-      name = Maybe.just("action A name"),
+      name = "action A name".just,
       targetStep = Maybe.just(Right(Steps.EmptyStep))
     )
     val b = FactoriesTest.FAction(
-      name = Maybe.just("action B name"),
+      name = "action B name".just,
       targetStep = Maybe.just(Left("Exit"))
     )
 
@@ -23,7 +23,10 @@ class ActionCollectionTest extends ParentTest {
         }
       }
 
-      val collection: ActionCollection = FactoriesTest.FActionCollection()
+      val collection: ActionCollection = FactoriesTest.FActionCollection(
+        lengthAction = 3.just
+      )
+
     }
 
     "Bastard Action Collection" - {
@@ -44,8 +47,9 @@ class ActionCollectionTest extends ParentTest {
         val collectionWithA = collection ++ a
         val expectedLength = 3
         assertEquals(expectedLength, collectionWithA.length)
-        assertEquals(Maybe.just(a.getName), collectionWithA.get(2).map(_.getName))
+        assertEquals(a.getName.just, collectionWithA.get(2).map(_.getName))
       }
+
       "Should have the correct indexing" in {
         val biggerCollection = a ++ collection ++ b
         val expectedIndexOfB = 3

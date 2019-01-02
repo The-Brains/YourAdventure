@@ -3,6 +3,7 @@ package thebrains.youradventure.Adventure.AttributePack
 import scalaz.Maybe
 import thebrains.youradventure.Adventure.TransformationPack._
 import thebrains.youradventure.ParentTest
+import thebrains.youradventure.Utils.ToOption._
 
 class PlayerAttributeTest extends ParentTest {
   "PlayerAttribute" - {
@@ -24,8 +25,8 @@ class PlayerAttributeTest extends ParentTest {
 
         val newAttributes = unsafeRun(attributes << transformations)
 
-        assertEquals(Maybe.Just(11), newAttributes.getAttributeValue(Attributes.Strength))
-        assertEquals(Maybe.Just(10), newAttributes.getAttributeValue(Attributes.Constitution))
+        assertEquals(11.just, newAttributes.getAttributeValue(Attributes.Strength))
+        assertEquals(10.just, newAttributes.getAttributeValue(Attributes.Constitution))
         assertEquals(Maybe.Empty(), newAttributes.getAttributeValue(Attributes.Intelligence))
       }
     }

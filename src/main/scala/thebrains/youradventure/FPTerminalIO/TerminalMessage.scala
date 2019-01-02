@@ -4,6 +4,7 @@ import io.circe.{Encoder, Json}
 import scalaz.Maybe
 import io.circe.generic.auto._
 import io.circe.syntax._
+import thebrains.youradventure.Utils.ToOption._
 
 sealed trait TerminalMessage
 
@@ -12,11 +13,11 @@ case class Line(
   cutLength: Boolean = true
 )
 
-class MessageToDisplay(
+final class MessageToDisplay(
   messages:   List[Line],
   isQuestion: Boolean
 ) extends TerminalMessage {
-  lazy val question:      Maybe[Line] = if (isQuestion) Maybe.Just(messages.last) else Maybe.empty
+  lazy val question:      Maybe[Line] = if (isQuestion) messages.last.just else Maybe.empty
   lazy val messageToShow: Seq[Line] = if (isQuestion) messages.dropRight(1) else messages
 
   implicit private val jsonEncoder: Encoder[MessageToDisplay] =
@@ -54,7 +55,7 @@ object TerminalMessageBuilder {
     }
 
     def makeQuestion(question: String): MessageToDisplay = {
-      finishWithQuestion(Maybe.just(question))
+      finishWithQuestion(question.just)
     }
 
     def finishWithQuestion(text: Maybe[String]): MessageToDisplay = {

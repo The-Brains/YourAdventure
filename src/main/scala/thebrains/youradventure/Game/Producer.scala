@@ -5,6 +5,7 @@ import scalaz.zio.IO
 import thebrains.youradventure.Adventure.Player
 import thebrains.youradventure.FPTerminalIO.TerminalMessage
 import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.ToOption._
 
 private[Game] class Producer(game: GameStatus) {
 
@@ -21,7 +22,7 @@ private[Game] class Producer(game: GameStatus) {
         r.emptyMessage
       case GameStatus(_, _, Maybe.Just(s), Maybe.Empty(), Maybe.Just(p: Player), r) =>
         // When step but no action
-        r.display(s, Maybe.Just(p))
+        r.display(s, p.just)
       case GameStatus(_, _, _, _, p, r) =>
         // Display player / Create player
         r.display(p)

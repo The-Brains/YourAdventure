@@ -7,7 +7,7 @@ object ToOption {
   implicit class Converter[A](a: A) {
     def some: Some[A] = Some(a)
 
-    def just: Maybe[A] = Maybe.just(a)
+    def just: Maybe[A] = Maybe.Just(a)
   }
 
 }

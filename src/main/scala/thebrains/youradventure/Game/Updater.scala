@@ -7,6 +7,7 @@ import thebrains.youradventure.Adventure.StepPack.Step
 import thebrains.youradventure.Adventure._
 import thebrains.youradventure.FPTerminalIO.Renderer
 import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.ToOption._
 
 private[Game] class Updater(game: GameStatus) {
   private def copy(
@@ -28,19 +29,19 @@ private[Game] class Updater(game: GameStatus) {
   }
 
   def withError(error: Error): GameStatus = {
-    this.copy(currentError = Maybe.Just(error))
+    this.copy(currentError = error.just)
   }
 
   def withPlayer(p: PlayerTrait): IO[Error, GameStatus] = {
-    IO.sync(this.copy(player = Maybe.Just(p)))
+    IO.sync(this.copy(player = p.just))
   }
 
   def withStep(step: Step): IO[Error, GameStatus] = {
-    IO.sync(this.copy(currentStep = Maybe.Just(step)))
+    IO.sync(this.copy(currentStep = step.just))
   }
 
   def withAction(a: Action): IO[Error, GameStatus] = {
-    IO.sync(this.copy(currentAction = Maybe.Just(a)))
+    IO.sync(this.copy(currentAction = a.just))
   }
 
   def removeAction(): IO[Error, GameStatus] = {

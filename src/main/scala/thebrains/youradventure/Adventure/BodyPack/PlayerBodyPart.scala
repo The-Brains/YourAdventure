@@ -7,6 +7,7 @@ import scalaz.Maybe
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyItemTrait
 import thebrains.youradventure.Adventure.Equipment
 import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.ToOption._
 
 case class PlayerBodyPart(
   bodyPart:  BodyPart,
@@ -32,7 +33,7 @@ case class PlayerBodyPart(
 
   def equip(equipment: Equipment): Either[Error, PlayerBodyPart] = {
     if (canEquip(equipment)) {
-      Right(this.copy(equipment = Maybe.Just(equipment)))
+      Right(this.copy(equipment = equipment.just))
     } else {
       Left(
         Error(

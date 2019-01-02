@@ -1,6 +1,7 @@
 package thebrains.youradventure.Adventure
 
 import scalaz.Maybe
+import thebrains.youradventure.Utils.ToOption._
 
 class Location(
   name:           String,

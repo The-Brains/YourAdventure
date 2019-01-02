@@ -4,6 +4,7 @@ import scalaz.Maybe
 import thebrains.youradventure.Adventure.StepPack.{StepCollection, Steps}
 import thebrains.youradventure.ParentTest
 import thebrains.youradventure.FactoriesTest._
+import thebrains.youradventure.Utils.ToOption._
 
 class ActionTest extends ParentTest {
   "Action" - {
@@ -28,8 +29,8 @@ class ActionTest extends ParentTest {
     "Should assemble" in {
       val collection = a ++ b
       assertEquals(2, collection.length)
-      assertEquals(Maybe.just(a.getName), collection.get(0).map(_.getName))
-      assertEquals(Maybe.just(b.getName), collection.get(1).map(_.getName))
+      assertEquals(a.getName.just, collection.get(0).map(_.getName))
+      assertEquals(b.getName.just, collection.get(1).map(_.getName))
       assertEquals(Maybe.empty, collection.get(2).map(_.getName))
     }
 
@@ -39,14 +40,14 @@ class ActionTest extends ParentTest {
     }
 
     "Interaction with collection" - {
-      val startingCollection = FActionCollection(lengthAction = Maybe.just(1))
+      val startingCollection = FActionCollection(lengthAction = 1.just)
       val collection = a ++ b ++ startingCollection
       val indexOfEmptyAction = 3
 
       "Should assemble with collection" in {
         assertEquals(startingCollection.getQuestion, collection.getQuestion)
-        assertEquals(Maybe.just(a.getName), collection.get(0).map(_.getName))
-        assertEquals(Maybe.just(b.getName), collection.get(1).map(_.getName))
+        assertEquals(a.getName.just, collection.get(0).map(_.getName))
+        assertEquals(b.getName.just, collection.get(1).map(_.getName))
         assert(collection.get(2).isJust)
         assert(collection.get(indexOfEmptyAction).isEmpty)
       }
