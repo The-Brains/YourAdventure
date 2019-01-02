@@ -26,7 +26,17 @@ case class PlayerAttribute(
 
   override def |+|(other: AssemblyItemTrait): IO[Error, PlayerAttribute] = {
     other match {
-      case p: PlayerAttribute => this |+| p
+      case p @ PlayerAttribute(a, v) =>
+        if (this.attribute === a) {
+          IO.sync(this.copy(value = this.getValue + v))
+        } else {
+          IO.fail(
+            Error(
+              "Impossible to merge",
+              s"Impossible to merge '${this.toString}' with ${p.toString}"
+            )
+          )
+        }
       case _ =>
         IO.fail(
           Error(

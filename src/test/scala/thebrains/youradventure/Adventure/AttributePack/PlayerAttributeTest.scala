@@ -2,35 +2,34 @@ package thebrains.youradventure.Adventure.AttributePack
 
 import scalaz.Maybe
 import thebrains.youradventure.Adventure.TransformationPack._
+import thebrains.youradventure.FactoriesTest.AttributePack.FAttribute
 import thebrains.youradventure.ParentTest
 import thebrains.youradventure.Utils.ToOption._
 
 class PlayerAttributeTest extends ParentTest {
   "PlayerAttribute" - {
-    "as List" - {
-      "With Transformation" in {
-        val attributesIO =
-          unsafeRunToEither(
-            Attributes.Strength.toPlayerAttribute(10) ++
-              Attributes.Constitution.toPlayerAttribute(10)
-          )
+    val a = FAttribute()
+    "Should be equals to itself" in {
+      assert(a === a)
+    }
 
-        assert(attributesIO.isRight)
-        val attributes = attributesIO.right.get
+    "Should not be equals to others" in {
+      assertFalse(Attributes.Strength === Attributes.Constitution)
+    }
 
-        val transformations: TransformationCollection =
-          TransformationBuilder
-            .willDo(Addition, Increase)
-            .byValueOf(1).onAttribute(Attributes.Strength) ++
-            TransformationBuilder
-              .willDo(Addition, Decrease)
-              .byValueOf(2).onAttribute(Attributes.Intelligence)
+    "Merge" - {
+      "Should merge correctly" in {
+        val pA = a.toPlayerAttribute(10)
+        val pB = a.toPlayerAttribute(2)
 
-        val newAttributes = unsafeRun(attributes << transformations)
+        val result = unsafeRunToEither(pA |+| pB)
+        assert(result.isRight)
 
-        assertEquals(11.just, newAttributes.getAttributeValue(Attributes.Strength))
-        assertEquals(10.just, newAttributes.getAttributeValue(Attributes.Constitution))
-        assertEquals(Maybe.Empty(), newAttributes.getAttributeValue(Attributes.Intelligence))
+        val newPlayerAttribute = result.right.get
+        assertEquals(a.getName, newPlayerAttribute.getName)
+        assertEquals(pA.getName, newPlayerAttribute.getName)
+        assertEquals(pB.getName, newPlayerAttribute.getName)
+        assertEquals(pA.getValue + pB.getValue, newPlayerAttribute.getValue)
       }
     }
   }
