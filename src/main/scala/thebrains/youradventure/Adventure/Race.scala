@@ -19,7 +19,7 @@ class Race(
 
 object Races {
 
-  case object Human
+  final case object Human
       extends Race(
         name = "Human",
         description = "Just a basic human",
@@ -59,7 +59,7 @@ object Races {
     }
   }
 
-  case object Void
+  final case object Void
       extends Race(
         name = "Empty Object",
         description = "Not a Race",

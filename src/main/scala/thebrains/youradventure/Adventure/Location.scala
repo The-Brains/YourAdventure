@@ -10,49 +10,49 @@ class Location(
 
 object Locations {
 
-  case object Menu
+  final case object Menu
       extends Location(
         name = "Menu Interface",
         description = "This is a Menu",
         Maybe.empty
       )
 
-  case object Void
+  final case object Void
       extends Location(
         name = "void",
         description = "This is nowhere",
         Maybe.empty
       )
 
-  case object Multiverse
+  final case object Multiverse
       extends Location(
         name = "Multiverse",
         description = "This is the multiverse",
         Maybe.empty
       )
 
-  case object OurUniverse
+  final case object OurUniverse
       extends Location(
         name = "Universe1",
         description = "This is our universe",
         parentLocation = Maybe.just(Multiverse)
       )
 
-  case object MilkyWay
+  final case object MilkyWay
       extends Location(
         name = "MilkyWay",
         description = "The milky way galaxy",
         parentLocation = Maybe.just(OurUniverse)
       )
 
-  case object SolarSystem
+  final case object SolarSystem
       extends Location(
         name = "Solar System",
         description = "This a system of planet",
         parentLocation = Maybe.just(MilkyWay)
       )
 
-  case object Earth
+  final case object Earth
       extends Location(
         name = "Earth",
         description = "The blue planet, planet Earth",

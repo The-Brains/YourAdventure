@@ -10,6 +10,7 @@ import thebrains.youradventure.Adventure.StepPack.Step
 import thebrains.youradventure.Adventure._
 import thebrains.youradventure.FPTerminalIO._
 import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.ToOption._
 
 class GameStatus(
   universe:      Universe,
@@ -63,15 +64,15 @@ object GameStatus {
 
   def unapply(
     arg: GameStatus
-  ): Option[(Universe, Maybe[Error], Maybe[Step], Maybe[Action], Maybe[PlayerTrait], Renderer)] = {
-    Some(
+  ): Some[(Universe, Maybe[Error], Maybe[Step], Maybe[Action], Maybe[PlayerTrait], Renderer)] = {
+    (
       arg.getUniverse,
       arg.getError,
       arg.getCurrentStep,
       arg.getCurrentAction,
       arg.getPlayer,
       arg.getRenderer
-    )
+    ).some
   }
 
   def apply(

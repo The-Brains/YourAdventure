@@ -36,7 +36,7 @@ class Universe(
 
 object Universe {
 
-  case object Void
+  final case object Void
       extends Universe(
         availableRaces = Nil,
         availableSteps = StepCollection.Empty,

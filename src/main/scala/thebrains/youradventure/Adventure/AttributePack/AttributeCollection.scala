@@ -6,14 +6,15 @@ import thebrains.youradventure.Adventure.AttributePack.PlayerAttribute.Attribute
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyTrait
 import thebrains.youradventure.Adventure.TransformationPack._
 import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.ToOption._
 
 class AttributeCollection(attributes: Set[PlayerAttribute])
     extends AssemblyTrait[AttributeCollection, PlayerAttribute](attributes.toList) {
 
   def <<(applyTransformations: TransformationCollection): IO[Error, AttributeCollection] = {
     IO.sequence(
-        (this.toCustomMap.mapValues(p => (Some(p), None)).toList ++
-          applyTransformations.toCustomMap.mapValues(t => (None, Some(t))).toList)
+        (this.toCustomMap.mapValues(p => (p.some, None)).toList ++
+          applyTransformations.toCustomMap.mapValues(t => (None, t.some)).toList)
           .groupBy(_._1)
           .map {
             case (_, attributeTransformations) =>
@@ -56,7 +57,7 @@ class AttributeCollection(attributes: Set[PlayerAttribute])
 
 object AttributeCollection {
 
-  case object Empty extends AttributeCollection(Set.empty)
+  final case object Empty extends AttributeCollection(Set.empty)
 
   def apply(a: PlayerAttribute*): AttributeCollection = {
     new AttributeCollection(a.toSet)

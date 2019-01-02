@@ -92,7 +92,7 @@ object BastardActionCollection {
     new BastardActionCollection(action.toList)
   }
 
-  case object Empty extends BastardActionCollection(Nil)
+  final case object Empty extends BastardActionCollection(Nil)
 
 }
 
@@ -108,6 +108,6 @@ object ActionCollection {
     new ActionCollection(actions.toList, Just(question))
   }
 
-  case object Empty extends ActionCollection(Nil, Maybe.empty)
+  final case object Empty extends ActionCollection(Nil, Maybe.empty)
 
 }

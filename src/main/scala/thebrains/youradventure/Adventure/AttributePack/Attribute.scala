@@ -22,19 +22,19 @@ class Attribute(
 
 object Attributes {
 
-  case object Strength
+  final case object Strength
       extends Attribute(
         name = "strength",
         description = "Contribute to health and melee damage"
       )
 
-  case object Constitution
+  final case object Constitution
       extends Attribute(
         name = "constitution",
         description = "Contribute to health and armor"
       )
 
-  case object Intelligence
+  final case object Intelligence
       extends Attribute(
         "intelligence",
         "TODO"

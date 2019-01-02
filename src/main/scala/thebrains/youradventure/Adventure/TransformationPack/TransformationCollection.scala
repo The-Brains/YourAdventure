@@ -13,7 +13,7 @@ class TransformationCollection(transformations: List[Transformation])
 
 object TransformationCollection {
 
-  case object Empty extends TransformationCollection(Nil)
+  final case object Empty extends TransformationCollection(Nil)
 
   def apply(transformations: Transformation*): TransformationCollection = {
     new TransformationCollection(transformations.toList)

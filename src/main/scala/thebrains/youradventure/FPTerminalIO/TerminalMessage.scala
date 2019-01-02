@@ -78,6 +78,6 @@ object TerminalMessageBuilder {
     MessageAssembly(Nil).addEmptyLine
   }
 
-  case object EmptyMessage extends TerminalMessage
+  final case object EmptyMessage extends TerminalMessage
 
 }

@@ -43,7 +43,7 @@ object BodyParts {
     BodyCollection(bodyPart("left"), bodyPart("right"))
   }
 
-  case object Leg
+  final case object Leg
       extends PlainBodyPart(
         name = "leg",
         description = "This allow you to move"
@@ -51,7 +51,7 @@ object BodyParts {
 
   val TwoLegs: BodyCollection = both(Leg)
 
-  case object Arm
+  final case object Arm
       extends PlainBodyPart(
         name = "arm",
         description = "This allow you to manage your hand"
@@ -59,7 +59,7 @@ object BodyParts {
 
   val TwoArms: BodyCollection = both(Arm)
 
-  case object Hand
+  final case object Hand
       extends PlainBodyPart(
         name = "hand",
         description = "This allow you to grab things"
@@ -67,7 +67,7 @@ object BodyParts {
 
   val TwoHands: BodyCollection = both(Hand)
 
-  case object Foot
+  final case object Foot
       extends PlainBodyPart(
         name = "foot",
         description = "This allow you to move on the ground"
@@ -75,7 +75,7 @@ object BodyParts {
 
   val TwoFeet: BodyCollection = both(Foot)
 
-  case object Head
+  final case object Head
       extends PlainBodyPart(
         name = "head",
         description = "This carry your senses."
@@ -83,7 +83,7 @@ object BodyParts {
 
   val OneHead: BodyPart = Head("")
 
-  case object Ear
+  final case object Ear
       extends PlainBodyPart(
         name = "ear",
         description = "This allow you to hear or carry earrings."
@@ -91,7 +91,7 @@ object BodyParts {
 
   val TwoEars: BodyCollection = both(Ear)
 
-  case object Chest
+  final case object Chest
       extends PlainBodyPart(
         name = "chest",
         description = "This is where all your limbs are connected to."

@@ -16,7 +16,7 @@ class PlayerBodyCollection(bodyParts: List[PlayerBodyPart])
 
 object PlayerBodyCollection {
 
-  case object Empty extends PlayerBodyCollection(Nil)
+  final case object Empty extends PlayerBodyCollection(Nil)
 
   def apply(bodyParts: PlayerBodyPart*): PlayerBodyCollection = {
     new PlayerBodyCollection(bodyParts.toList)

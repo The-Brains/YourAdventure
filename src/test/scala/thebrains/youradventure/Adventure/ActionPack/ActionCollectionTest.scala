@@ -3,6 +3,7 @@ package thebrains.youradventure.Adventure.ActionPack
 import scalaz.Maybe
 import thebrains.youradventure.Adventure.StepPack.Steps
 import thebrains.youradventure.{FactoriesTest, ParentTest}
+import thebrains.youradventure.Utils.ToOption._
 
 class ActionCollectionTest extends ParentTest {
   "ActionCollection" - {
@@ -15,8 +16,23 @@ class ActionCollectionTest extends ParentTest {
       targetStep = Maybe.just(Left("Exit"))
     )
 
-    "Action Collection" - {}
+    "Action Collection" - {
+      "empty" - {
+        "Should have 0 length" in {
+          assertEquals(0, ActionCollection.Empty.length)
+        }
+      }
+
+      val collection: ActionCollection = FactoriesTest.FActionCollection()
+    }
+
     "Bastard Action Collection" - {
+      "empty" - {
+        "Should have 0 length" in {
+          assertEquals(0, BastardActionCollection.Empty.length)
+        }
+      }
+
       val collection: BastardActionCollection =
         BastardActionCollection(FactoriesTest.FAction(), FactoriesTest.FAction())
 
@@ -33,9 +49,9 @@ class ActionCollectionTest extends ParentTest {
       "Should have the correct indexing" in {
         val biggerCollection = a ++ collection ++ b
         val expectedIndexOfB = 3
-        assertEquals(Some(a.getName), biggerCollection.getIndexedActionsMap.get(0).map(_.getName))
+        assertEquals(a.getName.some, biggerCollection.getIndexedActionsMap.get(0).map(_.getName))
         assertEquals(
-          Some(b.getName),
+          b.getName.some,
           biggerCollection.getIndexedActionsMap.get(expectedIndexOfB).map(_.getName)
         )
       }

@@ -58,7 +58,7 @@ object Steps {
         )
       )
 
-  case object EmptyStep
+  final case object EmptyStep
       extends Step(
         name = "Void",
         description = "This is a dead end",
@@ -67,7 +67,7 @@ object Steps {
         availableActions = ActionCollection.Empty
       )
 
-  case object ExitStep
+  final case object ExitStep
       extends Step(
         name = "Exit",
         description = "You are exiting the game.",

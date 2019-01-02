@@ -52,7 +52,7 @@ object Actions {
     Action("Player Status", "Look at your player status", p(player), Nil)
   }
 
-  case object Exit
+  final case object Exit
       extends Action("Exit", "You are about to leave the game.", Right(Steps.ExitStep), Nil)
 
 }

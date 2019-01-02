@@ -117,23 +117,23 @@ case class Transformation(
 
 sealed trait Modification
 
-case object Increase extends Modification
+final case object Increase extends Modification
 
-case object Decrease extends Modification
+final case object Decrease extends Modification
 
 sealed trait Operation
 
-case object Addition extends Operation with FullOperation
+final case object Addition extends Operation with FullOperation
 
-case object Multiply extends Operation with FullOperation
+final case object Multiply extends Operation with FullOperation
 
 sealed trait FullOperation
 
-case object Reduce extends FullOperation
+final case object Reduce extends FullOperation
 
-case object Divide extends FullOperation
+final case object Divide extends FullOperation
 
-case object Combination extends Operation
+final case object Combination extends Operation
 
 object TransformationBuilder {
 
