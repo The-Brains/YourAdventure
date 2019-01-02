@@ -24,9 +24,57 @@ class ActionCollectionTest extends ParentTest {
       }
 
       val collection: ActionCollection = FactoriesTest.FActionCollection(
-        lengthAction = 3.just
+        lengthAction = 2.just
       )
 
+      "Should have correct length" in {
+        assertEquals(2, collection.length)
+      }
+
+      "Should be able to add action" in {
+        val collectionWithA = collection ++ a
+        val expectedLength = 3
+        assertEquals(expectedLength, collectionWithA.length)
+        assertEquals(a.getName.just, collectionWithA.get(2).map(_.getName))
+      }
+
+      "Should have the correct indexing" in {
+        val biggerCollection = a ++ collection ++ b
+        val expectedIndexOfB = 3
+        assertEquals(a.getName.some, biggerCollection.getIndexedActionsMap.get(0).map(_.getName))
+        assertEquals(
+          b.getName.some,
+          biggerCollection.getIndexedActionsMap.get(expectedIndexOfB).map(_.getName)
+        )
+      }
+      "action" - {
+        "Should find action by name" in {
+          val actionA = unsafeRunToEither((collection ++ a).getAction(a.getName))
+          assert(actionA.isRight)
+          assertEquals(a.getName, actionA.right.get.getName)
+        }
+
+        "Should find action by index" in {
+          val actionA = unsafeRunToEither((collection ++ a).getAction("2"))
+          assert(actionA.isRight)
+          assertEquals(a.getName, actionA.right.get.getName)
+        }
+
+        "Should failed when name not found" in {
+          val actionA = unsafeRunToEither(collection.getAction("not a real action"))
+          assert(actionA.isLeft)
+        }
+
+        "Should failed when index not found" in {
+          val actionA = unsafeRunToEither(collection.getAction("999"))
+          assert(actionA.isLeft)
+        }
+
+        "Should failed when empty action name" in {
+          val actionA = unsafeRunToEither(collection.getAction(""))
+          assert(actionA.isLeft)
+        }
+      }
     }
 
     "Bastard Action Collection" - {
