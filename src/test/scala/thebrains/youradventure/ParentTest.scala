@@ -11,6 +11,10 @@ class ParentTest extends FreeSpec with RTS {
 
   def unsafeRunToEither[E, I](io: IO[E, I]): Either[Throwable, I] = unsafeRunSync(io).toEither
 
+  def assertFalse(condition: Boolean)(implicit pos: Position): Assertion = {
+    assert(!condition)
+  }
+
   def assertEquals[A](
     expected: A,
     result:   A

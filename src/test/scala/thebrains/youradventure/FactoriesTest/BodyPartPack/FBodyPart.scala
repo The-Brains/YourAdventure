@@ -1,0 +1,26 @@
+package thebrains.youradventure.FactoriesTest.BodyPartPack
+
+import scalaz.Maybe
+import thebrains.youradventure.Adventure.BodyPack.BodyPart
+import thebrains.youradventure.FactoriesTest.Utils.RandomMachine
+
+import scala.util.Random
+
+object FBodyPart {
+  private val DefaultNameLength:        Int = 5
+  private val DefaultDescriptionLength: Int = 144
+
+  def apply(
+    name:        Maybe[String] = Maybe.empty,
+    description: Maybe[String] = Maybe.empty,
+    descriptor:  Maybe[Maybe[String]] = Maybe.empty
+  )(
+    implicit r: Random
+  ): BodyPart = {
+    BodyPart(
+      name = name getOrElse RandomMachine.getString(DefaultNameLength),
+      description = description getOrElse RandomMachine.getString(DefaultDescriptionLength),
+      descriptor = descriptor getOrElse RandomMachine.getMaybe(RandomMachine.getString())
+    )
+  }
+}

@@ -1,4 +1,4 @@
-package thebrains.youradventure.FactoriesTest
+package thebrains.youradventure.FactoriesTest.ActionPack
 
 import scalaz.Maybe
 import thebrains.youradventure.Adventure.ActionPack.{Action, ActionCollection}

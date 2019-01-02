@@ -2,16 +2,18 @@ package thebrains.youradventure.Adventure.ActionPack
 
 import scalaz.Maybe
 import thebrains.youradventure.Adventure.StepPack.Steps
+import thebrains.youradventure.FactoriesTest.ActionPack
+import thebrains.youradventure.FactoriesTest.ActionPack.{FAction, FActionCollection}
 import thebrains.youradventure.{FactoriesTest, ParentTest}
 import thebrains.youradventure.Utils.ToOption._
 
 class ActionCollectionTest extends ParentTest {
   "ActionCollection" - {
-    val a = FactoriesTest.FAction(
+    val a = FAction(
       name = "action A name".just,
       targetStep = Maybe.just(Right(Steps.EmptyStep))
     )
-    val b = FactoriesTest.FAction(
+    val b = ActionPack.FAction(
       name = "action B name".just,
       targetStep = Maybe.just(Left("Exit"))
     )
@@ -23,7 +25,7 @@ class ActionCollectionTest extends ParentTest {
         }
       }
 
-      val collection: ActionCollection = FactoriesTest.FActionCollection(
+      val collection: ActionCollection = FActionCollection(
         lengthAction = 2.just
       )
 
@@ -85,7 +87,7 @@ class ActionCollectionTest extends ParentTest {
       }
 
       val collection: BastardActionCollection =
-        BastardActionCollection(FactoriesTest.FAction(), FactoriesTest.FAction())
+        BastardActionCollection(ActionPack.FAction(), ActionPack.FAction())
 
       "Should have correct length" in {
         assertEquals(2, collection.length)

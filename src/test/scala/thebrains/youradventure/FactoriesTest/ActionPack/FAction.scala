@@ -1,10 +1,11 @@
-package thebrains.youradventure.FactoriesTest
+package thebrains.youradventure.FactoriesTest.ActionPack
 
 import scalaz.Maybe
 import thebrains.youradventure.Adventure.ActionPack.Action
 import thebrains.youradventure.Adventure.ConditionPack.Condition
 import thebrains.youradventure.Adventure.StepPack.Step
 import thebrains.youradventure.Adventure.StepPack.Step.StepName
+import thebrains.youradventure.FactoriesTest.StepPack.FStep
 import thebrains.youradventure.FactoriesTest.Utils.RandomMachine
 
 import scala.util.Random

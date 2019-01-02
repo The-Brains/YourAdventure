@@ -137,6 +137,13 @@ final case object Combination extends Operation
 
 object TransformationBuilder {
 
+  @transient lazy val AvailableOperations: List[FullOperation] = List(
+    Addition,
+    Reduce,
+    Multiply,
+    Divide
+  )
+
   case class TransformValue private (
     operation: Operation,
     modify:    Modification

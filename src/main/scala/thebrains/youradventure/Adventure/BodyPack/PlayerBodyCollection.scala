@@ -2,6 +2,7 @@ package thebrains.youradventure.Adventure.BodyPack
 
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyTrait
 import thebrains.youradventure.Adventure.Equipment
+import thebrains.youradventure.Utils.ToOption._
 
 class PlayerBodyCollection(bodyParts: List[PlayerBodyPart])
     extends AssemblyTrait[PlayerBodyCollection, PlayerBodyPart](bodyParts.toList) {
@@ -9,7 +10,10 @@ class PlayerBodyCollection(bodyParts: List[PlayerBodyPart])
     new PlayerBodyCollection(items.toList)
   }
 
-  @transient lazy val equipments: List[Equipment] = bodyParts.flatMap(_.equipment.toOption)
+  @transient lazy val equipments: List[Equipment] = bodyParts.flatMap {
+    case PlayerBodyPartEquipped(_, e) => e.some
+    case _: PlayerBodyPart => None
+  }
 
   override protected def empty: PlayerBodyCollection = PlayerBodyCollection.Empty
 }

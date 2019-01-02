@@ -4,13 +4,14 @@ import io.circe.syntax._
 import io.circe.{Encoder, Json}
 import scalaz.Maybe
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyItemTrait
+import thebrains.youradventure.Utils.ToOption._
 
 case class BodyPart(
   name:        String,
   description: String,
-  descriptor:  String
+  descriptor:  Maybe[String]
 ) extends AssemblyItemTrait(name, description) {
-  @transient lazy val toPlayerBodyPart: PlayerBodyPart = PlayerBodyPart(this, Maybe.empty)
+  @transient lazy val toPlayerBodyPart: PlayerBodyPart = new PlayerBodyPart(this)
 
   def samePart(other: BodyPart): Boolean = name == other.name
 
@@ -21,7 +22,7 @@ case class BodyPart(
 
   implicit private val jsonEncoder: Encoder[BodyPart] =
     Encoder.forProduct2[BodyPart, String, String]("name", "descriptor") {
-      case BodyPart(n, _, d) => (n, d)
+      case BodyPart(n, _, d) => (n, d.getOrElse(""))
     }
 
   override def encoded: Json = this.asJson
@@ -36,7 +37,7 @@ object BodyParts {
     name:        String,
     description: String
   ) {
-    def apply(descriptor: String): BodyPart = BodyPart(name, description, descriptor)
+    def apply(descriptor: String): BodyPart = BodyPart(name, description, descriptor.just)
   }
 
   private def both(bodyPart: PlainBodyPart): BodyCollection = {

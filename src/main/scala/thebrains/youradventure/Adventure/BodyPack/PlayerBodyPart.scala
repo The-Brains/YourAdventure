@@ -3,24 +3,21 @@ package thebrains.youradventure.Adventure.BodyPack
 import io.circe.generic.auto._
 import io.circe.syntax._
 import io.circe.{Encoder, Json}
-import scalaz.Maybe
+import scalaz.zio.IO
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyItemTrait
 import thebrains.youradventure.Adventure.Equipment
 import thebrains.youradventure.Utils.Error
 import thebrains.youradventure.Utils.ToOption._
 
-case class PlayerBodyPart(
-  bodyPart:  BodyPart,
-  equipment: Maybe[Equipment]
-) extends AssemblyItemTrait(
+class PlayerBodyPart(bodyPart: BodyPart)
+    extends AssemblyItemTrait(
       bodyPart.getName,
       bodyPart.getDescription
     ) {
-
+  @transient lazy val getBodyPart: BodyPart = this.bodyPart
   implicit private val jsonEncoder: Encoder[PlayerBodyPart] =
-    Encoder.forProduct2[PlayerBodyPart, Json, Maybe[Json]]("name", "equipment") {
-      case PlayerBodyPart(b, e) =>
-        (b.encoded, e.map(_.encoded))
+    Encoder.forProduct1[PlayerBodyPart, Json]("name") {
+      case PlayerBodyPart(b) => b.encoded
     }
 
   override def encoded: Json = this.asJson
@@ -29,19 +26,58 @@ case class PlayerBodyPart(
     bodyPart samePart equipment.bodyPart
   }
 
-  override def toString: String = this.asJson.noSpaces
+  override def toString: String = encoded.noSpaces
 
-  def equip(equipment: Equipment): Either[Error, PlayerBodyPart] = {
+  def equip(equipment: Equipment): IO[Error, PlayerBodyPartEquipped] = {
     if (canEquip(equipment)) {
-      Right(this.copy(equipment = equipment.just))
+      IO.sync(
+        new PlayerBodyPartEquipped(
+          bodyPart = this.bodyPart,
+          equipment = equipment
+        )
+      )
     } else {
-      Left(
+      IO.fail(
         Error(
           "Wrong emplacement for equipment",
           s"The equipment ${equipment.toString} cannot be equipped on " +
-            s"emplacement ${this.bodyPart.toString}"
+            s"emplacement ${bodyPart.toString}"
         )
       )
     }
+  }
+
+}
+
+class PlayerBodyPartEquipped(
+  bodyPart:  BodyPart,
+  equipment: Equipment
+) extends PlayerBodyPart(bodyPart) {
+  @transient lazy val getEquipment: Equipment = this.equipment
+  implicit private val jsonEncoder: Encoder[PlayerBodyPartEquipped] =
+    Encoder.forProduct2[PlayerBodyPartEquipped, Json, Json]("name", "equipment") {
+      case PlayerBodyPartEquipped(b, e) =>
+        (b.encoded, e.encoded)
+    }
+
+  override def encoded: Json = this.asJson
+}
+
+object PlayerBodyPart {
+  def unapply(arg: PlayerBodyPart): Some[BodyPart] =
+    arg.getBodyPart.some
+
+  def apply(bodyPart: BodyPart): PlayerBodyPart = new PlayerBodyPart(bodyPart)
+}
+
+object PlayerBodyPartEquipped {
+  def unapply(arg: PlayerBodyPartEquipped): Some[(BodyPart, Equipment)] =
+    (arg.getBodyPart, arg.getEquipment).some
+
+  def apply(
+    bodyPart:  BodyPart,
+    equipment: Equipment
+  ): IO[Error, PlayerBodyPartEquipped] = {
+    PlayerBodyPart(bodyPart).equip(equipment)
   }
 }
