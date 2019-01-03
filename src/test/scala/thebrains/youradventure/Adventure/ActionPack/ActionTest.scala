@@ -3,6 +3,7 @@ package thebrains.youradventure.Adventure.ActionPack
 import scalaz.Maybe
 import thebrains.youradventure.Adventure.StepPack.{StepCollection, Steps}
 import thebrains.youradventure.FactoriesTest.ActionPack.{FAction, FActionCollection}
+import thebrains.youradventure.FactoriesTest.FPlayer
 import thebrains.youradventure.ParentTest
 import thebrains.youradventure.Utils.ToOption._
 
@@ -14,6 +15,21 @@ class ActionTest extends ParentTest {
     val b = FAction(
       targetStep = Maybe.just(Left("Exit"))
     )
+
+    "Player step" - {
+      "Should create step player" in {
+        val playerStep = unsafeRunToEither(FPlayer().map { p =>
+          Actions.playerStatusMenu(p, _ => Steps.EmptyStep)
+        })
+        assert(playerStep.isRight)
+
+        val action = playerStep.right.get
+        assert(action.getTargetStep.isRight)
+
+        val step = action.getTargetStep.right.get
+        assertEquals(Steps.EmptyStep.getName, step.getName)
+      }
+    }
 
     "Exit step" - {
       val e = Actions.Exit

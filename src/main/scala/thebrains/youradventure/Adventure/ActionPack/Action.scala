@@ -15,6 +15,20 @@ class Action(
   targetStep:  Either[StepName, Step],
   conditions:  List[Condition] = Nil
 ) extends AssemblyItemTrait(name, description) {
+  @transient lazy val getTargetStep: Either[StepName, Step] = targetStep
+
+  def canBeDisplayed(p: Player): IO[Error, Boolean] = {
+    conditions.foldLeft(IO.fromEither[Error, Boolean](Right(true))) {
+      case (acc, condition) =>
+        for {
+          a <- acc
+          c <- condition.isTrueFor(p)
+        } yield {
+          a && c
+        }
+    }
+  }
+
   def ++(availableActions: ActionCollection): ActionCollection = {
     BastardActionCollection(this) ++ availableActions
   }

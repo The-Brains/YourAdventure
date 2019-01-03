@@ -1,6 +1,5 @@
 package thebrains.youradventure.Adventure.BodyPack
 
-import io.circe.generic.auto._
 import io.circe.syntax._
 import io.circe.{Encoder, Json}
 import scalaz.zio.IO
