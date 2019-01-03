@@ -19,11 +19,6 @@ class ActionCollectionTest extends ParentTest {
     )
 
     "Action Collection" - {
-      "empty" - {
-        "Should have 0 length" in {
-          assertEquals(0, ActionCollection.Empty.length)
-        }
-      }
 
       val collection: ActionCollection = FActionCollection(
         lengthAction = 2.just
@@ -49,6 +44,13 @@ class ActionCollectionTest extends ParentTest {
           biggerCollection.getIndexedActionsMap.get(expectedIndexOfB).map(_.getName)
         )
       }
+
+      "empty" - {
+        "Should have 0 length" in {
+          assertEquals(0, ActionCollection.Empty.length)
+        }
+      }
+
       "action" - {
         "Should find action by name" in {
           val actionA = unsafeRunToEither((collection ++ a).getAction(a.getName))

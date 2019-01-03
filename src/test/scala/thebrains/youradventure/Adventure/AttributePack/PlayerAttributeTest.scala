@@ -1,10 +1,7 @@
 package thebrains.youradventure.Adventure.AttributePack
 
-import scalaz.Maybe
-import thebrains.youradventure.Adventure.TransformationPack._
 import thebrains.youradventure.FactoriesTest.AttributePack.FAttribute
 import thebrains.youradventure.ParentTest
-import thebrains.youradventure.Utils.ToOption._
 
 class PlayerAttributeTest extends ParentTest {
   "PlayerAttribute" - {

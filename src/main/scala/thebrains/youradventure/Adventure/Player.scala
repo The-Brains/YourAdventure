@@ -49,6 +49,15 @@ class Player(
     new Player(name, journey, consumables, bodyParts, baseAttributes, race)
   }
 
+  /**
+    * for testing
+    */
+  private[Adventure] def equipWild(equipment: Equipment): IO[Error, Player] = {
+    bodyParts
+      .equip(equipment)
+      .map(newBodyPart => copy(bodyParts = newBodyPart))
+  }
+
   def addHistory(s: Step): IO[Nothing, Player] = {
     IO.sync(this.copy(journey = journey :+ s))
   }

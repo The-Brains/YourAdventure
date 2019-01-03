@@ -2,11 +2,10 @@ package thebrains.youradventure.FactoriesTest.AttributePack
 
 import scalaz.Maybe
 import thebrains.youradventure.Adventure.AttributePack.{AttributeCollection, PlayerAttribute}
-import thebrains.youradventure.Adventure.TransformationPack._
+import thebrains.youradventure.FactoriesTest.DefaultValues._
 import thebrains.youradventure.FactoriesTest.Utils.RandomMachine
 
 import scala.util.Random
-import thebrains.youradventure.FactoriesTest.DefaultValues._
 
 object FAttributeCollection {
   def apply(

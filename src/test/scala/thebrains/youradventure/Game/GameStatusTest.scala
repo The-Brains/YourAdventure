@@ -1,11 +1,11 @@
-package thebrains.youradventure.FPTerminalIO
+package thebrains.youradventure.Game
 
 import thebrains.youradventure.Adventure.ActionPack._
 import thebrains.youradventure.Adventure.AttributePack._
 import thebrains.youradventure.Adventure.StepPack._
 import thebrains.youradventure.Adventure.TransformationPack._
 import thebrains.youradventure.Adventure._
-import thebrains.youradventure.Game.GameStatus
+import thebrains.youradventure.FPTerminalIO.{InputFilled, Renderer}
 import thebrains.youradventure.ParentTest
 
 class GameStatusTest extends ParentTest {

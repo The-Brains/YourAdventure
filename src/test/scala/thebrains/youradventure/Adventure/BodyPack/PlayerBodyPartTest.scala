@@ -20,6 +20,7 @@ class PlayerBodyPartTest extends ParentTest {
       val newBodyPart: PlayerBodyPartEquipped = result.right.get
       assertEquals(bodyPart.getBodyPart, newBodyPart.getBodyPart)
       assertEquals(equipment, newBodyPart.getEquipment)
+      assert(newBodyPart.isWearing)
       newBodyPart
     }
 
@@ -40,7 +41,6 @@ class PlayerBodyPartTest extends ParentTest {
         val newBodyPart = checkEquipping(playerBodyPart, equipment)
         val equipment2 = FEquipment(bodyPart = playerBodyPart.getBodyPart.just)
         checkEquipping(newBodyPart, equipment2)
-
       }
     }
   }

@@ -6,7 +6,7 @@ import thebrains.youradventure.Adventure.BodyPack._
 import thebrains.youradventure.Adventure.Equipment
 import thebrains.youradventure.FactoriesTest.FEquipment
 import thebrains.youradventure.Utils
-
+import thebrains.youradventure.Utils.ToOption._
 import scala.util.Random
 
 object FPlayerBodyPart {
@@ -24,9 +24,11 @@ object FPlayerBodyPartEquipped {
   )(
     implicit r: Random
   ): IO[Utils.Error, PlayerBodyPartEquipped] = {
+    val bodyPartGood = bodyPart getOrElse FBodyPart()
+
     PlayerBodyPartEquipped(
-      bodyPart = bodyPart getOrElse FBodyPart(),
-      equipment = equipment getOrElse FEquipment()
+      bodyPart = bodyPartGood,
+      equipment = equipment getOrElse FEquipment(bodyPart = bodyPartGood.just)
     )
   }
 }

@@ -13,6 +13,7 @@ class PlayerBodyPart(bodyPart: BodyPart)
       bodyPart.getName,
       bodyPart.getDescription
     ) {
+
   @transient lazy val getBodyPart: BodyPart = this.bodyPart
   implicit private val jsonEncoder: Encoder[PlayerBodyPart] =
     Encoder.forProduct1[PlayerBodyPart, Json]("name") {
@@ -24,6 +25,8 @@ class PlayerBodyPart(bodyPart: BodyPart)
   def canEquip(equipment: Equipment): Boolean = {
     bodyPart samePart equipment.bodyPart
   }
+
+  def isWearing: Boolean = false
 
   override def toString: String = encoded.noSpaces
 
@@ -45,14 +48,14 @@ class PlayerBodyPart(bodyPart: BodyPart)
       )
     }
   }
-
 }
 
 class PlayerBodyPartEquipped(
   bodyPart:  BodyPart,
   equipment: Equipment
 ) extends PlayerBodyPart(bodyPart) {
-  @transient lazy val getEquipment: Equipment = this.equipment
+  @transient lazy override val isWearing: Boolean = true
+  @transient lazy val getEquipment:       Equipment = this.equipment
   implicit private val jsonEncoder: Encoder[PlayerBodyPartEquipped] =
     Encoder.forProduct2[PlayerBodyPartEquipped, Json, Json]("name", "equipment") {
       case PlayerBodyPartEquipped(b, e) =>
@@ -60,18 +63,21 @@ class PlayerBodyPartEquipped(
     }
 
   override def encoded: Json = this.asJson
+
 }
 
 object PlayerBodyPart {
-  def unapply(arg: PlayerBodyPart): Some[BodyPart] =
+  def unapply(arg: PlayerBodyPart): Some[BodyPart] = {
     arg.getBodyPart.some
+  }
 
   def apply(bodyPart: BodyPart): PlayerBodyPart = new PlayerBodyPart(bodyPart)
 }
 
 object PlayerBodyPartEquipped {
-  def unapply(arg: PlayerBodyPartEquipped): Some[(BodyPart, Equipment)] =
+  def unapply(arg: PlayerBodyPartEquipped): Some[(BodyPart, Equipment)] = {
     (arg.getBodyPart, arg.getEquipment).some
+  }
 
   def apply(
     bodyPart:  BodyPart,
