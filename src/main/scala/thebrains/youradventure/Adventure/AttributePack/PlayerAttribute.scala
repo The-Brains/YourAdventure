@@ -4,7 +4,6 @@ import io.circe.{Encoder, Json}
 import scalaz.zio.IO
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyItemTrait
 import thebrains.youradventure.Utils.Error
-import io.circe.generic.auto._
 import io.circe.syntax._
 
 case class PlayerAttribute(
@@ -19,26 +18,25 @@ case class PlayerAttribute(
       case PlayerAttribute(a, v) => (a.getName, v)
     }
 
+  @transient lazy val getValue: PlayerAttribute.AttributeType = value
+
   override def encoded: Json = this.asJson
 
-  override def toString: String = this.asJson.noSpaces
-
-  def |+|(other: PlayerAttribute): Either[Error, PlayerAttribute] = {
-    if (this === other) {
-      Right(this.copy(value = this.value + other.value))
-    } else {
-      Left(
-        Error(
-          "Cannot combine attributes",
-          s"Cannot combine attribute ${this.attribute.toString} with ${other.attribute.toString}"
-        )
-      )
-    }
-  }
+  override def toString: String = encoded.noSpaces
 
   override def |+|(other: AssemblyItemTrait): IO[Error, PlayerAttribute] = {
     other match {
-      case p: PlayerAttribute => this |+| p
+      case p @ PlayerAttribute(a, v) =>
+        if (this.attribute === a) {
+          IO.sync(this.copy(value = this.getValue + v))
+        } else {
+          IO.fail(
+            Error(
+              "Impossible to merge",
+              s"Impossible to merge '${this.toString}' with ${p.toString}"
+            )
+          )
+        }
       case _ =>
         IO.fail(
           Error(
@@ -65,5 +63,7 @@ case class PlayerAttribute(
 
 object PlayerAttribute {
   type AttributeType = Int
+  lazy val AttributeMinValue: AttributeType = Int.MinValue
+  lazy val AttributeMaxValue: AttributeType = Int.MaxValue
   type AttributeTransformation = AttributeType => AttributeType
 }

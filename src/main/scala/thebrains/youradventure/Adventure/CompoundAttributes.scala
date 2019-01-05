@@ -60,7 +60,7 @@ abstract class CompoundAttributes3(
 
 object CompoundAttributes {
 
-  case object Health
+  final case object Health
       extends CompoundAttributes2(
         name = "health",
         description = "The amount of health. If zero, you are dead.",

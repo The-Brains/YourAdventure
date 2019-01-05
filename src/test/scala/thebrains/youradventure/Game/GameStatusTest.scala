@@ -1,23 +1,22 @@
-package thebrains.youradventure.TerminalUIPack
+package thebrains.youradventure.Game
 
-import scalaz.Maybe
 import thebrains.youradventure.Adventure.ActionPack._
 import thebrains.youradventure.Adventure.AttributePack._
+import thebrains.youradventure.Adventure.StepPack._
 import thebrains.youradventure.Adventure.TransformationPack._
 import thebrains.youradventure.Adventure._
+import thebrains.youradventure.FPTerminalIO.{InputFilled, Renderer}
 import thebrains.youradventure.ParentTest
 
 class GameStatusTest extends ParentTest {
   "GameStatus" - {
-    val r: Renderer = Renderer(TerminalPrint())
-    val baseGame = GameStatus(
-      universe = Universe(
+    val r: Renderer = Renderer()
+    val baseGame = for {
+      universe <- Universe(
         availableRaces = List(
           Races.Human
         ),
-        availableLocations = List(
-          Locations.Earth
-        ),
+        availableSteps = StepCollection.Empty,
         startingStep = Step(
           name = "starting Step",
           description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
@@ -40,25 +39,32 @@ class GameStatusTest extends ParentTest {
               .onAttribute(Attributes.Strength)
           ),
           availableActions = ActionCollection("Whats up?")(
-            Action("Look", "Look at Earth closer", Steps.EmptyStep),
-            Action("Leave", "Leave earth alone", Steps.EmptyStep)
+            Action("Look", "Look at Earth closer", Steps.EmptyStep, Nil),
+            Action("Leave", "Leave earth alone", Steps.EmptyStep, Nil)
           )
         )
       )
-    )
+    } yield {
+      GameStatus(r, universe)
+    }
 
     "Should create user" in {
-      val game = baseGame.startGame(
-        r,
-        List(
-          Maybe.Just("tom"),
-          Maybe.Just("not really a good race"),
-          Maybe.Just(Races.Human.getName)
-        )
-      )
+      assert(unsafeRunSync(baseGame).toEither.isRight)
 
-      assert(game.isRight)
-      assert(game.right.get.getPlayer.isJust)
+      val finalGame = List(
+        "tom",
+        "not really a good race",
+        Races.Human.getName
+      ).map(InputFilled)
+        .foldLeft(baseGame) {
+          case (currentGame, input) =>
+            currentGame.flatMap(g => g.consume(input))
+        }
+
+      val unpackGame = unsafeRunSync(finalGame).toEither
+
+      assert(unpackGame.isRight)
+      assert(unpackGame.right.get.getPlayer.isJust)
     }
   }
 }

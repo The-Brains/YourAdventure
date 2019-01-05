@@ -1,12 +1,12 @@
-package thebrains.youradventure.TerminalUIPack
+package thebrains.youradventure.FPTerminalIO
 
 import thebrains.youradventure.ParentTest
 
 class TerminalPrintTest extends ParentTest {
   "TerminalPrint" - {
     object TerminalPrintForTest extends TerminalPrint {
-      override def previewTextToPrint(txt: String): Seq[String] = {
-        super.previewTextToPrint(txt)
+      def previewTextToPrint(txt: String): Seq[String] = {
+        super.previewTextToPrint(Line(txt), ignoreLineLength = false)
       }
     }
     "A long text" - {

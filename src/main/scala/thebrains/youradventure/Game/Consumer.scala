@@ -4,6 +4,7 @@ import scalaz.Maybe
 import scalaz.zio.IO
 import thebrains.youradventure.Adventure.ActionPack.{Action, ActionCollection}
 import thebrains.youradventure.Adventure.PlayerBuilder.PlayerWithName
+import thebrains.youradventure.Adventure.StepPack.Step
 import thebrains.youradventure.Adventure._
 import thebrains.youradventure.FPTerminalIO._
 import thebrains.youradventure.Utils.Error
@@ -16,21 +17,26 @@ private[Game] class Consumer(
   import Consumer._
 
   def consume(input: Input): IO[Error, GameStatus] = {
+    debugPrint(s"Consume with input: '$input' and with game: '$game'.")
     this
       .consumeError(input)
       .mightJumpNextChain { case CMsgS(i, g) => g.consumer.endGame(i) }
       .mightJumpNextChain { case CMsgS(i, g) => g.consumer.updatePlayer(i) }
       .tailChain { case CMsgS(i, g) => g.consumer.updateWith(i) }
-  }
-
-  private def endGame(i: Input): IO[Error, CMsg] = {
-    game.getCurrentStep match {
-      case Maybe.Just(_) => IO.sync(CMsg(i, game, passNext = false))
-      case Maybe.Empty() => IO.sync(CMsg(InputEmpty, game, passNext = true))
-    }
+      .attempt
+      .flatMap {
+        case Left(error) =>
+          if (error.isFatal) {
+            IO.fail(error)
+          } else {
+            IO.sync(game.updater.withError(error))
+          }
+        case Right(g) => IO.sync(g)
+      }
   }
 
   private def consumeError(input: Input): IO[Error, CMsg] = {
+    debugPrint(s"Consume error")
     game.getCurrentError match {
       case Maybe.Just(_) =>
         IO.sync(CMsg(InputEmpty, updater.removeError(), passNext = true))
@@ -38,7 +44,16 @@ private[Game] class Consumer(
     }
   }
 
+  private def endGame(input: Input): IO[Error, CMsg] = {
+    debugPrint(s"Process endgame")
+    game.getCurrentStep match {
+      case Maybe.Just(_) => IO.sync(CMsg(input, game, passNext = false))
+      case Maybe.Empty() => IO.sync(CMsg(InputEmpty, game, passNext = true))
+    }
+  }
+
   private def updateWith(input: Input): IO[Error, GameStatus] = {
+    debugPrint(s"Process general update")
     game match {
       case GameStatus(_, _, _, Maybe.Just(a), Maybe.Just(p: Player), _) =>
         this.applyAction(a, p)
@@ -52,6 +67,7 @@ private[Game] class Consumer(
     s:     Step,
     p:     Player
   ): IO[Error, GameStatus] = {
+    debugPrint(s"pick action")
     for {
       actions <- s.getActions(p)
       g       <- if (actions.nonEmpty) selectAction(input, actions) else game.updater.removeStep()
@@ -65,7 +81,7 @@ private[Game] class Consumer(
     p: Player
   ): IO[Error, GameStatus] = {
     for {
-      newStep <- a.getStep
+      newStep <- a.getStep(game.getUniverse.getAvailableSteps)
       player  <- p.addHistory(newStep)
       game    <- updater.withStep(newStep)
       game    <- game.updater.withPlayer(player)
@@ -89,6 +105,8 @@ private[Game] class Consumer(
   }
 
   private def updatePlayer(input: Input): IO[Error, CMsg] = {
+    debugPrint(s"update player")
+
     game.getPlayer match {
       case Maybe.Empty() =>
         for {
@@ -99,23 +117,32 @@ private[Game] class Consumer(
           CMsg(InputEmpty, game, passNext = true)
         }
       case Maybe.Just(p: PlayerWithName) =>
-        (for {
+        for {
           inputData <- Input.getContent(input)
           player    <- p.selectRace(game.getUniverse.getAvailableRaces)(inputData.input)
           game      <- updater.withPlayer(player)
         } yield {
-          (InputEmpty, game)
-        }).attempt
-          .map {
-            case Left(error)   => CMsg(InputEmpty, updater.withError(error), passNext = true)
-            case Right((i, g)) => CMsg(i, g, passNext = true)
-          }
+          CMsg(InputEmpty, game, passNext = true)
+        }
       case _ => IO.sync(CMsg(input, game, passNext = false))
+    }
+  }
+
+  def consumeAction(
+    universe: Universe,
+    a:        Action
+  ): IO[Error, GameStatus] = {
+    for {
+      nextStep <- a.getStep(universe.getAvailableSteps)
+      game     <- game.updater.withStep(nextStep)
+    } yield {
+      game
     }
   }
 }
 
 object Consumer {
+  private def debugPrint(txt: String): Unit = if (false) println(s"[DEBUG] $txt")
 
   private case class CMsg(
     input:    Input,
@@ -133,33 +160,36 @@ object Consumer {
   implicit private class JumpIO(io: IO[Error, CMsg]) {
     def mightJumpNext(next: CMsgS => IO[Error, CMsgS]): IO[Error, CMsgS] = {
       io.flatMap {
-        case CMsg(_, _, test) =>
-          if (test) {
-            io.map(_.toStable)
+        case msg @ CMsg(_, _, passNext) =>
+          debugPrint(s"mightJumpNext: test: $passNext")
+          if (passNext) {
+            IO.sync(msg.toStable)
           } else {
-            io.map(_.toStable).flatMap(next)
+            next(msg.toStable)
           }
       }
     }
 
     def mightJumpNextChain(next: CMsgS => IO[Error, CMsg]): IO[Error, CMsg] = {
       io.flatMap {
-        case CMsg(_, _, test) =>
-          if (test) {
-            io
+        case msg @ CMsg(_, _, passNext) =>
+          debugPrint(s"mightJumpNextChain: test: $passNext")
+          if (passNext) {
+            IO.sync(msg)
           } else {
-            io.map(_.toStable).flatMap(next)
+            next(msg.toStable)
           }
       }
     }
 
     def tailChain(next: CMsgS => IO[Error, GameStatus]): IO[Error, GameStatus] = {
       io.flatMap {
-        case CMsg(_, _, test) =>
-          if (test) {
-            io.map { case CMsg(_, g, _) => g }
+        case msg @ CMsg(_, _, passNext) =>
+          debugPrint(s"tailChain: test: $passNext")
+          if (passNext) {
+            IO.sync(msg.game)
           } else {
-            io.map(_.toStable).flatMap(next)
+            next(msg.toStable)
           }
       }
     }

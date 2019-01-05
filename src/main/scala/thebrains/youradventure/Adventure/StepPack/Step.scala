@@ -1,18 +1,21 @@
-package thebrains.youradventure.Adventure
+package thebrains.youradventure.Adventure.StepPack
 
 import scalaz.Maybe
 import scalaz.zio.IO
 import thebrains.youradventure.Adventure.ActionPack._
+import thebrains.youradventure.Adventure.CollectionPack.AssemblyItemTrait
+import thebrains.youradventure.Adventure.StepPack.Step.StepName
 import thebrains.youradventure.Adventure.TransformationPack.TransformationCollection
+import thebrains.youradventure.Adventure._
 import thebrains.youradventure.Utils.Error
 
 class Step(
-  name:             String,
+  name:             StepName,
   description:      String,
   location:         Location,
   transformations:  TransformationCollection,
   availableActions: ActionCollection
-) extends Things(name, description) {
+) extends AssemblyItemTrait(name, description) {
   @transient lazy val getLocation: Location = location
 
   private def playerMenu(player: Player): Step = {
@@ -22,11 +25,13 @@ class Step(
     }
   }
 
-  def getActions(player: Player): IO[Error, ActionCollection] = {
-    if (this.availableActions.isEmpty) {
-      IO.sync(this.availableActions)
-    } else {
-      Actions.playerStatusMenu(player, playerMenu) ++ availableActions
+  def getActions(player: Player): IO[Nothing, ActionCollection] = {
+    IO.sync {
+      if (this.availableActions.isEmpty) {
+        this.availableActions
+      } else {
+        Actions.Exit ++ Actions.playerStatusMenu(player, playerMenu) ++ availableActions
+      }
     }
   }
 
@@ -49,11 +54,11 @@ object Steps {
         location = Locations.Menu,
         transformations = TransformationCollection.Empty,
         availableActions = ActionCollection("Go back?")(
-          Action("Back", "Go back to where you were?", step)
+          Action("Back", "Go back to where you were?", Right(step))
         )
       )
 
-  case object EmptyStep
+  final case object EmptyStep
       extends Step(
         name = "Void",
         description = "This is a dead end",
@@ -62,11 +67,22 @@ object Steps {
         availableActions = ActionCollection.Empty
       )
 
+  final case object ExitStep
+      extends Step(
+        name = "Exit",
+        description = "You are exiting the game.",
+        location = Locations.Void,
+        transformations = TransformationCollection.Empty,
+        availableActions = ActionCollection.Empty
+      )
+
 }
 
 object Step {
+  type StepName = String
+
   def apply(
-    name:             String,
+    name:             StepName,
     description:      String,
     location:         Location,
     transformations:  TransformationCollection,

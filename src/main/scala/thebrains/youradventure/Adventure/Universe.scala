@@ -1,7 +1,13 @@
 package thebrains.youradventure.Adventure
 
+import scalaz.zio.IO
+import thebrains.youradventure.Adventure.CollectionPack.ListImplicits._
+import thebrains.youradventure.Adventure.StepPack._
+import thebrains.youradventure.Utils.Error
+
 class Universe(
   availableRaces: List[Race],
+  availableSteps: StepCollection,
   startingStep:   Step
 ) {
   @transient lazy val getAvailableRaces: List[Race] = availableRaces
@@ -23,21 +29,35 @@ class Universe(
   //    t
   //  }
 
-  def getStartingStep: Step = startingStep
+  @transient lazy val getStartingStep: Step = startingStep
+
+  @transient lazy val getAvailableSteps: StepCollection = availableSteps
 }
 
 object Universe {
 
-  case object Void
+  final case object Void
       extends Universe(
         availableRaces = Nil,
+        availableSteps = StepCollection.Empty,
         startingStep = Steps.EmptyStep
       )
 
   def apply(
     availableRaces: List[Race],
+    availableSteps: StepCollection,
     startingStep:   Step
-  ): Universe = {
-    new Universe(availableRaces, startingStep)
+  ): IO[Error, Universe] = {
+    if (availableSteps.outMap(_.getName).isUnique) {
+      IO.sync(new Universe(availableRaces, availableSteps, startingStep))
+    } else {
+      IO.fail(
+        Error(
+          "Step list is not unique",
+          s"The list of steps have duplicate names: " +
+            s"${availableSteps.getExtras.map(_.getName).mkString(", ")}"
+        )
+      )
+    }
   }
 }

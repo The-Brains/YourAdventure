@@ -7,14 +7,13 @@ class PlayerBuilderTest extends ParentTest {
   "Player" - {
     "Should be created" - {
       "with builder" in {
-        val player = PlayerBuilder
-          .create("john")
+        val player = unsafeRun(PlayerBuilder.create("john"))
           .selectRace(Races.Human)
 
-        assertEquals("john", player.name)
+        assertEquals("john", player.getName)
         assertEquals(
           Races.Human.baseAttributes.getAttributeValue(Attributes.Strength),
-          player.currentAttributes.getAttributeValue(Attributes.Strength)
+          unsafeRun(player.currentAttributes).getAttributeValue(Attributes.Strength)
         )
       }
     }

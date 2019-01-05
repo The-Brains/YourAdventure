@@ -4,15 +4,22 @@ import io.circe.Json
 import scalaz.Maybe
 import scalaz.zio.IO
 import thebrains.youradventure.Utils.Error
+import ListImplicits._
 
 import scala.reflect.ClassTag
+import scala.util.Try
 
-abstract class AssemblyTrait[A <: AssemblyItemTrait: ClassTag](items: A*) {
+abstract class AssemblyTrait[THIS <: AssemblyTrait[THIS, A], A <: AssemblyItemTrait: ClassTag](
+  items: List[A]
+) {
   def toCustomMap: Map[String, A] = {
     items.map(a => (a.getName, a)).toMap
   }
 
-  def encoded: List[Json] = items.map(_.encoded).toList
+  @transient lazy val length: Int = items.length
+  @transient lazy val size:   Int = length
+
+  def encoded: List[Json] = items.map(_.encoded)
 
   override def toString: String = s"[${items.map(_.toString).mkString(", ")}]"
 
@@ -42,27 +49,31 @@ abstract class AssemblyTrait[A <: AssemblyItemTrait: ClassTag](items: A*) {
 
   def find(p: A => Boolean): Maybe[A] = Maybe.fromOption(items.find(p))
 
-  def map(f: A => A): AssemblyTrait[A] = wrap(items.map(f): _*)
+  def map(f: A => A): THIS = wrap(items.map(f): _*)
 
-  def flatMap(f: A => AssemblyTrait[A]): AssemblyTrait[A] = {
-    items.map(f).reduce(_ ++ _)
+  def outMap[B](f: A => B): List[B] = items.map(f)
+
+  def flatMap(f: A => THIS): THIS = {
+    items.map(f).safeReduce(_ ++ _)(empty)
   }
 
-  protected def wrap(items: A*): AssemblyTrait[A]
+  protected def empty: THIS
 
-  def getItems: Seq[A] = items
+  protected def wrap(items: A*): THIS
 
-  def ++(other: AssemblyTrait[A]): AssemblyTrait[A] = {
+  def getItems: List[A] = items
+
+  def ++(other: THIS): THIS = {
     wrap(this.getItems ++ other.getItems: _*)
   }
 
-  def ++(other: A): AssemblyTrait[A] = {
-    wrap(this.getItems :+ other: _*)
+  def ++(other: A): THIS = {
+    this ++ wrap(other)
   }
 
   def iterator: Iterator[A] = items.toIterator
 
-  def apply(idx: Int): A = items.toArray.apply(idx)
-
-  def length: Int = items.length
+  def get(idx: Int): Maybe[A] = {
+    Maybe.fromOption(Try(items.toArray.apply(idx)).toOption)
+  }
 }

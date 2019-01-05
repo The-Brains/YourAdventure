@@ -1,41 +1,73 @@
 package thebrains.youradventure.FPTerminalIO
 
+import io.circe.{Encoder, Json}
 import scalaz.Maybe
+import io.circe.generic.auto._
+import io.circe.syntax._
+import thebrains.youradventure.Utils.ToOption._
 
-case class TerminalMessage(
-  messages:   List[String],
+sealed trait TerminalMessage
+
+case class Line(
+  content:   String,
+  cutLength: Boolean = true
+)
+
+final class MessageToDisplay(
+  messages:   List[Line],
   isQuestion: Boolean
-) {
-  lazy val question: Maybe[String] = if (isQuestion) Maybe.Just(messages.last) else Maybe.empty
-  lazy val messageToShow: Seq[String] =
-    if (isQuestion) messages.dropRight(1) else messages
+) extends TerminalMessage {
+  lazy val question:      Maybe[Line] = if (isQuestion) messages.last.just else Maybe.empty
+  lazy val messageToShow: Seq[Line] = if (isQuestion) messages.dropRight(1) else messages
+
+  implicit private val jsonEncoder: Encoder[MessageToDisplay] =
+    Encoder.forProduct2[MessageToDisplay, Seq[Line], Maybe[Line]]("question", "question") { msg =>
+      (msg.messageToShow, msg.question)
+    }
+
+  @transient lazy val encoded: Json = this.asJson
+
+  override def toString: String = encoded.noSpaces
 }
 
 object TerminalMessageBuilder {
 
-  case class MessageAssembly(messages: List[String]) {
-    def addLine(text: String): MessageAssembly = {
-      this.copy(messages = this.messages :+ text)
+  case class MessageAssembly(messages: List[Line]) {
+    def addLine(
+      text:      String,
+      cutLength: Boolean = true
+    ): MessageAssembly = {
+      this.copy(messages = this.messages :+ Line(text, cutLength))
+    }
+
+    def addLineMaybe(
+      text:      Maybe[String],
+      cutLength: Boolean = true
+    ): MessageAssembly = {
+      text match {
+        case Maybe.Just(line) => this.addLine(line, cutLength)
+        case Maybe.Empty()    => this
+      }
     }
 
     def addEmptyLine: MessageAssembly = {
       this.addLine("")
     }
 
-    def makeQuestion(question: String): TerminalMessage = {
-      finishWithQuestion(Maybe.just(question))
+    def makeQuestion(question: String): MessageToDisplay = {
+      finishWithQuestion(question.just)
     }
 
-    def finishWithQuestion(text: Maybe[String]): TerminalMessage = {
+    def finishWithQuestion(text: Maybe[String]): MessageToDisplay = {
       text match {
         case Maybe.Just(question) =>
-          TerminalMessage(messages = this.messages :+ question, isQuestion = true)
+          new MessageToDisplay(messages = this.messages :+ Line(question), isQuestion = true)
         case Maybe.Empty() => complete()
       }
     }
 
-    def complete(): TerminalMessage = {
-      TerminalMessage(messages, isQuestion = false)
+    def complete(): MessageToDisplay = {
+      new MessageToDisplay(messages, isQuestion = false)
     }
 
     def ++(other: MessageAssembly): MessageAssembly = {
@@ -46,4 +78,7 @@ object TerminalMessageBuilder {
   def start(): MessageAssembly = {
     MessageAssembly(Nil).addEmptyLine
   }
+
+  final case object EmptyMessage extends TerminalMessage
+
 }

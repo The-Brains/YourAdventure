@@ -20,30 +20,12 @@ case class Transformation(
     ) {
   override def toString: String = s"${attribute.toString} -> $operation $modification $value"
 
-  def ++(other: Transformation): Either[Error, TransformationCollection] = {
-    TransformationCollection(this) ++ other match {
-      case a: TransformationCollection => Right(a)
-      case _ =>
-        Left(
-          Error(
-            "Cannot convert",
-            "Somehow, not able to combine two 'TransformationCollection' into one."
-          )
-        )
-    }
+  def ++(other: Transformation): TransformationCollection = {
+    TransformationCollection(this) ++ other
   }
 
-  def ++(other: TransformationCollection): Either[Error, TransformationCollection] = {
-    other ++ this match {
-      case a: TransformationCollection => Right(a)
-      case _ =>
-        Left(
-          Error(
-            "Cannot convert",
-            "Somehow, not able to combine two 'TransformationCollection' into one."
-          )
-        )
-    }
+  def ++(other: TransformationCollection): TransformationCollection = {
+    TransformationCollection(this) ++ other
   }
 
   private def execute(
@@ -66,7 +48,7 @@ case class Transformation(
     }
   }
 
-  def >>(playerAttribute: PlayerAttribute): IO[Error, PlayerAttribute] = {
+  def appliedTo(playerAttribute: PlayerAttribute): IO[Error, PlayerAttribute] = {
     execute(forwardTransformation, playerAttribute)
   }
 
@@ -135,25 +117,32 @@ case class Transformation(
 
 sealed trait Modification
 
-case object Increase extends Modification
+final case object Increase extends Modification
 
-case object Decrease extends Modification
+final case object Decrease extends Modification
 
 sealed trait Operation
 
-case object Addition extends Operation with FullOperation
+final case object Addition extends Operation with FullOperation
 
-case object Multiply extends Operation with FullOperation
+final case object Multiply extends Operation with FullOperation
 
 sealed trait FullOperation
 
-case object Reduce extends FullOperation
+final case object Reduce extends FullOperation
 
-case object Divide extends FullOperation
+final case object Divide extends FullOperation
 
-case object Combination extends Operation
+final case object Combination extends Operation
 
 object TransformationBuilder {
+
+  @transient lazy val AvailableOperations: List[FullOperation] = List(
+    Addition,
+    Reduce,
+    Multiply,
+    Divide
+  )
 
   case class TransformValue private (
     operation: Operation,

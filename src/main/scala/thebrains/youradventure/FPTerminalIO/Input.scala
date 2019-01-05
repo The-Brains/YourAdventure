@@ -5,9 +5,9 @@ import thebrains.youradventure.Utils.Error
 
 sealed class Input
 
-case class InputFilled(input: String) extends Input
+final case class InputFilled(input: String) extends Input
 
-case object InputEmpty extends Input
+final case object InputEmpty extends Input
 
 object Input {
   def getContent(input: Input): IO[Error, InputFilled] = {

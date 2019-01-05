@@ -2,20 +2,43 @@ package thebrains.youradventure.Adventure.ActionPack
 
 import scalaz.zio.IO
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyItemTrait
+import thebrains.youradventure.Adventure.ConditionPack.Condition
+import thebrains.youradventure.Adventure.StepPack.Step.StepName
+import thebrains.youradventure.Adventure.StepPack._
 import thebrains.youradventure.Adventure._
 import thebrains.youradventure.Utils
 import thebrains.youradventure.Utils.Error
 
-case class Action(
+class Action(
   name:        String,
   description: String,
-  targetStep:  Step
+  targetStep:  Either[StepName, Step],
+  conditions:  List[Condition] = Nil
 ) extends AssemblyItemTrait(name, description) {
-  def ++(availableActions: ActionCollection): IO[Error, ActionCollection] = {
-    BastardActionCollection(this) ++ availableActions match {
-      case a: ActionCollection => IO.sync(a)
-      case _ => IO.fail(Error("Cannot convert", "Cannot convert to 'ActionCollection'."))
+  @transient lazy val getTargetStep: Either[StepName, Step] = targetStep
+
+  def canBeDisplayed(p: Player): IO[Error, Boolean] = {
+    conditions.foldLeft(IO.fromEither[Error, Boolean](Right(true))) {
+      case (acc, condition) =>
+        for {
+          a <- acc
+          c <- condition.isTrueFor(p)
+        } yield {
+          a && c
+        }
     }
+  }
+
+  def ++(availableActions: ActionCollection): ActionCollection = {
+    BastardActionCollection(this) ++ availableActions
+  }
+
+  def ++(availableActions: BastardActionCollection): BastardActionCollection = {
+    BastardActionCollection(this) ++ availableActions
+  }
+
+  def ++(availableActions: Action): BastardActionCollection = {
+    BastardActionCollection(this) ++ BastardActionCollection(availableActions)
   }
 
   override def |+|(other: AssemblyItemTrait): IO[Utils.Error, AssemblyItemTrait] = {
@@ -27,8 +50,11 @@ case class Action(
     )
   }
 
-  def getStep: IO[Nothing, Step] = {
-    IO.sync(targetStep)
+  def getStep(availableSteps: StepCollection): IO[Error, Step] = {
+    targetStep match {
+      case Right(step)    => IO.sync(step)
+      case Left(stepName) => availableSteps.getStep(stepName)
+    }
   }
 }
 
@@ -37,6 +63,39 @@ object Actions {
     player: Player,
     p:      Player => Step
   ): Action = {
-    Action("Player Status", "Look at your player status", p(player))
+    Action("Player Status", "Look at your player status", p(player), Nil)
+  }
+
+  final case object Exit
+      extends Action("Exit", "You are about to leave the game.", Right(Steps.ExitStep), Nil)
+
+}
+
+object Action {
+  def apply(
+    name:        String,
+    description: String,
+    targetStep:  Either[StepName, Step],
+    conditions:  List[Condition] = Nil
+  ): Action = {
+    new Action(name, description, targetStep, conditions)
+  }
+
+  def apply(
+    name:        String,
+    description: String,
+    targetStep:  StepName,
+    conditions:  List[Condition]
+  ): Action = {
+    new Action(name, description, Left(targetStep), conditions)
+  }
+
+  def apply(
+    name:        String,
+    description: String,
+    targetStep:  Step,
+    conditions:  List[Condition]
+  ): Action = {
+    new Action(name, description, Right(targetStep), conditions)
   }
 }

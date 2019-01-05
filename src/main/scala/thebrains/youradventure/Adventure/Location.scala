@@ -1,60 +1,62 @@
 package thebrains.youradventure.Adventure
 
+import scalaz.Maybe
+
 class Location(
   name:           String,
   description:    String,
-  parentLocation: Option[Location]
+  parentLocation: Maybe[Location]
 ) extends Things(name, description)
 
 object Locations {
 
-  case object Menu
+  final case object Menu
       extends Location(
         name = "Menu Interface",
         description = "This is a Menu",
-        None
+        Maybe.empty
       )
 
-  case object Void
+  final case object Void
       extends Location(
         name = "void",
         description = "This is nowhere",
-        None
+        Maybe.empty
       )
 
-  case object Multiverse
+  final case object Multiverse
       extends Location(
         name = "Multiverse",
         description = "This is the multiverse",
-        None
+        Maybe.empty
       )
 
-  case object OurUniverse
+  final case object OurUniverse
       extends Location(
         name = "Universe1",
         description = "This is our universe",
-        parentLocation = Some(Multiverse)
+        parentLocation = Maybe.just(Multiverse)
       )
 
-  case object MilkyWay
+  final case object MilkyWay
       extends Location(
         name = "MilkyWay",
         description = "The milky way galaxy",
-        parentLocation = Some(OurUniverse)
+        parentLocation = Maybe.just(OurUniverse)
       )
 
-  case object SolarSystem
+  final case object SolarSystem
       extends Location(
         name = "Solar System",
         description = "This a system of planet",
-        parentLocation = Some(MilkyWay)
+        parentLocation = Maybe.just(MilkyWay)
       )
 
-  case object Earth
+  final case object Earth
       extends Location(
         name = "Earth",
         description = "The blue planet, planet Earth",
-        parentLocation = Some(SolarSystem)
+        parentLocation = Maybe.just(SolarSystem)
       )
 
 }

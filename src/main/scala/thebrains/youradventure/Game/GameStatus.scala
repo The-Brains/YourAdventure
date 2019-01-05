@@ -6,9 +6,11 @@ import io.circe.syntax._
 import scalaz.Maybe
 import scalaz.zio.IO
 import thebrains.youradventure.Adventure.ActionPack.Action
+import thebrains.youradventure.Adventure.StepPack.Step
 import thebrains.youradventure.Adventure._
 import thebrains.youradventure.FPTerminalIO._
 import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.ToOption._
 
 class GameStatus(
   universe:      Universe,
@@ -18,7 +20,6 @@ class GameStatus(
   renderer:      Renderer,
   currentError:  Maybe[Error]
 ) {
-
   implicit private val jsonEncoder: Encoder[GameStatus] =
     Encoder.forProduct4[GameStatus, Maybe[Json], Maybe[Json], Maybe[Json], Maybe[Json]](
       "step",
@@ -63,15 +64,15 @@ object GameStatus {
 
   def unapply(
     arg: GameStatus
-  ): Option[(Universe, Maybe[Error], Maybe[Step], Maybe[Action], Maybe[PlayerTrait], Renderer)] = {
-    Some(
+  ): Some[(Universe, Maybe[Error], Maybe[Step], Maybe[Action], Maybe[PlayerTrait], Renderer)] = {
+    (
       arg.getUniverse,
       arg.getError,
       arg.getCurrentStep,
       arg.getCurrentAction,
       arg.getPlayer,
       arg.getRenderer
-    )
+    ).some
   }
 
   def apply(
@@ -80,7 +81,7 @@ object GameStatus {
   ): GameStatus = {
     new GameStatus(
       universe,
-      Maybe.just(universe.getStartingStep),
+      universe.getStartingStep.just,
       Maybe.empty,
       Maybe.empty,
       renderer,

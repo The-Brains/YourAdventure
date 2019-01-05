@@ -2,7 +2,7 @@ package thebrains.youradventure.Adventure
 
 import scalaz.zio.IO
 import thebrains.youradventure.Adventure.AttributePack.{AttributeCollection, Attributes}
-import thebrains.youradventure.Adventure.BodyPack.{BodyPart, BodyParts}
+import thebrains.youradventure.Adventure.BodyPack._
 import thebrains.youradventure.Utils.Error
 
 class Race(
@@ -10,19 +10,20 @@ class Race(
   description:         String,
   inputBaseAttributes: AttributeCollection,
   compoundAttributes:  Set[CompoundAttributes],
-  inputBodyParts:      List[BodyPart]
+  inputBodyParts:      BodyCollection
 ) extends Things(name, description) {
-  def bodyParts: List[BodyPart] = this.inputBodyParts
+  @transient lazy val bodyParts: BodyCollection = this.inputBodyParts
 
   def baseAttributes: AttributeCollection = inputBaseAttributes
 }
 
 object Races {
-  case object Human
+
+  final case object Human
       extends Race(
         name = "Human",
         description = "Just a basic human",
-        inputBodyParts = List(
+        inputBodyParts = BodyCollection(
           BodyParts.OneChest,
           BodyParts.OneHead
         ) ++
@@ -57,5 +58,14 @@ object Races {
         )
     }
   }
+
+  final case object Void
+      extends Race(
+        name = "Empty Object",
+        description = "Not a Race",
+        inputBodyParts = BodyCollection.Empty,
+        inputBaseAttributes = AttributeCollection.Empty,
+        compoundAttributes = Set.empty
+      )
 
 }

@@ -20,12 +20,14 @@ scalacOptions ++= List(
 )
 
 // Code Style
-lazy val scalafmtSettings = Seq(
-  scalafmtOnCompile := true
-)
-libraryDependencies += compilerPlugin(scalafixSemanticdb)
-scalastyleFailOnError   := true
-scalastyleFailOnWarning := true
+//lazy val scalafmtSettings = Seq(
+//  scalafmtOnCompile := true
+//)
+//libraryDependencies += compilerPlugin(scalafixSemanticdb)
+//scalastyleFailOnError   := true
+//scalastyleFailOnWarning := true
+
+addCommandAlias("cleanCoverage", ";clean ;fmt ;compile ;coverage ;test ;coverageReport")
 
 addCommandAlias("fix", "; compile:scalafix; test:scalafix")
 addCommandAlias("fixCheck", "; compile:scalafix --check; test:scalafix --check")
@@ -42,7 +44,7 @@ addCommandAlias("checkAll", "; fixCheck; fmtCheck; styleCheck")
 val scalaZVersion = "7.2.27"
 libraryDependencies ++= Seq(
   "org.scalaz" %% "scalaz-core" % scalaZVersion,
-//  "org.scalaz" %% "scalaz-effect" % scalaZVersion,
+  //  "org.scalaz" %% "scalaz-effect" % scalaZVersion,
   "org.scalaz" %% "scalaz-zio" % "0.5.1"
 )
 //////////////
