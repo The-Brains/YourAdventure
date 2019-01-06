@@ -1,6 +1,7 @@
 package thebrains.youradventure.Adventure.ActionPack
 
 import scalaz.Maybe
+import scalaz.zio.IO
 import thebrains.youradventure.Adventure.StepPack.{StepCollection, Steps}
 import thebrains.youradventure.FactoriesTest.ActionPack.{FAction, FActionCollection}
 import thebrains.youradventure.FactoriesTest.FPlayer
@@ -18,8 +19,8 @@ class ActionTest extends ParentTest {
 
     "Player step" - {
       "Should create step player" in {
-        val playerStep = unsafeRunToEither(FPlayer().map { p =>
-          Actions.playerStatusMenu(p, _ => Steps.EmptyStep)
+        val playerStep = unsafeRunToEither(FPlayer().flatMap { p =>
+          Actions.playerStatusMenu(p, _ => IO.sync(Steps.EmptyStep))
         })
         assert(playerStep.isRight)
 

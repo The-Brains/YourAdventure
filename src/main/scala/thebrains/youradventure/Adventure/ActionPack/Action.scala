@@ -58,14 +58,23 @@ class Action(
 object Actions {
   def playerStatusMenu(
     player: Player,
-    p:      Player => Step
-  ): Action = {
-    Action("Player Status", "Look at your player status", p(player), Nil)
+    p:      Player => IO[Err, Step]
+  ): IO[Err, Action] = {
+    p(player).map { step =>
+      Action("Player Status", "Look at your player status", step, Nil)
+    }
   }
 
   final case object Exit
-      extends Action("Exit", "You are about to leave the game.", Right(Steps.ExitStep), Nil)
-
+      extends Action(
+        name = "Exit",
+        description = "You are about to leave the game.",
+        targetStep = Right(Steps.ExitStep),
+        conditions = Nil
+      )
+  val BackActionName: StepName = "Back"
+  final case class Back(step: Step)
+      extends Action(BackActionName, "Go back to where you were?", Right(step))
 }
 
 object Action {

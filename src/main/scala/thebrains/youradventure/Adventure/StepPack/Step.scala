@@ -7,7 +7,7 @@ import thebrains.youradventure.Adventure.CollectionPack.AssemblyItemTrait
 import thebrains.youradventure.Adventure.StepPack.Step.StepName
 import thebrains.youradventure.Adventure.TransformationPack.TransformationCollection
 import thebrains.youradventure.Adventure._
-import thebrains.youradventure.Utils.Err
+import thebrains.youradventure.Utils.{Err, ErrorIO}
 
 class Step(
   name:             StepName,
@@ -17,46 +17,77 @@ class Step(
   availableActions: ActionCollection
 ) extends AssemblyItemTrait(name, description) {
   @transient lazy val getLocation: Location = location
-
-  private def playerMenu(player: Player): Step = {
-    this match {
-      case s: Steps.PlayerStatusStep => s.step.playerMenu(player)
-      case s: Step                   => Steps.PlayerStatusStep(s, player)
+  @transient lazy private val actionWithExit: ActionCollection = {
+    if (availableActions.nonEmpty) {
+      Actions.Exit ++ availableActions
+    } else {
+      ActionCollection.Empty
     }
   }
 
-  def getActions(player: Player): IO[Nothing, ActionCollection] = {
-    IO.sync {
-      if (this.availableActions.isEmpty) {
-        this.availableActions
-      } else {
-        Actions.Exit ++ Actions.playerStatusMenu(player, playerMenu) ++ availableActions
-      }
+  private def playerMenu(player: Player): IO[Err, Step] = {
+    this match {
+      case s: PlayerStatusStep => s.getSourceStep.playerMenu(player)
+      case s: Step             => Steps.playerStatusStep(s, player)
+    }
+  }
+
+  def getActions(player: Player): IO[Err, ActionCollection] = {
+    if (this.availableActions.isEmpty) {
+      IO.sync(this.availableActions)
+    } else {
+      Actions
+        .playerStatusMenu(player, playerMenu)
+        .map { playerStep =>
+          Actions.Exit ++ playerStep ++ availableActions
+        }
     }
   }
 
   def getActions(playerMaybe: Maybe[Player]): IO[Err, ActionCollection] = {
     playerMaybe match {
       case Maybe.Just(p) => getActions(p)
-      case Maybe.Empty() => IO.sync(this.availableActions)
+      case Maybe.Empty() => IO.sync(actionWithExit)
     }
   }
 }
 
-object Steps {
+final class PlayerStatusStep(
+  step:   Step,
+  player: Player
+) extends Step(
+      name = "Player Status",
+      description = player.toStatus,
+      location = Locations.Menu,
+      transformations = TransformationCollection.Empty,
+      availableActions = ActionCollection("Go back?")(Actions.Back(step))
+    ) {
+  @transient lazy val getSourceStep: Step = step
+}
 
-  case class PlayerStatusStep(
+object Steps {
+  def playerStatusStep(
     step:   Step,
     player: Player
-  ) extends Step(
-        name = "Player Status",
-        description = player.toStatus,
-        location = Locations.Menu,
-        transformations = TransformationCollection.Empty,
-        availableActions = ActionCollection("Go back?")(
-          Action("Back", "Go back to where you were?", Right(step))
-        )
-      )
+  ): IO[Err, PlayerStatusStep] = {
+    def getCorrectBackStep(step: Step): IO[Err, Step] = {
+      step match {
+        case p: PlayerStatusStep =>
+          (for {
+            actions <- p.getActions(player)
+            action  <- actions.getAction(Actions.BackActionName)
+          } yield {
+            action.getTargetStep match {
+              case Left(_)  => ErrorIO("Weird case", s"The back step was '${action.toString}'.")
+              case Right(s) => getCorrectBackStep(s)
+            }
+          }).flatMap(identity)
+        case s: Step => IO.sync(s)
+      }
+    }
+
+    getCorrectBackStep(step).map(s => new PlayerStatusStep(s, player))
+  }
 
   final case object EmptyStep
       extends Step(
