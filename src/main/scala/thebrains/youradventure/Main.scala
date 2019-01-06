@@ -9,7 +9,7 @@ import thebrains.youradventure.Adventure.TransformationPack._
 import thebrains.youradventure.Adventure._
 import thebrains.youradventure.FPTerminalIO._
 import thebrains.youradventure.Game.GameStatus
-import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.Err
 import thebrains.youradventure.Adventure.CollectionPack.ListImplicits._
 import thebrains.youradventure.Utils.ToOption._
 
@@ -46,7 +46,7 @@ object Main extends App {
       )
     )
   )
-  lazy private val CurrentUniverse: IO[Error, Universe] = Universe(
+  lazy private val CurrentUniverse: IO[Err, Universe] = Universe(
     availableRaces = List(
       Races.Human
     ),
@@ -68,7 +68,7 @@ object Main extends App {
       exit <- myAppLogic(tp, game, Answers).attempt
     } yield {
       exit
-    }).flatMap[Error, Unit] {
+    }).flatMap[Err, Unit] {
         case Left(e) =>
           (for {
             m <- renderer.displayErrorAsMessage(e)
@@ -78,7 +78,7 @@ object Main extends App {
           } yield {
             ()
           }).flatMap { _ =>
-            IO.fail(e)
+            e.toIO
           }
         case Right(g) =>
           for {
@@ -88,7 +88,7 @@ object Main extends App {
       }
       .attempt
       .map[Int] {
-        case Left(_: Error) => 1
+        case Left(_: Err) => 1
         case Right(_) => 0
       }
       .map[ExitStatus](ExitStatus.ExitNow(_))
@@ -98,7 +98,7 @@ object Main extends App {
     tp:      TerminalPrint,
     game:    GameStatus,
     answers: List[Maybe[String]]
-  ): IO[Error, GameStatus] = {
+  ): IO[Err, GameStatus] = {
     for {
       n <- tp.render(game, answers.headMaybe)
       g <- if (game.isCompleted) IO.sync(game) else myAppLogic(tp, n, answers.drop(1))

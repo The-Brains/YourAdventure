@@ -5,13 +5,13 @@ import scalaz.zio.IO
 import thebrains.youradventure.Adventure.AttributePack.PlayerAttribute.AttributeType
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyTrait
 import thebrains.youradventure.Adventure.TransformationPack._
-import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.Err
 import thebrains.youradventure.Utils.ToOption._
 
 class AttributeCollection(attributes: Set[PlayerAttribute])
     extends AssemblyTrait[AttributeCollection, PlayerAttribute](attributes.toList) {
 
-  def <<(applyTransformations: TransformationCollection): IO[Error, AttributeCollection] = {
+  def <<(applyTransformations: TransformationCollection): IO[Err, AttributeCollection] = {
     IO.sequence(
         (this.toCustomMap.mapValues(p => (p.some, None)).toList ++
           applyTransformations.toCustomMap.mapValues(t => (None, t.some)).toList)

@@ -6,10 +6,10 @@ import thebrains.youradventure.Adventure.ActionPack.{Action, ActionCollection}
 import thebrains.youradventure.Adventure.PlayerBuilder.PlayerWithName
 import thebrains.youradventure.Adventure.StepPack.Step
 import thebrains.youradventure.Adventure._
-import thebrains.youradventure.Utils.{Error, FatalError}
+import thebrains.youradventure.Utils.{Err, FatalError}
 
 class Renderer() {
-  def display(p: Maybe[PlayerTrait]): IO[Error, MessageToDisplay] = {
+  def display(p: Maybe[PlayerTrait]): IO[Err, MessageToDisplay] = {
     p match {
       case Maybe.Empty() => displayEmptyPlayerQuestion
       case Maybe.Just(p: PlayerWithName) => display(p)
@@ -17,7 +17,7 @@ class Renderer() {
     }
   }
 
-  private def displayEmptyPlayerQuestion: IO[Error, MessageToDisplay] = {
+  private def displayEmptyPlayerQuestion: IO[Err, MessageToDisplay] = {
     IO.sync(
       TerminalMessageBuilder
         .start()
@@ -25,7 +25,7 @@ class Renderer() {
     )
   }
 
-  private def display(p: PlayerBuilder.PlayerWithName): IO[Error, MessageToDisplay] = {
+  private def display(p: PlayerBuilder.PlayerWithName): IO[Err, MessageToDisplay] = {
     IO.sync(
       TerminalMessageBuilder
         .start()
@@ -42,7 +42,7 @@ class Renderer() {
     )
   }
 
-  def displayErrorAsMessage(error: Error): IO[Nothing, MessageToDisplay] = {
+  def displayErrorAsMessage(error: Err): IO[Nothing, MessageToDisplay] = {
     IO.sync(
       TerminalMessageBuilder
         .start()
@@ -53,9 +53,9 @@ class Renderer() {
     )
   }
 
-  def display(error: Error): IO[Error, MessageToDisplay] = {
+  def display(error: Err): IO[Err, MessageToDisplay] = {
     if (error.isFatal) {
-      IO.fail(error)
+      error.toIO
     } else {
       displayErrorAsMessage(error)
     }
@@ -72,7 +72,7 @@ class Renderer() {
   def display(
     step:   Step,
     player: Maybe[Player]
-  ): IO[Error, MessageToDisplay] = {
+  ): IO[Err, MessageToDisplay] = {
     for {
       actions <- step.getActions(player)
     } yield {
@@ -108,7 +108,7 @@ class Renderer() {
       .addLine(s"$id - ${action.getName} - ${action.getDescription}")
   }
 
-  def emptyMessage: IO[Error, TerminalMessage] = IO.sync(TerminalMessageBuilder.EmptyMessage)
+  def emptyMessage: IO[Err, TerminalMessage] = IO.sync(TerminalMessageBuilder.EmptyMessage)
 
 }
 

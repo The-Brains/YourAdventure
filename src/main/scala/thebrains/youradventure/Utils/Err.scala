@@ -5,8 +5,9 @@ import java.io.IOException
 import scalaz.Maybe
 import thebrains.youradventure.Adventure.Things
 import ToOption._
+import scalaz.zio.IO
 
-class Error(
+class Err(
   name:        String,
   description: String,
   fatal:       Boolean,
@@ -27,42 +28,70 @@ class Error(
     description: String = this.description,
     fatal:       Boolean = this.fatal,
     stack:       List[StackTraceElement] = this.stack
-  ): Error = {
-    new Error(name, description, fatal, stack)
+  ): Err = {
+    new Err(name, description, fatal, stack)
   }
+
+  def toIO[A]: IO[Err, A] = IO.fail(this)
 }
 
 case class FatalError(
   name:        String,
   description: String,
-  stackTrace:  List[StackTraceElement] = Thread.getAllStackTraces.get(Thread.currentThread()).toList
-) extends Error(
+  stackTrace:  List[StackTraceElement] = FatalError.getStackTrace
+) extends Err(
       name,
       description,
       fatal = true,
       stackTrace
     )
 
-object Error {
-  val Empty: Error = new Error(name = "", description = "", fatal = false, Nil)
+object Err {
+  val Empty: Err = new Err(name = "", description = "", fatal = false, Nil)
 
   def apply(
     name:        String,
     description: String,
     isFatal:     Boolean = false
-  ): Error = {
-    new Error(
+  ): Err = {
+    new Err(
       name,
       description,
       isFatal,
-      Thread.getAllStackTraces.get(Thread.currentThread()).toList
+      FatalError.getStackTrace
     )
+  }
+}
+
+object FatalErrorIO {
+  def apply[A](
+    name:        String,
+    description: String,
+    stackTrace:  List[StackTraceElement] = FatalError.getStackTrace
+  ): IO[FatalError, A] = {
+    IO.fail(FatalError(name, description, stackTrace))
+  }
+}
+
+object FatalError {
+
+  def getStackTrace: List[StackTraceElement] = {
+    Thread.getAllStackTraces.get(Thread.currentThread()).toList
   }
 
   private def createFrom(ex: Throwable): FatalError = {
     FatalError(ex.getClass.getCanonicalName, ex.getMessage, ex.getStackTrace.toList)
   }
 
-  def apply(ex: IOException): Error = createFrom(ex)
+  def apply(ex: IOException): Err = createFrom(ex)
+}
 
+object ErrorIO {
+  def apply[A](
+    name:        String,
+    description: String,
+    isFatal:     Boolean = false
+  ): IO[Err, A] = {
+    IO.fail(Err(name, description, isFatal))
+  }
 }

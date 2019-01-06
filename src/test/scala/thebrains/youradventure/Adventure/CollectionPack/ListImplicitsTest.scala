@@ -3,7 +3,10 @@ package thebrains.youradventure.Adventure.CollectionPack
 import scalaz.Maybe
 import thebrains.youradventure.ParentTest
 import thebrains.youradventure.Utils.ToOption._
+import thebrains.youradventure.Utils.Err
 import ListImplicits._
+import org.scalatest.Assertion
+import scalaz.zio.IO
 
 class ListImplicitsTest extends ParentTest {
   "ListImplicit" - {
@@ -55,6 +58,48 @@ class ListImplicitsTest extends ParentTest {
 
     "updateFirst" in {
       assertEquals(List(1, 10, 1, 2), List(1, 2, 1, 2).updateFirst(_ % 2 == 0)(_ * 5))
+      assertEquals(List(1, 2, 1, 2), List(1, 2, 1, 2).updateFirst(_ > 10)(_ * 5))
+    }
+
+    "updateFirstIO" in {
+      def test[A](
+        l:              List[A],
+        p:              A => Boolean,
+        operation:      A => IO[Err, A],
+        expectedResult: List[A]
+      ): Assertion = {
+        val io = IO.sequence(l.updateFirstIO(p)(operation))
+        val output = unsafeRunToEither(io)
+        assert(output.isRight)
+        val result = output.right.get
+        assertEquals(expectedResult, result)
+      }
+
+      test[Int](
+        l = List(1, 2, 1, 2),
+        p = _ % 2 == 0,
+        operation = i => IO.sync(i * 5),
+        expectedResult = List(1, 10, 1, 2)
+      )
+
+      test[Int](
+        l = List(1, 2, 1, 2),
+        p = _ > 10,
+        operation = i => IO.sync(i * 5),
+        expectedResult = List(1, 2, 1, 2)
+      )
+    }
+  }
+
+  "OptionMaybe" - {
+    "headMaybe" - {
+      "Should be empty if no head" in {
+        assert(List[Int]().headMaybe.isEmpty)
+      }
+
+      "Should be not empty is head" in {
+        assert(List(1).headMaybe.isJust)
+      }
     }
   }
 }

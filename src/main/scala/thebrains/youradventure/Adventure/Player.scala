@@ -7,7 +7,7 @@ import thebrains.youradventure.Adventure.AttributePack.AttributeCollection
 import thebrains.youradventure.Adventure.BodyPack.PlayerBodyCollection
 import thebrains.youradventure.Adventure.StepPack.{Step, StepCollection}
 import thebrains.youradventure.Adventure.TransformationPack.TransformationCollection
-import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.{Err, ErrorIO}
 import thebrains.youradventure.Adventure.CollectionPack.ListImplicits._
 
 class Player(
@@ -31,7 +31,7 @@ class Player(
       .safeReduce(_ ++ _)(TransformationCollection.Empty)
   }
 
-  @transient lazy val currentAttributes: IO[Error, AttributeCollection] =
+  @transient lazy val currentAttributes: IO[Err, AttributeCollection] =
     baseAttributes << equipmentModifier
 
   def isWearing(e: Equipment): Boolean = equipments.exists(_ === e)
@@ -52,7 +52,7 @@ class Player(
   /**
     * for testing
     */
-  private[Adventure] def equipWild(equipment: Equipment): IO[Error, Player] = {
+  private[Adventure] def equipWild(equipment: Equipment): IO[Err, Player] = {
     bodyParts
       .equip(equipment)
       .map(newBodyPart => copy(bodyParts = newBodyPart))
@@ -110,16 +110,14 @@ object PlayerBuilder {
       )
     }
 
-    def selectRace(availableRaces: List[Race])(race: String): IO[Error, Player] = {
+    def selectRace(availableRaces: List[Race])(race: String): IO[Err, Player] = {
       availableRaces.find(_.getLowerCaseName == race.toLowerCase) match {
         case Some(r) => IO.sync(selectRace(r))
         case None =>
-          IO.fail(
-            Error(
-              "Not found race",
-              s"Could not found '$race' among: " +
-                s"${availableRaces.map(_.getCapitalizeName).mkString(", ")}"
-            )
+          ErrorIO(
+            "Not found race",
+            s"Could not found '$race' among: " +
+              s"${availableRaces.map(_.getCapitalizeName).mkString(", ")}"
           )
       }
     }

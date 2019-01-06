@@ -6,7 +6,7 @@ import thebrains.youradventure.Adventure.ActionPack.Action
 import thebrains.youradventure.Adventure.StepPack.Step
 import thebrains.youradventure.Adventure._
 import thebrains.youradventure.FPTerminalIO.Renderer
-import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.Err
 import thebrains.youradventure.Utils.ToOption._
 
 private[Game] class Updater(game: GameStatus) {
@@ -16,7 +16,7 @@ private[Game] class Updater(game: GameStatus) {
     currentAction: Maybe[Action] = Maybe.empty,
     player:        Maybe[PlayerTrait] = Maybe.empty,
     renderer:      Maybe[Renderer] = Maybe.empty,
-    currentError:  Maybe[Error] = Maybe.empty
+    currentError:  Maybe[Err] = Maybe.empty
   ): GameStatus = {
     new GameStatus(
       universe = universe.getOrElse(this.game.getUniverse),
@@ -28,23 +28,23 @@ private[Game] class Updater(game: GameStatus) {
     )
   }
 
-  def withError(error: Error): GameStatus = {
+  def withError(error: Err): GameStatus = {
     this.copy(currentError = error.just)
   }
 
-  def withPlayer(p: PlayerTrait): IO[Error, GameStatus] = {
+  def withPlayer(p: PlayerTrait): IO[Err, GameStatus] = {
     IO.sync(this.copy(player = p.just))
   }
 
-  def withStep(step: Step): IO[Error, GameStatus] = {
+  def withStep(step: Step): IO[Err, GameStatus] = {
     IO.sync(this.copy(currentStep = step.just))
   }
 
-  def withAction(a: Action): IO[Error, GameStatus] = {
+  def withAction(a: Action): IO[Err, GameStatus] = {
     IO.sync(this.copy(currentAction = a.just))
   }
 
-  def removeAction(): IO[Error, GameStatus] = {
+  def removeAction(): IO[Err, GameStatus] = {
     IO.sync(
       new GameStatus(
         universe = this.game.getUniverse,
@@ -57,7 +57,7 @@ private[Game] class Updater(game: GameStatus) {
     )
   }
 
-  def removeStep(): IO[Error, GameStatus] = {
+  def removeStep(): IO[Err, GameStatus] = {
     IO.sync(
       new GameStatus(
         universe = this.game.getUniverse,

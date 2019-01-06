@@ -7,7 +7,7 @@ import thebrains.youradventure.Adventure.CollectionPack.AssemblyItemTrait
 import thebrains.youradventure.Adventure.StepPack.Step.StepName
 import thebrains.youradventure.Adventure.TransformationPack.TransformationCollection
 import thebrains.youradventure.Adventure._
-import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.Err
 
 class Step(
   name:             StepName,
@@ -35,7 +35,7 @@ class Step(
     }
   }
 
-  def getActions(playerMaybe: Maybe[Player]): IO[Error, ActionCollection] = {
+  def getActions(playerMaybe: Maybe[Player]): IO[Err, ActionCollection] = {
     playerMaybe match {
       case Maybe.Just(p) => getActions(p)
       case Maybe.Empty() => IO.sync(this.availableActions)

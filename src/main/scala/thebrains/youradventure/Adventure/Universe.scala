@@ -3,7 +3,7 @@ package thebrains.youradventure.Adventure
 import scalaz.zio.IO
 import thebrains.youradventure.Adventure.CollectionPack.ListImplicits._
 import thebrains.youradventure.Adventure.StepPack._
-import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.{Err, ErrorIO}
 
 class Universe(
   availableRaces: List[Race],
@@ -47,16 +47,14 @@ object Universe {
     availableRaces: List[Race],
     availableSteps: StepCollection,
     startingStep:   Step
-  ): IO[Error, Universe] = {
+  ): IO[Err, Universe] = {
     if (availableSteps.outMap(_.getName).isUnique) {
       IO.sync(new Universe(availableRaces, availableSteps, startingStep))
     } else {
-      IO.fail(
-        Error(
-          "Step list is not unique",
-          s"The list of steps have duplicate names: " +
-            s"${availableSteps.getExtras.map(_.getName).mkString(", ")}"
-        )
+      ErrorIO(
+        "Step list is not unique",
+        s"The list of steps have duplicate names: " +
+          s"${availableSteps.getExtras.map(_.getName).mkString(", ")}"
       )
     }
   }

@@ -5,7 +5,7 @@ import scalaz.zio.IO
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyTrait
 import thebrains.youradventure.Adventure.CollectionPack.ListImplicits._
 import thebrains.youradventure.Adventure.Equipment
-import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.{Err, ErrorIO}
 import thebrains.youradventure.Utils.ToOption._
 
 class PlayerBodyCollection(bodyParts: List[PlayerBodyPart])
@@ -35,16 +35,14 @@ class PlayerBodyCollection(bodyParts: List[PlayerBodyPart])
     getCanEquip(equipment).filterNot(_.isWearing)
   }
 
-  def equip(equipment: Equipment): IO[Error, PlayerBodyCollection] = {
+  def equip(equipment: Equipment): IO[Err, PlayerBodyCollection] = {
     val validBodyPart = getCanEquip(equipment)
     validBodyPart match {
       case parts if parts.isEmpty =>
-        IO.fail(
-          Error(
-            "Not valid body part",
-            s"There is no valid body part (${equipment.bodyPart.toString}) " +
-              s"to equip: ${equipment.toString}"
-          )
+        ErrorIO(
+          "Not valid body part",
+          s"There is no valid body part (${equipment.bodyPart.toString}) " +
+            s"to equip: ${equipment.toString}"
         )
       case parts if parts.nonEmpty && getCanEquipAndEmpty(equipment).nonEmpty =>
         IO.sequence(

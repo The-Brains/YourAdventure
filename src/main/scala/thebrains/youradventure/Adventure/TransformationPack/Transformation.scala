@@ -4,7 +4,7 @@ import scalaz.zio.IO
 import thebrains.youradventure.Adventure.AttributePack.PlayerAttribute._
 import thebrains.youradventure.Adventure.AttributePack._
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyItemTrait
-import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.{Err, ErrorIO}
 import thebrains.youradventure.Utils.BirdUtils.BirdOperator._
 
 case class Transformation(
@@ -31,7 +31,7 @@ case class Transformation(
   private def execute(
     action:          AttributeTransformation,
     playerAttribute: PlayerAttribute
-  ): IO[Error, PlayerAttribute] = {
+  ): IO[Err, PlayerAttribute] = {
     if (playerAttribute.attribute === attribute) {
       IO.sync(
         playerAttribute.copy(
@@ -39,20 +39,18 @@ case class Transformation(
         )
       )
     } else {
-      IO.fail(
-        Error(
-          "Wrong attribute for transformation",
-          s"Transformation apply to ${attribute.toString}, not for ${playerAttribute.toString}"
-        )
+      ErrorIO(
+        "Wrong attribute for transformation",
+        s"Transformation apply to ${attribute.toString}, not for ${playerAttribute.toString}"
       )
     }
   }
 
-  def appliedTo(playerAttribute: PlayerAttribute): IO[Error, PlayerAttribute] = {
+  def appliedTo(playerAttribute: PlayerAttribute): IO[Err, PlayerAttribute] = {
     execute(forwardTransformation, playerAttribute)
   }
 
-  def revert(playerAttribute: PlayerAttribute): IO[Error, PlayerAttribute] = {
+  def revert(playerAttribute: PlayerAttribute): IO[Err, PlayerAttribute] = {
     execute(backwardTransformation, playerAttribute)
   }
 
@@ -75,7 +73,7 @@ case class Transformation(
     }
   }
 
-  override def |+|(other: AssemblyItemTrait): IO[Error, Transformation] = {
+  override def |+|(other: AssemblyItemTrait): IO[Err, Transformation] = {
     other match {
       case t: Transformation if this.attribute === t.attribute =>
         val forward = (p: Int) => {
@@ -100,17 +98,13 @@ case class Transformation(
           )
         )
       case t: Transformation =>
-        IO.fail(
-          Error(
-            "Cannot combine",
-            s"Transformation applied to '${this.attribute.toString}' cannot combine " +
-              s"with transformation applied to '${t.attribute.toString}'."
-          )
+        ErrorIO(
+          "Cannot combine",
+          s"Transformation applied to '${this.attribute.toString}' cannot combine " +
+            s"with transformation applied to '${t.attribute.toString}'."
         )
       case _ =>
-        IO.fail(
-          Error("Cannot combine", s"Cannot combine '${this.toString}' with '${other.toString}'")
-        )
+        ErrorIO("Cannot combine", s"Cannot combine '${this.toString}' with '${other.toString}'")
     }
   }
 }

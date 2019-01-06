@@ -4,7 +4,7 @@ import scalaz.Maybe
 import thebrains.youradventure.Utils.ToOption._
 import scalaz.zio.IO
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyTrait
-import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.{Err, ErrorIO}
 
 import scala.util.Try
 
@@ -20,39 +20,35 @@ class ActionCollection(
 
   override protected def empty: ActionCollection = ActionCollection.Empty
 
-  private def findAction(actionName: String): IO[Error, Action] = {
+  private def findAction(actionName: String): IO[Err, Action] = {
     getActions.find(a => a.getLowerCaseName == actionName.toLowerCase) match {
       case Some(a) => IO.sync(a)
       case None =>
-        IO.fail(
-          Error(
-            "Action not found",
-            s"Could not find action for '$actionName', among: ${validActions.mkString(", ")}"
-          )
+        ErrorIO(
+          "Action not found",
+          s"Could not find action for '$actionName', among: ${validActions.mkString(", ")}"
         )
     }
   }
 
-  private def findAction(actionIndex: Int): IO[Error, Action] = {
+  private def findAction(actionIndex: Int): IO[Err, Action] = {
     getIndexedActionsMap.get(actionIndex) match {
       case Some(a) => IO.sync(a)
       case None =>
-        IO.fail(
-          Error(
-            "Action not found",
-            s"Could not find action for id '$actionIndex', " +
-              s"among: ${getIndexedActionsMap.keys.mkString(", ")}"
-          )
+        ErrorIO(
+          "Action not found",
+          s"Could not find action for id '$actionIndex', " +
+            s"among: ${getIndexedActionsMap.keys.mkString(", ")}"
         )
     }
   }
 
-  def getAction(key: String): IO[Error, Action] = {
+  def getAction(key: String): IO[Err, Action] = {
     key match {
       case i if Try(i.toInt).toOption.isDefined => findAction(i.toInt)
       case k if k.nonEmpty                      => findAction(k)
       case k: String if k.isEmpty =>
-        IO.fail(Error("Empty input", "You have not entered anything"))
+        ErrorIO("Empty input", "You have not entered anything")
     }
   }
 

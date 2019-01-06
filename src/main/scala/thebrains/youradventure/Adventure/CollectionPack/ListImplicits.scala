@@ -1,7 +1,7 @@
 package thebrains.youradventure.Adventure.CollectionPack
 
 import scalaz.Maybe
-import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.Err
 import scalaz.zio.IO
 
 object ListImplicits {
@@ -51,13 +51,13 @@ object ListImplicits {
       }
     }
 
-    def updateFirstIO[B >: A](p: A => Boolean)(update: A => IO[Error, B]): List[IO[Error, B]] = {
+    def updateFirstIO[B >: A](p: A => Boolean)(update: A => IO[Err, B]): List[IO[Err, B]] = {
       val found = l.zipWithIndex.find { case (item, _) => p(item) }
       found match {
         case Some((item, idx)) =>
-          l.map(a => IO.fromEither[Error, B](Right(a)))
+          l.map(a => IO.fromEither[Err, B](Right(a)))
             .updated(idx, update(item))
-        case None => l.map(a => IO.fromEither[Error, B](Right(a)))
+        case None => l.map(a => IO.fromEither[Err, B](Right(a)))
       }
     }
   }

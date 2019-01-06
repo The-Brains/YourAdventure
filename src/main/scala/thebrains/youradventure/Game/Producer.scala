@@ -4,12 +4,12 @@ import scalaz.Maybe
 import scalaz.zio.IO
 import thebrains.youradventure.Adventure.Player
 import thebrains.youradventure.FPTerminalIO.TerminalMessage
-import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.{Err, ErrorIO}
 import thebrains.youradventure.Utils.ToOption._
 
 private[Game] class Producer(game: GameStatus) {
 
-  def getNextMessage: IO[Error, TerminalMessage] = {
+  def getNextMessage: IO[Err, TerminalMessage] = {
     game match {
       case GameStatus(_, Maybe.Just(error), _, _, _, r) =>
         // An error should be displayed
@@ -27,7 +27,7 @@ private[Game] class Producer(game: GameStatus) {
         // Display player / Create player
         r.display(p)
       case _ =>
-        IO.fail(Error("End State", "No more state"))
+        ErrorIO("End State", "No more state")
     }
   }
 }

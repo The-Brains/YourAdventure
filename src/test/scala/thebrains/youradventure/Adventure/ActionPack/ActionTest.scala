@@ -51,8 +51,8 @@ class ActionTest extends ParentTest {
     }
 
     "Should not combine" in {
-      val io = a |+| b
-      assert(unsafeRunToEither(io).isLeft)
+      val io = unsafeRunToEither(a |+| b)
+      assert(io.isLeft)
     }
 
     "Interaction with collection" - {

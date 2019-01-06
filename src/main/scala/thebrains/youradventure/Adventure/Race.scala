@@ -3,7 +3,7 @@ package thebrains.youradventure.Adventure
 import scalaz.zio.IO
 import thebrains.youradventure.Adventure.AttributePack.{AttributeCollection, Attributes}
 import thebrains.youradventure.Adventure.BodyPack._
-import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.{Err, ErrorIO}
 
 class Race(
   name:                String,
@@ -46,15 +46,13 @@ object Races {
 
   lazy private val ListOfAllRaces: String = AllRaces.map(_.getName).mkString(", ")
 
-  def fromString(race: String): IO[Error, Race] = {
+  def fromString(race: String): IO[Err, Race] = {
     race.toLowerCase match {
       case Human.getLowerCaseName => IO.sync(Human)
       case _ =>
-        IO.fail(
-          Error(
-            "Unknown Race",
-            s"The race '$race' was not found among: $ListOfAllRaces"
-          )
+        ErrorIO(
+          "Unknown Race",
+          s"The race '$race' was not found among: $ListOfAllRaces"
         )
     }
   }

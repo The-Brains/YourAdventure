@@ -9,7 +9,7 @@ import thebrains.youradventure.Adventure.ActionPack.Action
 import thebrains.youradventure.Adventure.StepPack.Step
 import thebrains.youradventure.Adventure._
 import thebrains.youradventure.FPTerminalIO._
-import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.Err
 import thebrains.youradventure.Utils.ToOption._
 
 class GameStatus(
@@ -18,7 +18,7 @@ class GameStatus(
   currentAction: Maybe[Action],
   player:        Maybe[PlayerTrait],
   renderer:      Renderer,
-  currentError:  Maybe[Error]
+  currentError:  Maybe[Err]
 ) {
   implicit private val jsonEncoder: Encoder[GameStatus] =
     Encoder.forProduct4[GameStatus, Maybe[Json], Maybe[Json], Maybe[Json], Maybe[Json]](
@@ -33,9 +33,9 @@ class GameStatus(
 
   override def toString: String = this.asJson.noSpaces
 
-  def consume(input: Input): IO[Error, GameStatus] = consumer.consume(input)
+  def consume(input: Input): IO[Err, GameStatus] = consumer.consume(input)
 
-  def getNextMessage: IO[Error, TerminalMessage] = producer.getNextMessage
+  def getNextMessage: IO[Err, TerminalMessage] = producer.getNextMessage
 
   @transient lazy val updater: Updater = new Updater(this)
 
@@ -53,9 +53,9 @@ class GameStatus(
 
   @transient lazy val getRenderer: Renderer = this.renderer
 
-  @transient lazy val getError: Maybe[Error] = this.currentError
+  @transient lazy val getError: Maybe[Err] = this.currentError
 
-  @transient lazy val getCurrentError: Maybe[Error] = this.currentError
+  @transient lazy val getCurrentError: Maybe[Err] = this.currentError
 
   @transient lazy val isCompleted: Boolean = this.currentStep.isEmpty
 }
@@ -64,7 +64,7 @@ object GameStatus {
 
   def unapply(
     arg: GameStatus
-  ): Some[(Universe, Maybe[Error], Maybe[Step], Maybe[Action], Maybe[PlayerTrait], Renderer)] = {
+  ): Some[(Universe, Maybe[Err], Maybe[Step], Maybe[Action], Maybe[PlayerTrait], Renderer)] = {
     (
       arg.getUniverse,
       arg.getError,

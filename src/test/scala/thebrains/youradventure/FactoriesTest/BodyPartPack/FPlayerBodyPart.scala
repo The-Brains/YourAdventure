@@ -23,7 +23,7 @@ object FPlayerBodyPartEquipped {
     equipment: Maybe[Equipment] = Maybe.empty
   )(
     implicit r: Random
-  ): IO[Utils.Error, PlayerBodyPartEquipped] = {
+  ): IO[Utils.Err, PlayerBodyPartEquipped] = {
     val bodyPartGood = bodyPart getOrElse FBodyPart()
 
     PlayerBodyPartEquipped(

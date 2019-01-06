@@ -12,7 +12,7 @@ abstract class ConditionOn(
   name:        String,
   description: String
 ) extends AssemblyItemTrait(name, description) {
-  def isTrueFor(p: Player): IO[Error, Boolean]
+  def isTrueFor(p: Player): IO[Err, Boolean]
 }
 
 case class RaceCondition(equalTo: Race)
@@ -20,7 +20,7 @@ case class RaceCondition(equalTo: Race)
       name = "Condition on race",
       description = s"Condition to be part of '${equalTo.getCapitalizeName}'."
     ) {
-  override def isTrueFor(p: Player): IO[Error, Boolean] = IO.sync(p.getRace === equalTo)
+  override def isTrueFor(p: Player): IO[Err, Boolean] = IO.sync(p.getRace === equalTo)
 }
 
 case class AttributeCondition(
@@ -33,7 +33,7 @@ case class AttributeCondition(
       description = s"Condition for attribute '${attribute.getCapitalizeName}' " +
         s"to be between $minValue and $maxValue."
     ) {
-  override def isTrueFor(p: Player): IO[Error, Boolean] = {
+  override def isTrueFor(p: Player): IO[Err, Boolean] = {
     for {
       attributes <- p.currentAttributes
     } yield {
@@ -52,7 +52,7 @@ case class EquipmentCondition(equipment: Equipment)
       name = "Condition on Equipment",
       description = s"Condition to wear equipment '${equipment.getCapitalizeName}'."
     ) {
-  override def isTrueFor(p: Player): IO[Error, Boolean] = IO.sync(p isWearing equipment)
+  override def isTrueFor(p: Player): IO[Err, Boolean] = IO.sync(p isWearing equipment)
 }
 
 class Condition(
@@ -64,12 +64,8 @@ class Condition(
   //  consumable: ConditionOn[Consumable],
   //  bodyPart: ConditionOn[BodyPart]
 ) extends AssemblyTrait[Condition, ConditionOn](conditions) {
-  def isTrueFor(p: Player): IO[Error, Boolean] = {
-    IO.sequence(
-        conditions
-          .map(_ isTrueFor p)
-      )
-      .map(_.reduce(_ && _))
+  def isTrueFor(p: Player): IO[Err, Boolean] = {
+    IO.sequence(conditions.map(_ isTrueFor p)).map(_.reduce(_ && _))
   }
 
   override protected def wrap(items: ConditionOn*): Condition = {

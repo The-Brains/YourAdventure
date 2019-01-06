@@ -7,7 +7,7 @@ import scalaz.Maybe
 import scalaz.zio.IO
 import thebrains.youradventure.Game.GameStatus
 import thebrains.youradventure.Utils.BirdUtils.BirdOperator._
-import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.{Err, FatalError}
 
 import scala.util.Try
 
@@ -48,7 +48,7 @@ class TerminalPrint {
     message:          MessageToDisplay,
     answer:           Maybe[String] = Maybe.empty,
     ignoreLineLength: Boolean = false
-  ): IO[Error, Input] = {
+  ): IO[Err, Input] = {
     for {
       _ <- this.printToConsole(message.messageToShow, ignoreLineLength)
       s <- askQuestion(message, answer, ignoreLineLength)
@@ -61,7 +61,7 @@ class TerminalPrint {
     message:          MessageToDisplay,
     answer:           Maybe[String] = Maybe.empty,
     ignoreLineLength: Boolean
-  ): IO[Error, Input] = {
+  ): IO[Err, Input] = {
     message.question match {
       case Maybe.Just(q) => this.askText(q, answer, ignoreLineLength).map(InputFilled)
       case Maybe.Empty() => IO.sync(InputEmpty)
@@ -71,7 +71,7 @@ class TerminalPrint {
   def render(
     g:      GameStatus,
     answer: Maybe[String] = Maybe.empty
-  ): IO[Error, GameStatus] = {
+  ): IO[Err, GameStatus] = {
     for {
       m <- g.getNextMessage
       s <- m match {
@@ -134,21 +134,21 @@ class TerminalPrint {
     }
   }
 
-  private def getString: IO[Error, String] = getStrLn.leftMap(e => Error(e))
+  private def getString: IO[Err, String] = getStrLn.leftMap(e => FatalError(e))
 
-  private def getInt: IO[Error, Int] = {
+  private def getInt: IO[Err, Int] = {
     IO.syncCatch(scala.io.StdIn.readInt()) {
-      case e: IOException => Error(e)
+      case e: IOException => FatalError(e)
     }
   }
 
   private def ask[A](
-    getValue: => IO[Error, A]
+    getValue: => IO[Err, A]
   )(
     question:         Line,
     answer:           Maybe[A],
     ignoreLineLength: Boolean
-  ): IO[Error, A] = {
+  ): IO[Err, A] = {
     for {
       _ <- printToConsole(question, ignoreLineLength)
       _ <- printSameLine("?> ")
@@ -169,7 +169,7 @@ class TerminalPrint {
     question:         Line,
     answer:           Maybe[String] = Maybe.empty,
     ignoreLineLength: Boolean
-  ): IO[Error, String] = {
+  ): IO[Err, String] = {
     ask(getString)(question, answer, ignoreLineLength)
   }
 
@@ -177,7 +177,7 @@ class TerminalPrint {
     question:         Line,
     answer:           Maybe[Int] = Maybe.empty,
     ignoreLineLength: Boolean
-  ): IO[Error, Int] = {
+  ): IO[Err, Int] = {
     ask(getInt)(question, answer, ignoreLineLength)
   }
 }

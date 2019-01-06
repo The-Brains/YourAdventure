@@ -3,7 +3,7 @@ package thebrains.youradventure.Adventure.AttributePack
 import io.circe.{Encoder, Json}
 import scalaz.zio.IO
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyItemTrait
-import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.{Err, ErrorIO}
 import io.circe.syntax._
 
 case class PlayerAttribute(
@@ -24,38 +24,32 @@ case class PlayerAttribute(
 
   override def toString: String = encoded.noSpaces
 
-  override def |+|(other: AssemblyItemTrait): IO[Error, PlayerAttribute] = {
+  override def |+|(other: AssemblyItemTrait): IO[Err, PlayerAttribute] = {
     other match {
       case p @ PlayerAttribute(a, v) =>
         if (this.attribute === a) {
           IO.sync(this.copy(value = this.getValue + v))
         } else {
-          IO.fail(
-            Error(
-              "Impossible to merge",
-              s"Impossible to merge '${this.toString}' with ${p.toString}"
-            )
+          ErrorIO(
+            "Impossible to merge",
+            s"Impossible to merge '${this.toString}' with ${p.toString}"
           )
         }
       case _ =>
-        IO.fail(
-          Error(
-            "Impossible merge",
-            s"Impossible to merge '${this.toString}' with ${other.toString}"
-          )
+        ErrorIO(
+          "Impossible merge",
+          s"Impossible to merge '${this.toString}' with ${other.toString}"
         )
     }
   }
 
-  def ++(other: PlayerAttribute): IO[Error, AttributeCollection] = {
+  def ++(other: PlayerAttribute): IO[Err, AttributeCollection] = {
     AttributeCollection(this) ++ AttributeCollection(other) match {
       case a: AttributeCollection => IO.sync(a)
       case _ =>
-        IO.fail(
-          Error(
-            "Cannot convert",
-            "Somehow, not able to combine two 'AttributeCollection' into one."
-          )
+        ErrorIO(
+          "Cannot convert",
+          "Somehow, not able to combine two 'AttributeCollection' into one."
         )
     }
   }

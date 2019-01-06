@@ -5,7 +5,7 @@ import io.circe.{Encoder, Json}
 import scalaz.zio.IO
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyItemTrait
 import thebrains.youradventure.Adventure.Equipment
-import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.{Err, ErrorIO}
 import thebrains.youradventure.Utils.ToOption._
 
 class PlayerBodyPart(bodyPart: BodyPart)
@@ -30,7 +30,7 @@ class PlayerBodyPart(bodyPart: BodyPart)
 
   override def toString: String = encoded.noSpaces
 
-  def equip(equipment: Equipment): IO[Error, PlayerBodyPartEquipped] = {
+  def equip(equipment: Equipment): IO[Err, PlayerBodyPartEquipped] = {
     if (canEquip(equipment)) {
       IO.sync(
         new PlayerBodyPartEquipped(
@@ -39,12 +39,10 @@ class PlayerBodyPart(bodyPart: BodyPart)
         )
       )
     } else {
-      IO.fail(
-        Error(
-          "Wrong emplacement for equipment",
-          s"The equipment ${equipment.toString} cannot be equipped on " +
-            s"emplacement ${bodyPart.toString}"
-        )
+      ErrorIO(
+        "Wrong emplacement for equipment",
+        s"The equipment ${equipment.toString} cannot be equipped on " +
+          s"emplacement ${bodyPart.toString}"
       )
     }
   }
@@ -82,7 +80,7 @@ object PlayerBodyPartEquipped {
   def apply(
     bodyPart:  BodyPart,
     equipment: Equipment
-  ): IO[Error, PlayerBodyPartEquipped] = {
+  ): IO[Err, PlayerBodyPartEquipped] = {
     PlayerBodyPart(bodyPart).equip(equipment)
   }
 }

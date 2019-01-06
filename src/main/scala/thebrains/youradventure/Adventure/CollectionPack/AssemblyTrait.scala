@@ -3,7 +3,7 @@ package thebrains.youradventure.Adventure.CollectionPack
 import io.circe.Json
 import scalaz.Maybe
 import scalaz.zio.IO
-import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.{Err, ErrorIO}
 import ListImplicits._
 
 import scala.reflect.ClassTag
@@ -29,21 +29,21 @@ abstract class AssemblyTrait[THIS <: AssemblyTrait[THIS, A], A <: AssemblyItemTr
 
   def foreach(f: A => Unit): Unit = items.foreach(f)
 
-  protected def reduceAll: IO[Error, A] = {
+  protected def reduceAll: IO[Err, A] = {
     items match {
       case head :: second :: tail =>
         val c = head |+| second
         c.flatMap {
           case a: A => wrap(a +: tail: _*).reduceAll
-          case _ => IO.fail(Error("Cannot convert", "Cannot convert to 'A'."))
+          case _ => ErrorIO("Cannot convert", "Cannot convert to 'A'.")
         }
       case head :: second :: Nil =>
         (head |+| second).flatMap {
           case a: A => IO.sync(a)
-          case _ => IO.fail(Error("Cannot convert", "Cannot convert to 'A'."))
+          case _ => ErrorIO("Cannot convert", "Cannot convert to 'A'.")
         }
       case head :: Nil => IO.sync(head)
-      case Nil         => IO.fail(Error("Empty list", "There is nothing to combine"))
+      case Nil         => ErrorIO("Empty list", "There is nothing to combine")
     }
   }
 

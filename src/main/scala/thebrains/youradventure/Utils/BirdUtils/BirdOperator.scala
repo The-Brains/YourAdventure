@@ -8,7 +8,7 @@ object BirdOperator extends Serializable {
   }
 
   implicit class Pipe2[A, B](val a: (A, B)) extends AnyVal with Serializable {
-    def |>[Z](f: (A, B) => Z): Z = f(a._1, a._2)
+    def |>[Z](f: (A, B) => Z): Z = f.tupled(a)
   }
 
 }

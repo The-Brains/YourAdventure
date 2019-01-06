@@ -6,8 +6,7 @@ import thebrains.youradventure.Adventure.ConditionPack.Condition
 import thebrains.youradventure.Adventure.StepPack.Step.StepName
 import thebrains.youradventure.Adventure.StepPack._
 import thebrains.youradventure.Adventure._
-import thebrains.youradventure.Utils
-import thebrains.youradventure.Utils.Error
+import thebrains.youradventure.Utils.{Err, ErrorIO}
 
 class Action(
   name:        String,
@@ -17,8 +16,8 @@ class Action(
 ) extends AssemblyItemTrait(name, description) {
   @transient lazy val getTargetStep: Either[StepName, Step] = targetStep
 
-  def canBeDisplayed(p: Player): IO[Error, Boolean] = {
-    conditions.foldLeft(IO.fromEither[Error, Boolean](Right(true))) {
+  def canBeDisplayed(p: Player): IO[Err, Boolean] = {
+    conditions.foldLeft(IO.fromEither[Err, Boolean](Right(true))) {
       case (acc, condition) =>
         for {
           a <- acc
@@ -41,16 +40,14 @@ class Action(
     BastardActionCollection(this) ++ BastardActionCollection(availableActions)
   }
 
-  override def |+|(other: AssemblyItemTrait): IO[Utils.Error, AssemblyItemTrait] = {
-    IO.fail(
-      Error(
-        "Cannot combine 'Action'.",
-        "Cannot combine 'Action'."
-      )
+  override def |+|(other: AssemblyItemTrait): IO[Err, AssemblyItemTrait] = {
+    ErrorIO(
+      "Cannot combine 'Action'.",
+      "Cannot combine 'Action'."
     )
   }
 
-  def getStep(availableSteps: StepCollection): IO[Error, Step] = {
+  def getStep(availableSteps: StepCollection): IO[Err, Step] = {
     targetStep match {
       case Right(step)    => IO.sync(step)
       case Left(stepName) => availableSteps.getStep(stepName)

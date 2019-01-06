@@ -103,7 +103,8 @@ class ConditionTest extends ParentTest {
       "Should not be valid if any is wrong" in {
         val result = unsafeRunToEither(condition.isTrueFor(player))
         assert(result.isRight)
-        assertEquals(false, result.right.get)
+        val resultValue = result.right.get
+        assertEquals(false, resultValue)
       }
     }
   }
