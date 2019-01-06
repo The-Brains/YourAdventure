@@ -96,7 +96,7 @@ private[Game] class Consumer(
     actions: ActionCollection
   ): IO[Err, GameStatus] = {
     for {
-      inputData <- Input.getContent(input)
+      inputData <- input.getContent
       action    <- actions.getAction(inputData.input)
       game      <- updater.withAction(action)
     } yield {
@@ -110,7 +110,7 @@ private[Game] class Consumer(
     game.getPlayer match {
       case Maybe.Empty() =>
         for {
-          inputData <- Input.getContent(input)
+          inputData <- input.getContent
           player    <- PlayerBuilder.create(inputData.input)
           game      <- updater.withPlayer(player)
         } yield {
@@ -118,7 +118,7 @@ private[Game] class Consumer(
         }
       case Maybe.Just(p: PlayerWithName) =>
         for {
-          inputData <- Input.getContent(input)
+          inputData <- input.getContent
           player    <- p.selectRace(game.getUniverse.getAvailableRaces)(inputData.input)
           game      <- updater.withPlayer(player)
         } yield {
