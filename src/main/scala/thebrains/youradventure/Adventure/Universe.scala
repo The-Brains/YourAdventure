@@ -29,7 +29,6 @@ class Universe(
         IO.sequence {
             allActions.getActions
               .map { action =>
-                println(s"Deal with action '$action'")
                 action
                   .getStep(getAvailableSteps)
                   .flatMap { step =>
