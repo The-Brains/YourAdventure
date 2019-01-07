@@ -1,11 +1,9 @@
 package thebrains.youradventure.Utils
 
-import java.io.IOException
-
 import scalaz.Maybe
-import thebrains.youradventure.Adventure.Things
-import ToOption._
 import scalaz.zio.IO
+import thebrains.youradventure.Adventure.Things
+import thebrains.youradventure.Utils.ToOption._
 
 class Err(
   name:        String,
@@ -85,7 +83,7 @@ object FatalError {
     FatalError(ex.getClass.getCanonicalName, ex.getMessage, ex.getStackTrace.toList)
   }
 
-  def apply(ex: IOException): Err = createFrom(ex)
+  def apply(ex: Throwable): Err = createFrom(ex)
 }
 
 object ErrorIO {
