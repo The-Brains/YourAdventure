@@ -43,5 +43,17 @@ class PlayerBodyPartTest extends ParentTest {
         checkEquipping(newBodyPart, equipment2)
       }
     }
+
+    "Json" - {
+      "Should contains name" in {
+        assert(playerBodyPart.toString.contains(playerBodyPart.getName))
+      }
+
+      "Should contains equipment if equipped" in {
+        val equipment = FEquipment(bodyPart = playerBodyPart.getBodyPart.just)
+        val newBodyPart = checkEquipping(playerBodyPart, equipment)
+        assert(newBodyPart.toString.contains(equipment.getName))
+      }
+    }
   }
 }
