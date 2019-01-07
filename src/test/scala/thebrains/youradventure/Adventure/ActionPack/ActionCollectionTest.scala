@@ -19,18 +19,32 @@ class ActionCollectionTest extends ParentTest {
     )
 
     "Action Collection" - {
-
+      val question = Maybe.just("The real original question !")
       val collection: ActionCollection = FActionCollection(
+        question = question,
         lengthAction = 2.just
       )
 
       "Should have correct length" in {
         assertEquals(2, collection.length)
+        assertEquals(question, collection.getQuestion)
       }
 
       "Should be able to add action" in {
         val collectionWithA = collection ++ a
         val expectedLength = 3
+
+        assertEquals(question, collection.getQuestion)
+        assertEquals(expectedLength, collectionWithA.length)
+        assertEquals(a.getName.just, collectionWithA.get(2).map(_.getName))
+      }
+
+      "Should add other collection" in {
+        val otherCollection = ActionCollection(a, "question")
+        val collectionWithA = collection ++ otherCollection
+        val expectedLength = 3
+
+        assertEquals(question, collection.getQuestion)
         assertEquals(expectedLength, collectionWithA.length)
         assertEquals(a.getName.just, collectionWithA.get(2).map(_.getName))
       }
@@ -38,6 +52,8 @@ class ActionCollectionTest extends ParentTest {
       "Should have the correct indexing" in {
         val biggerCollection = a ++ collection ++ b
         val expectedIndexOfB = 3
+
+        assertEquals(question, collection.getQuestion)
         assertEquals(a.getName.some, biggerCollection.getIndexedActionsMap.get(0).map(_.getName))
         assertEquals(
           b.getName.some,
@@ -48,6 +64,22 @@ class ActionCollectionTest extends ParentTest {
       "empty" - {
         "Should have 0 length" in {
           assertEquals(0, ActionCollection.Empty.length)
+        }
+
+        "Should be empty from within the class" in {
+          class CollectionTest
+              extends ActionCollection(
+                question = "questions".just,
+                actions = List(
+                  FAction(),
+                  FAction()
+                )
+              ) {
+            def emptyPublic: ActionCollection = this.empty
+          }
+
+          val collection: CollectionTest = new CollectionTest()
+          assertEquals(0, collection.emptyPublic.length)
         }
       }
 
@@ -85,6 +117,21 @@ class ActionCollectionTest extends ParentTest {
       "empty" - {
         "Should have 0 length" in {
           assertEquals(0, BastardActionCollection.Empty.length)
+        }
+
+        "Should be empty from within the class" in {
+          class CollectionTest
+              extends BastardActionCollection(
+                actions = List(
+                  FAction(),
+                  FAction()
+                )
+              ) {
+            def emptyPublic: BastardActionCollection = this.empty
+          }
+
+          val collection: CollectionTest = new CollectionTest()
+          assertEquals(0, collection.emptyPublic.length)
         }
       }
 
