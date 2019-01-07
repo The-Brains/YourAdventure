@@ -18,10 +18,13 @@ final class MessageToDisplay(
   isQuestion: Boolean
 ) extends TerminalMessage {
   lazy val question:      Maybe[Line] = if (isQuestion) messages.last.just else Maybe.empty
-  lazy val messageToShow: Seq[Line] = if (isQuestion) messages.dropRight(1) else messages
+  lazy val messageToShow: List[Line] = if (isQuestion) messages.dropRight(1) else messages
 
   implicit private val jsonEncoder: Encoder[MessageToDisplay] =
-    Encoder.forProduct2[MessageToDisplay, Seq[Line], Maybe[Line]]("question", "question") { msg =>
+    Encoder.forProduct2[MessageToDisplay, List[Line], Maybe[Line]](
+      "question",
+      "question"
+    ) { msg =>
       (msg.messageToShow, msg.question)
     }
 

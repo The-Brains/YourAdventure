@@ -40,7 +40,7 @@ object Races {
         )
       )
 
-  val AllRaces: Seq[Race] = Seq(
+  val AllRaces: List[Race] = List(
     Human
   )
 

@@ -6,7 +6,7 @@ import scala.util.Random
 
 private[FactoriesTest] object RandomMachine {
   private val HundredPercent: Int = 100
-  private val Dictionary:     Seq[String] = (('a' to 'z') :+ ' ').map(_.toString)
+  private val Dictionary:     List[String] = (('a' to 'z') :+ ' ').map(_.toString).toList
 
   def getString(length: Int = 10)(implicit r: Random): String = {
     (0 to length)
@@ -14,7 +14,7 @@ private[FactoriesTest] object RandomMachine {
       .mkString("")
   }
 
-  def getFrom[T](dictionary: Seq[T])(implicit r: Random): T = {
+  def getFrom[T](dictionary: List[T])(implicit r: Random): T = {
     dictionary(r.nextInt(dictionary.length))
   }
 
@@ -37,14 +37,14 @@ private[FactoriesTest] object RandomMachine {
     r.nextInt(goodMax - goodMin) + goodMin
   }
 
-  def getSeq(
+  def getList(
     length: Int,
     min:    Int,
     max:    Int
   )(
     implicit r: Random
-  ): Seq[Int] = {
-    (0 until length).map(_ => getInt(min, max))
+  ): List[Int] = {
+    (0 until length).map(_ => getInt(min, max)).toList
   }
 
   def getDouble(max: Double)(implicit r: Random): Double = {

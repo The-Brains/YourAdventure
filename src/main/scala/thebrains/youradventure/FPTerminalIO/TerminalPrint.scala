@@ -88,9 +88,9 @@ class TerminalPrint {
     * Protected for test
     */
   protected def previewTextToPrint(
-    txt:              Seq[Line],
+    txt:              List[Line],
     ignoreLineLength: Boolean
-  ): Seq[String] = {
+  ): List[String] = {
     txt.flatMap(t => splitLine(t, ignoreLineLength))
   }
 
@@ -100,19 +100,19 @@ class TerminalPrint {
   protected def previewTextToPrint(
     txt:              Line,
     ignoreLineLength: Boolean
-  ): Seq[String] = {
+  ): List[String] = {
     previewTextToPrint(
-      txt.content.split(TerminalPrint.NewLineChar).map(s => Line(s, txt.cutLength)),
+      txt.content.split(TerminalPrint.NewLineChar).map(s => Line(s, txt.cutLength)).toList,
       ignoreLineLength
     )
   }
 
-  private def assemble(txt: Seq[String]): String = {
+  private def assemble(txt: List[String]): String = {
     txt.mkString(TerminalPrint.NewLineChar)
   }
 
   private def printToConsole(
-    txt:              Seq[Line],
+    txt:              List[Line],
     ignoreLineLength: Boolean
   ): IO[Nothing, Unit] = {
     txt |> (previewTextToPrint(_, ignoreLineLength)) |> assemble |> printText
