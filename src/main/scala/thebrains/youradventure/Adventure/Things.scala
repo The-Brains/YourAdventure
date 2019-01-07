@@ -6,7 +6,10 @@ import io.circe.syntax._
 class Things(
   name:        String,
   description: String
-) {
+) extends Ordered[Things] {
+  // https://stackoverflow.com/a/19348339/3357831
+  override def compare(that: Things): Int = this.getName compare that.getName
+
   def encoded: Json = name.asJson
 
   override def toString: String = s"'$name'"
@@ -31,4 +34,14 @@ class Things(
   lazy val getLowerCaseName: String = name.toLowerCase
 
   lazy val getCapitalizeName: String = name.capitalize
+}
+
+object Things {
+  // Note that because `Ordering[A]` is not contravariant, the declaration
+  // must be type-parametrized in the event that you want the implicit
+  // ordering to apply to subclasses of `Employee`.
+  implicit def orderingByName[A <: Things]: Ordering[A] =
+    Ordering.by(_.getName)
+
+  val OrderingByDescription: Ordering[Things] = Ordering.by(_.getDescription)
 }

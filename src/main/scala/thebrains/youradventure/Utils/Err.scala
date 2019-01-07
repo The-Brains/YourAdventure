@@ -33,6 +33,8 @@ class Err(
   }
 
   def toIO[A]: IO[Err, A] = IO.fail(this)
+
+  override def toString: String = s"[${super.toString} ($description)]"
 }
 
 case class FatalError(

@@ -1,9 +1,13 @@
 package thebrains.youradventure.Adventure
 
+import scalaz.Maybe
 import scalaz.zio.IO
+import thebrains.youradventure.Adventure.ActionPack.{Action, ActionCollection}
 import thebrains.youradventure.Adventure.CollectionPack.ListImplicits._
 import thebrains.youradventure.Adventure.StepPack._
 import thebrains.youradventure.Utils.{Err, ErrorIO}
+import thebrains.youradventure.Adventure.CollectionPack.ToSortedSet._
+import scala.collection.immutable.SortedSet
 
 class Universe(
   availableRaces: List[Race],
@@ -12,22 +16,33 @@ class Universe(
 ) {
   @transient lazy val getAvailableRaces: List[Race] = availableRaces
 
-  //  @transient lazy val availableLocations: Set[Location] =
-  //    exploreAllSteps(startingStep, Nil)(_.getLocation).toSet
-  //
-  //  private def exploreAllSteps[A](currentStep: Step, acc: List[A] = Nil)(f: Step => A):
-  //  List[A] = {
-  //    val t = (for {
-  //      allActions: ActionCollection <- currentStep.getActions(Maybe.empty[Player])
-  //      action: Action <- allActions.getActions
-  //      step: Step <- action.getStep
-  //      item: A <- exploreAllSteps(step, acc)(f)
-  //    } yield {
-  //      item
-  //    })
-  //
-  //    t
-  //  }
+  @transient lazy val getAllSteps: IO[Err, SortedSet[Step]] =
+    exploreAllSteps(startingStep)(identity).map(_.toSortedSet)
+
+  @transient lazy val availableLocations: IO[Err, SortedSet[Location]] =
+    exploreAllSteps(startingStep)(_.getLocation).map(_.toSortedSet)
+
+  private def exploreAllSteps[A](currentStep: Step)(f: Step => A): IO[Err, List[A]] = {
+    currentStep
+      .getActions(Maybe.empty[Player])
+      .flatMap { allActions =>
+        IO.sequence {
+            allActions.getActions
+              .map { action =>
+                println(s"Deal with action '$action'")
+                action
+                  .getStep(getAvailableSteps)
+                  .flatMap { step =>
+                    exploreAllSteps(step)(f)
+                  }
+              }
+          }
+          .map(_.flatten)
+      }
+      .map { next =>
+        List(f(currentStep)) ++ next
+      }
+  }
 
   @transient lazy val getStartingStep: Step = startingStep
 
