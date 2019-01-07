@@ -7,8 +7,15 @@ class Things(
   name:        String,
   description: String
 ) extends Ordered[Things] {
+  @transient lazy val getDescription:    String = description.trim
+  @transient lazy val getName:           String = name.trim
+  @transient lazy val getLowerCaseName:  String = name.toLowerCase
+  @transient lazy val getCapitalizeName: String = name.capitalize
+
   // https://stackoverflow.com/a/19348339/3357831
-  override def compare(that: Things): Int = this.getName compare that.getName
+  override def compare(that: Things): Int = {
+    this.getName compare that.getName
+  }
 
   def encoded: Json = name.asJson
 
@@ -26,22 +33,15 @@ class Things(
       case _ => false
     }
   }
-
-  lazy val getDescription: String = description.trim
-
-  lazy val getName: String = name.trim
-
-  lazy val getLowerCaseName: String = name.toLowerCase
-
-  lazy val getCapitalizeName: String = name.capitalize
 }
 
 object Things {
   // Note that because `Ordering[A]` is not contravariant, the declaration
   // must be type-parametrized in the event that you want the implicit
   // ordering to apply to subclasses of `Employee`.
-  implicit def orderingByName[A <: Things]: Ordering[A] =
+  implicit def orderingByName[A <: Things]: Ordering[A] = {
     Ordering.by(_.getName)
+  }
 
   val OrderingByDescription: Ordering[Things] = Ordering.by(_.getDescription)
 }
