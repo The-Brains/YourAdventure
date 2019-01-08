@@ -23,7 +23,7 @@ class PlayerBodyPart(bodyPart: BodyPart)
   override def encoded: Json = this.asJson
 
   def canEquip(equipment: Equipment): Boolean = {
-    bodyPart samePart equipment.bodyPart
+    bodyPart samePartAs equipment.bodyPart
   }
 
   def isWearing: Boolean = false

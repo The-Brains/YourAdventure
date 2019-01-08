@@ -12,11 +12,12 @@ case class BodyPart(
   descriptor:  Maybe[String]
 ) extends AssemblyItemTrait(name, description) {
   @transient lazy val toPlayerBodyPart: PlayerBodyPart = new PlayerBodyPart(this)
+  @transient lazy val getDescriptor:    Maybe[String] = descriptor
 
-  def samePart(other: BodyPart): Boolean = name == other.name
+  def samePartAs(other: BodyPart): Boolean = name == other.name
 
-  def sameExactPart(other: BodyPart): Boolean = {
-    samePart(other) &&
+  def sameExactPartAs(other: BodyPart): Boolean = {
+    samePartAs(other) &&
     this.descriptor == other.descriptor
   }
 
@@ -28,6 +29,12 @@ case class BodyPart(
   override def encoded: Json = this.asJson
 
   override def toString: String = encoded.noSpaces
+}
+
+object BodyPart {
+  implicit def ordering[A <: BodyPart]: Ordering[A] = {
+    Ordering.by(a => (a.getName, a.getDescriptor.getOrElse("")))
+  }
 }
 
 // TODO: Issue for two hands items or several part for one item

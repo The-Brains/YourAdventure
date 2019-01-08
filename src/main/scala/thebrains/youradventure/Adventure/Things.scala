@@ -36,12 +36,5 @@ class Things(
 }
 
 object Things {
-  // Note that because `Ordering[A]` is not contravariant, the declaration
-  // must be type-parametrized in the event that you want the implicit
-  // ordering to apply to subclasses of `Employee`.
-  implicit def orderingByName[A <: Things]: Ordering[A] = {
-    Ordering.by(_.getName)
-  }
-
-  val OrderingByDescription: Ordering[Things] = Ordering.by(_.getDescription)
+  implicit def orderingByName[A <: Things]: Ordering[A] = Ordering.by(_.getName)
 }
