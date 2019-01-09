@@ -95,18 +95,15 @@ class ActionCollectionTest extends ParentTest {
         }
 
         "Should failed when name not found" in {
-          val actionA = unsafeRunToEither(collection.getAction("not a real action"))
-          assert(actionA.isLeft)
+          collection.getAction("not a real action").shouldFail
         }
 
         "Should failed when index not found" in {
-          val actionA = unsafeRunToEither(collection.getAction("999"))
-          assert(actionA.isLeft)
+          collection.getAction("999").shouldFail
         }
 
         "Should failed when empty action name" in {
-          val actionA = unsafeRunToEither(collection.getAction(""))
-          assert(actionA.isLeft)
+          collection.getAction("").shouldFail
         }
       }
     }

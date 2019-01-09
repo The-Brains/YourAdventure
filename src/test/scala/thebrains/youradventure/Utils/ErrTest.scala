@@ -54,8 +54,7 @@ class ErrTest extends ParentTest {
       }
 
       "Should be created as IO" in {
-        val io = unsafeRunToEither(ErrorIO("name", "description"))
-        assert(io.isLeft)
+        ErrorIO("name", "description").shouldFail
       }
     }
   }

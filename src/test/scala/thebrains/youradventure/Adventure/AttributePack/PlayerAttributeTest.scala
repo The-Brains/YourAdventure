@@ -31,15 +31,13 @@ class PlayerAttributeTest extends ParentTest {
       "Should fail to merge if different Attribute" in {
         val pA = a.toPlayerAttribute(10)
         val pB = FAttribute().toPlayerAttribute(10)
-        val result = unsafeRunToEither(pA |+| pB)
-        assert(result.isLeft)
+        (pA |+| pB).shouldFail
       }
 
       "Should fail to merge if not Attribute" in {
         val pA = a.toPlayerAttribute(10)
         val pB = FAction()
-        val result = unsafeRunToEither(pA |+| pB)
-        assert(result.isLeft)
+        (pA |+| pB).shouldFail
       }
     }
   }

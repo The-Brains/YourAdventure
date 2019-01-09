@@ -81,9 +81,7 @@ class PlayerBodyCollectionTest extends ParentTest {
       }
 
       "Should not equip bad equipment" in {
-        val equipmentA = FEquipment()
-        val result = unsafeRunToEither(collection.equip(equipmentA))
-        assert(result.isLeft)
+        collection.equip(FEquipment()).shouldFail
       }
 
       "Should replace equipment" in {

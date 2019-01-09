@@ -50,8 +50,7 @@ class ActionTest extends ParentTest {
     }
 
     "Should not combine" in {
-      val io = unsafeRunToEither(a |+| b)
-      assert(io.isLeft)
+      (a |+| b).shouldFail
     }
 
     "Interaction with collection" - {
@@ -83,10 +82,8 @@ class ActionTest extends ParentTest {
       }
 
       "Should fail if invalid step" in {
-        val c = FAction(targetStep = Maybe.just(Left("not a real step")))
-        val io = c.getStep(stepCollection)
-        val output = unsafeRunToEither(io)
-        assert(output.isLeft)
+        FAction(targetStep = Maybe.just(Left("not a real step")))
+          .getStep(stepCollection).shouldFail
       }
     }
   }

@@ -2,11 +2,11 @@ package thebrains.youradventure.Adventure
 
 import scalaz.Maybe
 import scalaz.zio.IO
-import thebrains.youradventure.Adventure.ActionPack.{Action, ActionCollection}
 import thebrains.youradventure.Adventure.CollectionPack.ListImplicits._
+import thebrains.youradventure.Adventure.CollectionPack.ToSortedSet._
 import thebrains.youradventure.Adventure.StepPack._
 import thebrains.youradventure.Utils.{Err, ErrorIO}
-import thebrains.youradventure.Adventure.CollectionPack.ToSortedSet._
+
 import scala.collection.immutable.SortedSet
 
 class Universe(

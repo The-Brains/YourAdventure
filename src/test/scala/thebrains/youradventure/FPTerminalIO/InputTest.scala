@@ -12,9 +12,7 @@ class InputTest extends ParentTest {
     }
 
     "Should return emptyContent" in {
-      val i = Input()
-      val io = unsafeRunToEither(i.getContent)
-      assert(io.isLeft)
+      Input().getContent.shouldFail
     }
   }
 }

@@ -32,7 +32,7 @@ class PlayerBodyPartTest extends ParentTest {
       "Should fail to equip with bad equipment" in {
         val equipment = FEquipment()
         assertFalse(playerBodyPart.canEquip(equipment))
-        assert(unsafeRunToEither(playerBodyPart.equip(equipment)).isLeft)
+        playerBodyPart.equip(equipment).shouldFail
       }
 
       "Can change equipment" in {

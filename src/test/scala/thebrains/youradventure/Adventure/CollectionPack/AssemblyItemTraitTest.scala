@@ -10,8 +10,7 @@ class AssemblyItemTraitTest extends ParentTest {
         val t1 = Test()
         val t2 = Test()
 
-        val output = unsafeRunToEither(t1 |+| t2)
-        assert(output.isLeft)
+        (t1 |+| t2).shouldFail
       }
     }
   }

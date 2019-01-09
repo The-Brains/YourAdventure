@@ -26,15 +26,11 @@ class UniverseTest extends ParentTest {
           targetSteps = List(Left(step1.getName), Right(step2))
         )
 
-        val universeIO = unsafeRunToEither(
-          Universe(
-            availableRaces = List(Races.Human),
-            availableSteps = StepCollection(step1, step1),
-            startingStep = step3
-          )
-        )
-
-        assert(universeIO.isLeft)
+        Universe(
+          availableRaces = List(Races.Human),
+          availableSteps = StepCollection(step1, step1),
+          startingStep = step3
+        ).shouldFail
       }
     }
     "Location" - {
