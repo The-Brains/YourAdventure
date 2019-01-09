@@ -8,6 +8,25 @@ import thebrains.youradventure.Utils.ToOption._
 
 class PlayerBodyCollectionTest extends ParentTest {
   "PlayerBodyCollection" - {
+    "BodyCollection" - {
+      "Empty" - {
+        "Should be length 0" in {
+          class CollectionTest
+              extends BodyCollection(
+                bodyParts = List(
+                  FBodyPart(),
+                  FBodyPart()
+                )
+              ) {
+            def emptyPublic: BodyCollection = this.empty
+          }
+
+          val collection: CollectionTest = new CollectionTest()
+          assertEquals(0, collection.emptyPublic.length)
+        }
+      }
+    }
+
     "Empty" - {
       "Should be length 0" in {
         class CollectionTest
