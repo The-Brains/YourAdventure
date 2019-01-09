@@ -16,19 +16,17 @@ class TransformationTest extends ParentTest {
     ): Assertion = {
       val playerAttribute = attribute.toPlayerAttribute(initValue)
       val result = unsafeRunSync(transformation.appliedTo(playerAttribute)).toEither
-      assert(result.isRight)
-      assertEquals(expectedValue, result.right.get.value)
+      val value = result.extract
+      assertEquals(expectedValue, value.value)
     }
 
     def testRevert(transformation: Transformation): Assertion = {
       val playerAttribute = attribute.toPlayerAttribute(10)
       val tmp = unsafeRunSync(transformation.appliedTo(playerAttribute)).toEither
-      assert(tmp.isRight)
-
-      val revert = unsafeRunSync(transformation.revert(tmp.right.get)).toEither
-      assert(revert.isRight)
-
-      assertEquals(playerAttribute.value, revert.right.get.value)
+      val tmpOut = tmp.extract
+      val revert = unsafeRunSync(transformation.revert(tmpOut)).toEither
+      val revertOut = revert.extract
+      assertEquals(playerAttribute.value, revertOut.value)
     }
 
     "Add" - {
@@ -106,7 +104,7 @@ class TransformationTest extends ParentTest {
         .byValueOf(20)
         .onAttribute(attribute)
 
-      val transformation = unsafeRunSync(transformation1 |+| transformation2).toEither.right.get
+      val transformation = unsafeRunToEither(transformation1 |+| transformation2).extract
 
       "Should compute the right result" in {
         testApply(transformation, 10, 40)

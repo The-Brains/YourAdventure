@@ -49,7 +49,7 @@ class GameStatusTest extends ParentTest {
     }
 
     "Should create user" in {
-      assert(unsafeRunSync(baseGame).toEither.isRight)
+      assert(unsafeRunToEither(baseGame).isRight)
 
       val finalGame = List(
         "tom",
@@ -61,10 +61,8 @@ class GameStatusTest extends ParentTest {
             currentGame.flatMap(g => g.consume(input))
         }
 
-      val unpackGame = unsafeRunSync(finalGame).toEither
-
-      assert(unpackGame.isRight)
-      assert(unpackGame.right.get.getPlayer.isJust)
+      val unpackGame = unsafeRunToEither(finalGame).extract
+      assert(unpackGame.getPlayer.isJust)
     }
   }
 }

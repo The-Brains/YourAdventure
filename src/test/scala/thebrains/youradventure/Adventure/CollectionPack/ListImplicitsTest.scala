@@ -70,8 +70,7 @@ class ListImplicitsTest extends ParentTest {
       ): Assertion = {
         val io = IO.sequence(l.updateFirstIO(p)(operation))
         val output = unsafeRunToEither(io)
-        assert(output.isRight)
-        val result = output.right.get
+        val result = output.extract
         assertEquals(expectedResult, result)
       }
 

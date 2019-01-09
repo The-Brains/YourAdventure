@@ -7,8 +7,7 @@ class InputTest extends ParentTest {
     "Should return content" in {
       val i = Input("message")
       val io = unsafeRunToEither(i.getContent)
-      assert(io.isRight)
-      val content = io.right.get
+      val content = io.extract
       assertEquals("message", content.input)
     }
 

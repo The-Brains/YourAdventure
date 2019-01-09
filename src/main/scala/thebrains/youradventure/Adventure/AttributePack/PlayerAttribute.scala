@@ -43,15 +43,8 @@ case class PlayerAttribute(
     }
   }
 
-  def ++(other: PlayerAttribute): IO[Err, AttributeCollection] = {
-    AttributeCollection(this) ++ AttributeCollection(other) match {
-      case a: AttributeCollection => IO.sync(a)
-      case _ =>
-        ErrorIO(
-          "Cannot convert",
-          "Somehow, not able to combine two 'AttributeCollection' into one."
-        )
-    }
+  def ++(other: PlayerAttribute): AttributeCollection = {
+    AttributeCollection(this) ++ AttributeCollection(other)
   }
 }
 

@@ -11,15 +11,14 @@ class ConditionTest extends ParentTest {
   "Condition" - {
     val player = unsafeRunToEither(
       FPlayer(race = Maybe.just(Races.Human))
-    ).right.get
+    ).extract
 
     "Race condition" - {
       val condition = Condition(RaceCondition(Races.Human))
 
       "Should be true" in {
         val result = unsafeRunToEither(condition.isTrueFor(player))
-        assert(result.isRight)
-        val isCondition = result.right.get
+        val isCondition = result.extract
         assert(isCondition)
       }
     }
@@ -34,9 +33,8 @@ class ConditionTest extends ParentTest {
       )
 
       "Should not be valid" in {
-        val result = unsafeRunToEither(condition.isTrueFor(player))
-        assert(result.isRight)
-        assertEquals(false, result.right.get)
+        val result = unsafeRunToEither(condition.isTrueFor(player)).extract
+        assertEquals(false, result)
       }
 
       "Should be valid" in {
@@ -44,9 +42,8 @@ class ConditionTest extends ParentTest {
           baseAttributes =
             player.getBaseAttributes ++ Attributes.Constitution.toPlayerAttribute(10)
         )
-        val result = unsafeRunToEither(condition.isTrueFor(newPlayer))
-        assert(result.isRight)
-        assertEquals(true, result.right.get)
+        val result = unsafeRunToEither(condition.isTrueFor(newPlayer)).extract
+        assertEquals(true, result)
       }
     }
 
@@ -61,15 +58,13 @@ class ConditionTest extends ParentTest {
 
       "Should be valid" in {
         val newPlayer = unsafeRun(player.equipWild(equipment))
-        val result = unsafeRunToEither(condition.isTrueFor(newPlayer))
-        assert(result.isRight)
-        assertEquals(true, result.right.get)
+        val result = unsafeRunToEither(condition.isTrueFor(newPlayer)).extract
+        assertEquals(true, result)
       }
 
       "Should not be valid" in {
-        val result = unsafeRunToEither(condition.isTrueFor(player))
-        assert(result.isRight)
-        assertEquals(false, result.right.get)
+        val result = unsafeRunToEither(condition.isTrueFor(player)).extract
+        assertEquals(false, result)
       }
     }
 
@@ -95,15 +90,13 @@ class ConditionTest extends ParentTest {
             )
             .equipWild(equipment)
         )
-        val result = unsafeRunToEither(condition.isTrueFor(newPlayer))
-        assert(result.isRight)
-        assertEquals(true, result.right.get)
+        val result = unsafeRunToEither(condition.isTrueFor(newPlayer)).extract
+        assertEquals(true, result)
       }
 
       "Should not be valid if any is wrong" in {
         val result = unsafeRunToEither(condition.isTrueFor(player))
-        assert(result.isRight)
-        val resultValue = result.right.get
+        val resultValue = result.extract
         assertEquals(false, resultValue)
       }
     }

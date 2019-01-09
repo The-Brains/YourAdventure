@@ -12,8 +12,8 @@ class RaceTest extends ParentTest {
 
       "Should find when valid" in {
         val result = unsafeRunToEither(Races.fromString(Races.Human.getName))
-        assert(result.isRight)
-        assertEquals(Races.Human.getName, result.right.get.getName)
+        val race = result.extract
+        assertEquals(Races.Human.getName, race.getName)
       }
     }
   }

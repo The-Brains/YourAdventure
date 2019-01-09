@@ -22,11 +22,10 @@ class ActionTest extends ParentTest {
         val playerStep = unsafeRunToEither(FPlayer().flatMap { p =>
           Actions.playerStatusMenu(p, _ => IO.sync(Steps.EmptyStep))
         })
-        assert(playerStep.isRight)
 
-        val action = playerStep.right.get
+        val action = playerStep.extract
+
         assert(action.getTargetStep.isRight)
-
         val step = action.getTargetStep.right.get
         assertEquals(Steps.EmptyStep.getName, step.getName)
       }
@@ -37,8 +36,7 @@ class ActionTest extends ParentTest {
       "Should be the exit step" in {
         val io = e.getStep(StepCollection(Steps.ExitStep))
         val exitStep = unsafeRunToEither(io)
-        assert(exitStep.isRight)
-        val step = exitStep.right.get
+        val step = exitStep.extract
         assertEquals(Steps.ExitStep.getName, step.getName)
       }
     }
@@ -74,16 +72,14 @@ class ActionTest extends ParentTest {
       val stepCollection = StepCollection(Steps.EmptyStep, Steps.ExitStep)
       "Should return the right step" in {
         val io = a.getStep(stepCollection)
-        val output = unsafeRunToEither(io)
-        assert(output.isRight)
-        assertEquals(Steps.EmptyStep.getName, output.right.get.getName)
+        val output = unsafeRunToEither(io).extract
+        assertEquals(Steps.EmptyStep.getName, output.getName)
       }
 
       "Should return the right step from string" in {
         val io = b.getStep(stepCollection)
-        val output = unsafeRunToEither(io)
-        assert(output.isRight)
-        assertEquals(Steps.ExitStep.getName, output.right.get.getName)
+        val output = unsafeRunToEither(io).extract
+        assertEquals(Steps.ExitStep.getName, output.getName)
       }
 
       "Should fail if invalid step" in {

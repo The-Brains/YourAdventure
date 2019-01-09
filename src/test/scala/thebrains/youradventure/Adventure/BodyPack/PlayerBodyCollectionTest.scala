@@ -55,9 +55,7 @@ class PlayerBodyCollectionTest extends ParentTest {
         val equipmentA = FEquipment(bodyPart = bodyPartA.getBodyPart.just)
         val result = unsafeRunToEither(collection.equip(equipmentA))
 
-        assert(result.isRight)
-
-        val newCollection = result.right.get
+        val newCollection = result.extract
         assertEquals(List(equipmentA, equipmentB), newCollection.equipments)
         assertEquals(equipmentA.just, newCollection.getEquipment(bodyPartA.getBodyPart))
         assertEquals(equipmentB.just, newCollection.getEquipment(bodyPartB.getBodyPart))
@@ -77,9 +75,7 @@ class PlayerBodyCollectionTest extends ParentTest {
         val equipmentBB = FEquipment(bodyPart = bodyPartB.getBodyPart.just)
         val result = unsafeRunToEither(collection.equip(equipmentBB))
 
-        assert(result.isRight)
-
-        val newCollection = result.right.get
+        val newCollection = result.extract
         assertEquals(List(equipmentBB), newCollection.equipments)
         assertEquals(Maybe.empty, newCollection.getEquipment(bodyPartA.getBodyPart))
         assertEquals(equipmentBB.just, newCollection.getEquipment(bodyPartB.getBodyPart))

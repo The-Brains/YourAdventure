@@ -9,14 +9,8 @@ import thebrains.youradventure.Utils.ToOption._
 class AttributeCollectionTest extends ParentTest {
   "AttributeCollection" - {
     "Should apply Transformation" in {
-      val attributesIO =
-        unsafeRunToEither(
-          Attributes.Strength.toPlayerAttribute(10) ++
-            Attributes.Constitution.toPlayerAttribute(10)
-        )
-
-      assert(attributesIO.isRight)
-      val attributes = attributesIO.right.get
+      val attributes = Attributes.Strength.toPlayerAttribute(10) ++
+        Attributes.Constitution.toPlayerAttribute(10)
 
       val transformations: TransformationCollection =
         TransformationBuilder

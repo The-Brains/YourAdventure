@@ -85,15 +85,13 @@ class ActionCollectionTest extends ParentTest {
 
       "action" - {
         "Should find action by name" in {
-          val actionA = unsafeRunToEither((collection ++ a).getAction(a.getName))
-          assert(actionA.isRight)
-          assertEquals(a.getName, actionA.right.get.getName)
+          val actionA = unsafeRunToEither((collection ++ a).getAction(a.getName)).extract
+          assertEquals(a.getName, actionA.getName)
         }
 
         "Should find action by index" in {
-          val actionA = unsafeRunToEither((collection ++ a).getAction("2"))
-          assert(actionA.isRight)
-          assertEquals(a.getName, actionA.right.get.getName)
+          val actionA = unsafeRunToEither((collection ++ a).getAction("2")).extract
+          assertEquals(a.getName, actionA.getName)
         }
 
         "Should failed when name not found" in {

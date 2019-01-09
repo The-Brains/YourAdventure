@@ -16,8 +16,7 @@ class PlayerBodyPartTest extends ParentTest {
     ): PlayerBodyPartEquipped = {
       assert(bodyPart.canEquip(equipment))
       val result = unsafeRunToEither(bodyPart.equip(equipment))
-      assert(result.isRight)
-      val newBodyPart: PlayerBodyPartEquipped = result.right.get
+      val newBodyPart: PlayerBodyPartEquipped = result.extract
       assertEquals(bodyPart.getBodyPart, newBodyPart.getBodyPart)
       assertEquals(equipment, newBodyPart.getEquipment)
       assert(newBodyPart.isWearing)
