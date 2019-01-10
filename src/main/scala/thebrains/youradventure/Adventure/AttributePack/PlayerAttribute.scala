@@ -13,12 +13,13 @@ case class PlayerAttribute(
       attribute.getName,
       attribute.getDescription
     ) {
+  @transient lazy val getAttribute: Attribute = attribute
+  @transient lazy val getValue:     PlayerAttribute.AttributeType = value
+
   implicit private val jsonEncoder: Encoder[PlayerAttribute] =
     Encoder.forProduct2[PlayerAttribute, String, PlayerAttribute.AttributeType]("name", "value") {
       case PlayerAttribute(a, v) => (a.getName, v)
     }
-
-  @transient lazy val getValue: PlayerAttribute.AttributeType = value
 
   override def encoded: Json = this.asJson
 

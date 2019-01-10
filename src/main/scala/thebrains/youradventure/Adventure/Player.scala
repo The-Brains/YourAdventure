@@ -84,7 +84,7 @@ class Player(
 
   override def encoded: Json = this.asJson
 
-  override def toString: String = this.asJson.noSpaces
+  override def toString: String = encoded.noSpaces
 }
 
 sealed trait PlayerTrait {
@@ -104,8 +104,8 @@ object PlayerBuilder {
         name = name.trim,
         journey = StepCollection.Empty,
         consumables = Nil,
-        bodyParts = race.bodyParts.toPlayerBodyCollection,
-        baseAttributes = race.baseAttributes,
+        bodyParts = race.getBodyParts.toPlayerBodyCollection,
+        baseAttributes = race.getBaseAttributes,
         race = race
       )
     }

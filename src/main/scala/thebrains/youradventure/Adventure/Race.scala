@@ -12,9 +12,8 @@ class Race(
   compoundAttributes:  Set[CompoundAttributes],
   inputBodyParts:      BodyCollection
 ) extends Things(name, description) {
-  @transient lazy val bodyParts: BodyCollection = this.inputBodyParts
-
-  def baseAttributes: AttributeCollection = inputBaseAttributes
+  @transient lazy val getBodyParts:      BodyCollection = this.inputBodyParts
+  @transient lazy val getBaseAttributes: AttributeCollection = this.inputBaseAttributes
 }
 
 object Races {

@@ -33,7 +33,15 @@ class ParentTest extends FreeSpec with RTS {
     }
   }
 
-  implicit val r: Random = new Random(0)
+  implicit class ContainsALot(txt: String) {
+    def containsAll(strings: List[String])(implicit pos: Position): Seq[Assertion] = {
+      strings.map { s =>
+        assert(txt.contains(s), s"Input '$txt' does not contains '$s'")
+      }
+    }
+  }
+
+  implicit val randomImplicitValue: Random = new Random(0)
 
   def unsafeRunToEither[E, I](io: IO[E, I]): Either[Throwable, I] = unsafeRunSync(io).toEither
 

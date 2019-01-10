@@ -1,7 +1,6 @@
 package thebrains.youradventure.Adventure.BodyPack
 
 import thebrains.youradventure.FactoriesTest.BodyPartPack.FBodyPart
-import thebrains.youradventure.FactoriesTest.RawFactory
 import thebrains.youradventure.ParentTest
 import thebrains.youradventure.Utils.ToOption._
 
