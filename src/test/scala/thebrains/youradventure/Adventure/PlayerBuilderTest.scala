@@ -1,6 +1,6 @@
 package thebrains.youradventure.Adventure
 
-import thebrains.youradventure.FactoriesTest.FRace
+import thebrains.youradventure.FactoriesTest._
 import thebrains.youradventure.FactoriesTest.StepPack.FStep
 import thebrains.youradventure.ParentTest
 import thebrains.youradventure.Utils.ToOption._
@@ -35,11 +35,13 @@ class PlayerBuilderTest extends ParentTest {
       "Should have the right information" in {
         val race = FRace()
         val name = "name of the character"
+        val consumable = FConsumable()
         val player = PlayerBuilder.create(name).extract.selectRace(race)
-        val json = player.toString
+        val newPlayer = player.copy(consumables = player.getConsumables :+ consumable)
+        val json = newPlayer.toString
 
         json.containsAll(
-          List(name, race.getName) ++
+          List(name, race.getName, consumable.getName) ++
             race.getBaseAttributes.outMap(_.getName) ++
             race.getBodyParts.outMap(_.getName)
         )
@@ -47,9 +49,11 @@ class PlayerBuilderTest extends ParentTest {
     }
 
     "PlayerWithName" - {
-      "Race" - {
-        val playerWithName: PlayerBuilder.PlayerWithName = PlayerBuilder.create("leo").extract
+      val name = RawFactory.getString()
+      val playerWithName: PlayerBuilder.PlayerWithName =
+        PlayerBuilder.create(name).extract
 
+      "Race" - {
         "Should be finding race" in {
           val r = FRace()
           val availableRace = List(FRace(), r, FRace(), FRace())
@@ -63,6 +67,12 @@ class PlayerBuilderTest extends ParentTest {
           val availableRace = List(FRace(), FRace(), FRace())
 
           playerWithName.selectRace(availableRace)(r.getName).shouldFail
+        }
+      }
+
+      "Encoding" - {
+        "Should contains information" in {
+          playerWithName.toString.containsAll(List(name))
         }
       }
     }

@@ -124,7 +124,7 @@ object PlayerBuilder {
 
     override def encoded: Json = name.asJson
 
-    override def toString: String = s"'$name'"
+    override def toString: String = encoded.noSpaces
   }
 
   def create(name: String): IO[Nothing, PlayerWithName] = {
