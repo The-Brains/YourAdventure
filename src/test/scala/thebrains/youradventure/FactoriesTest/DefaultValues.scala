@@ -6,4 +6,6 @@ object DefaultValues {
   val DefaultNameLength:           Int = 5
   val DefaultDescriptionLength:    Int = 144
   val DefaultTargetStepNameLength: Int = 5
+  val DefaultMinAttribute:         Int = 0
+  val DefaultMaxAttribute:         Int = 10
 }

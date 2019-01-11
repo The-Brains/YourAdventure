@@ -18,23 +18,23 @@ class Player(
   baseAttributes: AttributeCollection,
   race:           Race
 ) extends PlayerTrait {
-  @transient lazy val getName:            String = name
-  @transient lazy val getJourney:         StepCollection = journey
-  @transient lazy val getConsumables:     List[Consumable] = consumables
-  @transient lazy val getBodyParts:       PlayerBodyCollection = bodyParts
-  @transient lazy val getBaseAttributes:  AttributeCollection = baseAttributes
-  @transient lazy val getRace:            Race = race
-  @transient lazy private val equipments: List[Equipment] = bodyParts.equipments
-  @transient lazy private val equipmentModifier: TransformationCollection = {
-    equipments
+  @transient lazy val getName:           String = name
+  @transient lazy val getJourney:        StepCollection = journey
+  @transient lazy val getConsumables:    List[Consumable] = consumables
+  @transient lazy val getBodyParts:      PlayerBodyCollection = bodyParts
+  @transient lazy val getBaseAttributes: AttributeCollection = baseAttributes
+  @transient lazy val getRace:           Race = race
+  @transient lazy val getEquipments:     List[Equipment] = bodyParts.equipments
+  @transient lazy private val getEquipmentModifier: TransformationCollection = {
+    getEquipments
       .map(_.modifiers)
       .safeReduce(_ ++ _)(TransformationCollection.Empty)
   }
 
-  @transient lazy val currentAttributes: IO[Err, AttributeCollection] =
-    baseAttributes << equipmentModifier
+  @transient lazy val getCurrentAttributes: IO[Err, AttributeCollection] =
+    baseAttributes << getEquipmentModifier
 
-  def isWearing(e: Equipment): Boolean = equipments.exists(_ === e)
+  def isWearing(e: Equipment): Boolean = getEquipments.exists(_ === e)
 
   def toStatus: String = ""
 

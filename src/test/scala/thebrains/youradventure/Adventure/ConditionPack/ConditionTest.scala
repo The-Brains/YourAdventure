@@ -14,7 +14,7 @@ class ConditionTest extends ParentTest {
     ).extract
 
     "Race condition" - {
-      val condition = Condition(RaceCondition(Races.Human))
+      val condition = Condition(Condition.create.forRace(Races.Human))
 
       "Should be true" in {
         val result = unsafeRunToEither(condition.isTrueFor(player))
@@ -25,7 +25,7 @@ class ConditionTest extends ParentTest {
 
     "AttributeCondition" - {
       val condition = Condition(
-        AttributeCondition(
+        Condition.create.forAttribute(
           attribute = Attributes.Constitution,
           minValue = 2,
           defaultWhenAttributeDoesNotExist = false
@@ -51,7 +51,7 @@ class ConditionTest extends ParentTest {
       val bodyPart = player.getBodyParts.getItems.head.getBodyPart
       val equipment = FEquipment(bodyPart = bodyPart.just)
       val condition = Condition(
-        EquipmentCondition(
+        Condition.create.forEquipment(
           equipment = equipment
         )
       )
@@ -73,13 +73,13 @@ class ConditionTest extends ParentTest {
       val equipment = FEquipment(bodyPart = bodyPart.just)
 
       val condition = Condition(
-        RaceCondition(Races.Human),
-        AttributeCondition(
+        Condition.create.forRace(Races.Human),
+        Condition.create.forAttribute(
           attribute = Attributes.Constitution,
           minValue = 2,
           defaultWhenAttributeDoesNotExist = false
         )
-      ) ++ EquipmentCondition(equipment = equipment)
+      ) ++ Condition.create.forEquipment(equipment = equipment)
 
       "Should be valid when all true" in {
         val newPlayer = unsafeRun(

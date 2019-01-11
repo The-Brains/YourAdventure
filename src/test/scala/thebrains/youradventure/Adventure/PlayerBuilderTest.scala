@@ -16,7 +16,7 @@ class PlayerBuilderTest extends ParentTest {
         assertEquals("john", player.getName)
         assertEquals(
           attribute.getValue.just,
-          player.currentAttributes.extract.getAttributeValue(attribute.getAttribute)
+          player.getCurrentAttributes.extract.getAttributeValue(attribute.getAttribute)
         )
       }
     }

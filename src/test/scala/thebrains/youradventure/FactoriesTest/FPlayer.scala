@@ -14,7 +14,7 @@ object FPlayer {
     race: Maybe[Race] = Maybe.empty
   )(
     implicit r: Random
-  ): IO[Error, Player] = {
+  ): IO[Nothing, Player] = {
     PlayerBuilder
       .create(name = name getOrElse RandomMachine.getString(DefaultNameLength))
       .map(_.selectRace(race getOrElse RandomMachine.getFrom(Races.AllRaces)))

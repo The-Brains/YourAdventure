@@ -15,9 +15,10 @@ class Action(
   conditions:  List[Condition] = Nil
 ) extends AssemblyItemTrait(name, description) {
   @transient lazy val getTargetStep: Either[StepName, Step] = targetStep
+  @transient lazy val getConditions: List[Condition] = conditions
 
   def canBeDisplayed(p: Player): IO[Err, Boolean] = {
-    conditions.foldLeft(IO.fromEither[Err, Boolean](Right(true))) {
+    conditions.foldLeft[IO[Err, Boolean]](IO.sync(true)) {
       case (acc, condition) =>
         for {
           a <- acc
@@ -53,6 +54,20 @@ class Action(
       case Left(stepName) => availableSteps.getStep(stepName)
     }
   }
+
+  def copy(
+    name:        String = this.name,
+    description: String = this.description,
+    targetStep:  Either[StepName, Step] = this.targetStep,
+    conditions:  List[Condition] = this.conditions
+  ): Action = {
+    new Action(
+      name,
+      description,
+      targetStep,
+      conditions
+    )
+  }
 }
 
 object Actions {
@@ -72,9 +87,12 @@ object Actions {
         targetStep = Right(Steps.ExitStep),
         conditions = Nil
       )
+
   val BackActionName: StepName = "Back"
+
   final case class Back(step: Step)
       extends Action(BackActionName, "Go back to where you were?", Right(step))
+
 }
 
 object Action {
