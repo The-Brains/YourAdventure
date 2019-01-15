@@ -17,6 +17,6 @@ object FPlayer {
   ): IO[Nothing, Player] = {
     PlayerBuilder
       .create(name = name getOrElse RandomMachine.getString(DefaultNameLength))
-      .map(_.selectRace(race getOrElse RandomMachine.getFrom(Races.AllRaces)))
+      .map(_.selectRace(race getOrElse FRace()))
   }
 }
