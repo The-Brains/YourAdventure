@@ -97,7 +97,11 @@ class ActionTest extends ParentTest {
       }
 
       "Should be not displayed if condition invalid" in {
-        val actionWithCondition = a.copy(conditions = a.getConditions :+ FCondition())
+        val actionWithCondition = a.copy(
+          conditions = a.getConditions :+ FCondition(
+            conditionLength = 10.just
+          )
+        )
         assertFalse(actionWithCondition.canBeDisplayed(p).extract)
       }
 

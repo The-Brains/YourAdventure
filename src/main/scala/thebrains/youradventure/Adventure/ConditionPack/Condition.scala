@@ -59,12 +59,13 @@ object ConditionTypes {
   }
 
   // TODO: Add condition on history -> player.journey
+  // TODO: Add "not" condition
 }
 
 class Condition(conditions: List[ConditionOn])
     extends AssemblyTrait[Condition, ConditionOn](conditions) {
   def isTrueFor(p: Player): IO[Err, Boolean] = {
-    IO.sequence(conditions.map(_ isTrueFor p)).map(_.reduce(_ && _))
+    IO.sequence(conditions.map(_ isTrueFor p)).map(_.reduceOption(_ && _).getOrElse(true))
   }
 
   override protected def wrap(items: ConditionOn*): Condition = {
