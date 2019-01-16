@@ -5,7 +5,7 @@ import thebrains.youradventure.Adventure.AttributePack.PlayerAttribute._
 import thebrains.youradventure.Adventure.AttributePack._
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyItemTrait
 import thebrains.youradventure.Utils.{Err, ErrorIO}
-import thebrains.youradventure.Utils.BirdUtils.BirdOperator._
+import thebrains.youradventure.Utils.BirdOperator._
 
 case class Transformation(
   attribute:              Attribute,

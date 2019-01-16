@@ -2,9 +2,10 @@ package thebrains.youradventure.FactoriesTest.ActionPack
 
 import scalaz.Maybe
 import thebrains.youradventure.Adventure.ActionPack.Action
-import thebrains.youradventure.Adventure.ConditionPack.Condition
+import thebrains.youradventure.Adventure.ConditionPack.Conditions
 import thebrains.youradventure.Adventure.StepPack.Step
 import thebrains.youradventure.Adventure.StepPack.Step.StepName
+import thebrains.youradventure.FactoriesTest.Condition.FCondition
 import thebrains.youradventure.FactoriesTest.StepPack.FStep
 import thebrains.youradventure.FactoriesTest.Utils.RandomMachine
 
@@ -16,7 +17,7 @@ object FAction {
     name:        Maybe[String] = Maybe.empty,
     description: Maybe[String] = Maybe.empty,
     targetStep:  Maybe[Either[StepName, Step]] = Maybe.empty,
-    conditions:  List[Condition] = Nil
+    conditions:  Maybe[Conditions] = Maybe.empty
   )(
     implicit r: Random
   ): Action = {
@@ -27,7 +28,7 @@ object FAction {
         RandomMachine.getString(DefaultTargetStepNameLength),
         FStep()
       ),
-      conditions = conditions
+      conditions = conditions getOrElse FCondition()
     )
   }
 }

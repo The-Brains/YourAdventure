@@ -4,10 +4,7 @@ import scalaz.Maybe
 import thebrains.youradventure.Adventure.Consumable
 import thebrains.youradventure.Adventure.TransformationPack.TransformationCollection
 import thebrains.youradventure.FactoriesTest.DefaultValues._
-import thebrains.youradventure.FactoriesTest.TransformationPack.{
-  FTransformation,
-  FTransformationCollection
-}
+import thebrains.youradventure.FactoriesTest.TransformationPack.FTransformationCollection
 import thebrains.youradventure.FactoriesTest.Utils.RandomMachine
 
 import scala.util.Random

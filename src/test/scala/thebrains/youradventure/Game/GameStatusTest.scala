@@ -7,6 +7,7 @@ import thebrains.youradventure.Adventure.TransformationPack._
 import thebrains.youradventure.Adventure._
 import thebrains.youradventure.FPTerminalIO.{InputFilled, Renderer}
 import thebrains.youradventure.ParentTest
+import thebrains.youradventure.Utils.ToEither._
 
 class GameStatusTest extends ParentTest {
   "GameStatus" - {
@@ -39,8 +40,8 @@ class GameStatusTest extends ParentTest {
               .onAttribute(Attributes.Strength)
           ),
           availableActions = ActionCollection("Whats up?")(
-            Action("Look", "Look at Earth closer", Steps.EmptyStep, Nil),
-            Action("Leave", "Leave earth alone", Steps.EmptyStep, Nil)
+            Action("Look", "Look at Earth closer", Steps.EmptyStep.asRight),
+            Action("Leave", "Leave earth alone", Steps.EmptyStep.asRight)
           )
         )
       )

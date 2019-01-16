@@ -7,14 +7,14 @@ import thebrains.youradventure.FactoriesTest.{FEquipment, FPlayer}
 import thebrains.youradventure.ParentTest
 import thebrains.youradventure.Utils.ToOption._
 
-class ConditionTest extends ParentTest {
+class ConditionsTest extends ParentTest {
   "Condition" - {
     val player = unsafeRunToEither(
       FPlayer(race = Maybe.just(Races.Human))
     ).extract
 
     "Race condition" - {
-      val condition = Condition(Condition.create.forRace(Races.Human))
+      val condition = Conditions(Conditions.create.forRace(Races.Human))
 
       "Should be true" in {
         val result = unsafeRunToEither(condition.isTrueFor(player))
@@ -24,8 +24,8 @@ class ConditionTest extends ParentTest {
     }
 
     "AttributeCondition" - {
-      val condition = Condition(
-        Condition.create.forAttribute(
+      val condition = Conditions(
+        Conditions.create.forAttribute(
           attribute = Attributes.Constitution,
           minValue = 2,
           defaultWhenAttributeDoesNotExist = false
@@ -50,8 +50,8 @@ class ConditionTest extends ParentTest {
     "Equipment" - {
       val bodyPart = player.getBodyParts.getItems.head.getBodyPart
       val equipment = FEquipment(bodyPart = bodyPart.just)
-      val condition = Condition(
-        Condition.create.forEquipment(
+      val condition = Conditions(
+        Conditions.create.forEquipment(
           equipment = equipment
         )
       )
@@ -72,14 +72,14 @@ class ConditionTest extends ParentTest {
       val bodyPart = player.getBodyParts.getItems.head.getBodyPart
       val equipment = FEquipment(bodyPart = bodyPart.just)
 
-      val condition = Condition(
-        Condition.create.forRace(Races.Human),
-        Condition.create.forAttribute(
+      val condition = Conditions(
+        Conditions.create.forRace(Races.Human),
+        Conditions.create.forAttribute(
           attribute = Attributes.Constitution,
           minValue = 2,
           defaultWhenAttributeDoesNotExist = false
         )
-      ) ++ Condition.create.forEquipment(equipment = equipment)
+      ) ++ Conditions.create.forEquipment(equipment = equipment)
 
       "Should be valid when all true" in {
         val newPlayer = unsafeRun(

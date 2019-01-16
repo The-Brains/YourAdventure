@@ -18,8 +18,8 @@ object FCondition {
     conditions:      Maybe[List[ConditionOn]] = Maybe.empty
   )(
     implicit r: Random
-  ): Condition = {
-    Condition(
+  ): Conditions = {
+    Conditions(
       conditions = conditions.getOrElse {
         (0 until (conditionLength getOrElse RandomMachine.getInt(0, DefaultListMaxLength))).map {
           _ =>
@@ -42,7 +42,7 @@ object FConditionOn {
   )(
     implicit r: Random
   ): ConditionTypes.AttributeCondition = {
-    Condition.create.forAttribute(
+    Conditions.create.forAttribute(
       attribute = attribute.getAttribute,
       minValue = attribute.getValue - RandomMachine.getInt(1, 10),
       maxValue = attribute.getValue + RandomMachine.getInt(1, 10),
@@ -51,11 +51,11 @@ object FConditionOn {
   }
 
   def raceTrueFor(race: Race): ConditionTypes.RaceCondition = {
-    Condition.create.forRace(race)
+    Conditions.create.forRace(race)
   }
 
   def equipmentTrueFor(equipment: Equipment): ConditionTypes.EquipmentCondition = {
-    Condition.create.forEquipment(equipment)
+    Conditions.create.forEquipment(equipment)
   }
 
   def trueFor(p: Player)(implicit r: Random): ConditionOn = {
@@ -83,7 +83,7 @@ object FConditionOn {
     val min = minValue getOrElse RandomMachine.getInt(DefaultMinAttribute, DefaultMaxAttribute)
     val max = maxValue getOrElse RandomMachine.getInt(DefaultMinAttribute, DefaultMaxAttribute)
 
-    Condition.create.forAttribute(
+    Conditions.create.forAttribute(
       attribute = attribute getOrElse FAttribute(),
       minValue = Math.min(min, max),
       maxValue = Math.max(min, max),
@@ -96,13 +96,13 @@ object FConditionOn {
   )(
     implicit r: Random
   ): ConditionTypes.EquipmentCondition = {
-    Condition.create.forEquipment(
+    Conditions.create.forEquipment(
       equipment = equipment getOrElse FEquipment()
     )
   }
 
   def race(race: Maybe[Race] = Maybe.empty)(implicit r: Random): ConditionTypes.RaceCondition = {
-    Condition.create.forRace(
+    Conditions.create.forRace(
       equalTo = race getOrElse FRace()
     )
   }

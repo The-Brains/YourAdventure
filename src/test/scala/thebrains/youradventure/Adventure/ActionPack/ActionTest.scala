@@ -2,7 +2,7 @@ package thebrains.youradventure.Adventure.ActionPack
 
 import scalaz.Maybe
 import scalaz.zio.IO
-import thebrains.youradventure.Adventure.ConditionPack.Condition
+import thebrains.youradventure.Adventure.ConditionPack.Conditions
 import thebrains.youradventure.Adventure.StepPack.{StepCollection, Steps}
 import thebrains.youradventure.FactoriesTest.ActionPack.{FAction, FActionCollection}
 import thebrains.youradventure.FactoriesTest.Condition.{FCondition, FConditionOn}
@@ -13,10 +13,12 @@ import thebrains.youradventure.Utils.ToOption._
 class ActionTest extends ParentTest {
   "Action" - {
     val a = FAction(
-      targetStep = Maybe.just(Right(Steps.EmptyStep))
+      targetStep = Maybe.just(Right(Steps.EmptyStep)),
+      conditions = Conditions.Empty.just
     )
     val b = FAction(
-      targetStep = Maybe.just(Left("Exit"))
+      targetStep = Maybe.just(Left("Exit")),
+      conditions = Conditions.Empty.just
     )
 
     "Player step" - {
@@ -98,7 +100,7 @@ class ActionTest extends ParentTest {
 
       "Should be not displayed if condition invalid" in {
         val actionWithCondition = a.copy(
-          conditions = a.getConditions :+ FCondition(
+          conditions = a.getConditions ++ FCondition(
             conditionLength = 10.just
           )
         )
@@ -107,9 +109,9 @@ class ActionTest extends ParentTest {
 
       "Should be displayed if all condition are valid" in {
         val actionWithCondition = a.copy(
-          conditions = a.getConditions :+
-            Condition(FConditionOn.trueFor(p)) :+
-            Condition(FConditionOn.trueFor(p))
+          conditions = a.getConditions ++
+            FConditionOn.trueFor(p) ++
+            FConditionOn.trueFor(p)
         )
         assert(actionWithCondition.canBeDisplayed(p).extract)
       }

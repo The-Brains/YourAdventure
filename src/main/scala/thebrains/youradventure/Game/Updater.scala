@@ -11,20 +11,20 @@ import thebrains.youradventure.Utils.ToOption._
 
 private[Game] class Updater(game: GameStatus) {
   private def copy(
-    universe:      Maybe[Universe] = Maybe.empty,
-    currentStep:   Maybe[Step] = Maybe.empty,
-    currentAction: Maybe[Action] = Maybe.empty,
-    player:        Maybe[PlayerTrait] = Maybe.empty,
-    renderer:      Maybe[Renderer] = Maybe.empty,
-    currentError:  Maybe[Err] = Maybe.empty
+    universe:      Universe = this.game.getUniverse,
+    currentStep:   Maybe[Step] = this.game.getCurrentStep,
+    currentAction: Maybe[Action] = this.game.getCurrentAction,
+    player:        Maybe[PlayerTrait] = this.game.getPlayer,
+    renderer:      Renderer = this.game.getRenderer,
+    currentError:  Maybe[Err] = this.game.getCurrentError
   ): GameStatus = {
     new GameStatus(
-      universe = universe.getOrElse(this.game.getUniverse),
-      currentStep = currentStep.orElse(this.game.getCurrentStep),
-      currentAction = currentAction.orElse(this.game.getCurrentAction),
-      player = player.orElse(this.game.getPlayer),
-      renderer = renderer.getOrElse(this.game.getRenderer),
-      currentError = currentError.orElse(this.game.getCurrentError)
+      universe = universe,
+      currentStep = currentStep,
+      currentAction = currentAction,
+      player = player,
+      renderer = renderer,
+      currentError = currentError
     )
   }
 

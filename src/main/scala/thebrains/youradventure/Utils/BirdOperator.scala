@@ -1,4 +1,4 @@
-package thebrains.youradventure.Utils.BirdUtils
+package thebrains.youradventure.Utils
 
 // https://hackernoon.com/operator-in-scala-cbca7b939fc0
 object BirdOperator extends Serializable {

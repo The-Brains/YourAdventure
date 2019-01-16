@@ -6,7 +6,7 @@ import org.jline.terminal.Size
 import scalaz.Maybe
 import scalaz.zio.IO
 import thebrains.youradventure.Game.GameStatus
-import thebrains.youradventure.Utils.BirdUtils.BirdOperator._
+import thebrains.youradventure.Utils.BirdOperator._
 import thebrains.youradventure.Utils.{Err, FatalError}
 
 import scala.util.Try

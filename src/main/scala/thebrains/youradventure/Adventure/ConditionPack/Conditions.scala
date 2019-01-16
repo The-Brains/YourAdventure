@@ -62,25 +62,25 @@ object ConditionTypes {
   // TODO: Add "not" condition
 }
 
-class Condition(conditions: List[ConditionOn])
-    extends AssemblyTrait[Condition, ConditionOn](conditions) {
+class Conditions(conditions: List[ConditionOn])
+    extends AssemblyTrait[Conditions, ConditionOn](conditions) {
   def isTrueFor(p: Player): IO[Err, Boolean] = {
     IO.sequence(conditions.map(_ isTrueFor p)).map(_.reduceOption(_ && _).getOrElse(true))
   }
 
-  override protected def wrap(items: ConditionOn*): Condition = {
-    new Condition(items.toList)
+  override protected def wrap(items: ConditionOn*): Conditions = {
+    new Conditions(items.toList)
   }
 
-  override protected def empty: Condition = Condition.Empty
+  override protected def empty: Conditions = Conditions.Empty
 }
 
-object Condition {
-  def apply(conditions: ConditionOn*): Condition = {
-    new Condition(conditions.toList)
+object Conditions {
+  def apply(conditions: ConditionOn*): Conditions = {
+    new Conditions(conditions.toList)
   }
 
-  lazy val Empty: Condition = new Condition(Nil)
+  lazy val Empty: Conditions = new Conditions(Nil)
 
   def create: ConditionCreator.type = ConditionCreator
 }

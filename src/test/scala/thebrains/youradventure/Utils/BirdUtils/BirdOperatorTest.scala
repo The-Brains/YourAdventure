@@ -4,7 +4,7 @@ import thebrains.youradventure.ParentTest
 
 class BirdOperatorTest extends ParentTest {
   "Bird pipe" - {
-    import BirdOperator._
+    import thebrains.youradventure.Utils.BirdOperator._
     "pipe1" - {
 
       def add2(a: Int): Int = a + 10
