@@ -3,6 +3,7 @@ package thebrains.youradventure.Adventure.CollectionPack
 import scalaz.Maybe
 import thebrains.youradventure.Utils.Err
 import scalaz.zio.IO
+import thebrains.youradventure.Utils.ToIO._
 
 object ListImplicits {
   implicit final class ListSimpleTransformations[A](l: List[A]) {
@@ -55,9 +56,9 @@ object ListImplicits {
       val found = l.zipWithIndex.find { case (item, _) => p(item) }
       found match {
         case Some((item, idx)) =>
-          l.map(a => IO.fromEither[Err, B](Right(a)))
+          l.map(_.toIO)
             .updated(idx, update(item))
-        case None => l.map(a => IO.fromEither[Err, B](Right(a)))
+        case None => l.map(_.toIO)
       }
     }
   }

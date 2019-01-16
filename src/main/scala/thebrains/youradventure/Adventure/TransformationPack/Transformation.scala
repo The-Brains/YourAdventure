@@ -1,30 +1,58 @@
 package thebrains.youradventure.Adventure.TransformationPack
 
+import io.circe.syntax._
+import io.circe.{Encoder, Json}
 import scalaz.zio.IO
 import thebrains.youradventure.Adventure.AttributePack.PlayerAttribute._
 import thebrains.youradventure.Adventure.AttributePack._
 import thebrains.youradventure.Adventure.CollectionPack.AssemblyItemTrait
 import thebrains.youradventure.Utils.{Err, ErrorIO}
-import thebrains.youradventure.Utils.BirdOperator._
 
 case class Transformation(
-  attribute:              Attribute,
-  forwardTransformation:  AttributeTransformation,
-  backwardTransformation: AttributeTransformation,
-  value:                  AttributeType,
-  operation:              Operation,
-  modification:           Modification
+  attribute:     Attribute,
+  value:         AttributeType,
+  fullOperation: FullOperation
 ) extends AssemblyItemTrait(
       attribute.getName,
       attribute.getDescription
     ) {
-  override def toString: String = s"${attribute.toString} -> $operation $modification $value"
+  implicit private val jsonEncoder: Encoder[Transformation] =
+    Encoder
+      .forProduct3[Transformation, Json, AttributeType, String]("attribute", "value", "operation") {
+        case Transformation(a, v, o) => (a.encoded, v, o.toString)
+      }
 
-  def ++(other: Transformation): TransformationCollection = {
-    TransformationCollection(this) ++ other
+  override def encoded: Json = this.asJson
+
+  override def toString: String = encoded.noSpaces
+
+  @transient lazy val asCollection = TransformationCollection(this)
+  @transient lazy val modify: Modification = fullOperation match {
+    case Addition | Multiply => Increase
+    case Reduce | Divide     => Decrease
+  }
+  @transient lazy val operation: Operation = fullOperation match {
+    case Addition | Reduce => Addition
+    case Multiply | Divide => Multiply
+  }
+  @transient lazy val forwardTransformation: AttributeType => AttributeType = { a: AttributeType =>
+    fullOperation match {
+      case Addition => a + this.value
+      case Reduce   => a - this.value
+      case Multiply => a * this.value
+      case Divide   => a / this.value
+    }
+  }
+  @transient lazy val backwardTransformation: AttributeType => AttributeType = { a: AttributeType =>
+    fullOperation match {
+      case Addition => a - this.value
+      case Reduce   => a + this.value
+      case Multiply => a / this.value
+      case Divide   => a * this.value
+    }
   }
 
-  def ++(other: TransformationCollection): TransformationCollection = {
+  def ++(other: Transformation): TransformationCollection = {
     TransformationCollection(this) ++ other
   }
 
@@ -32,7 +60,7 @@ case class Transformation(
     action:          AttributeTransformation,
     playerAttribute: PlayerAttribute
   ): IO[Err, PlayerAttribute] = {
-    if (playerAttribute.attribute === attribute) {
+    if (this.canApply(playerAttribute)) {
       IO.sync(
         playerAttribute.copy(
           value = action(playerAttribute.value)
@@ -46,6 +74,21 @@ case class Transformation(
     }
   }
 
+  private def safeExecute(
+    action:          AttributeTransformation,
+    playerAttribute: PlayerAttribute
+  ): PlayerAttribute = {
+    if (this.canApply(playerAttribute)) {
+      playerAttribute.copy(value = action(playerAttribute.value))
+    } else {
+      playerAttribute
+    }
+  }
+
+  def safeAppliedTo(playerAttribute: PlayerAttribute): PlayerAttribute = {
+    safeExecute(forwardTransformation, playerAttribute)
+  }
+
   def appliedTo(playerAttribute: PlayerAttribute): IO[Err, PlayerAttribute] = {
     execute(forwardTransformation, playerAttribute)
   }
@@ -54,58 +97,12 @@ case class Transformation(
     execute(backwardTransformation, playerAttribute)
   }
 
+  def safeRevert(playerAttribute: PlayerAttribute): PlayerAttribute = {
+    safeExecute(backwardTransformation, playerAttribute)
+  }
+
   def canApply(playerAttribute: PlayerAttribute): Boolean = {
     playerAttribute.attribute === this.attribute
-  }
-
-  private def combineOperation(other: Transformation): Operation = {
-    (this.operation, other.operation) match {
-      case (a, b) if a == b => a
-      case _                => Combination
-    }
-  }
-
-  private def combineValue(other: Transformation): AttributeType = {
-    (this.operation, other.operation) match {
-      case (Addition, Addition) => this.value + other.value
-      case (Multiply, Multiply) => this.value * other.value
-      case _                    => 0
-    }
-  }
-
-  override def |+|(other: AssemblyItemTrait): IO[Err, Transformation] = {
-    other match {
-      case t: Transformation if this.attribute === t.attribute =>
-        val forward = (p: Int) => {
-          p |> this.forwardTransformation |> t.forwardTransformation
-        }
-        val backward = (p: Int) => {
-          p |> t.backwardTransformation |> this.backwardTransformation
-        }
-
-        IO.sync(
-          Transformation(
-            attribute = this.attribute,
-            forwardTransformation = forward,
-            backwardTransformation = backward,
-            value = this combineValue t,
-            operation = this combineOperation t,
-            modification = if (forward(10) >= 10) {
-              Increase
-            } else {
-              Decrease
-            }
-          )
-        )
-      case t: Transformation =>
-        ErrorIO(
-          "Cannot combine",
-          s"Transformation applied to '${this.attribute.toString}' cannot combine " +
-            s"with transformation applied to '${t.attribute.toString}'."
-        )
-      case _ =>
-        ErrorIO("Cannot combine", s"Cannot combine '${this.toString}' with '${other.toString}'")
-    }
   }
 }
 
@@ -127,8 +124,6 @@ final case object Reduce extends FullOperation
 
 final case object Divide extends FullOperation
 
-final case object Combination extends Operation
-
 object TransformationBuilder {
 
   @transient lazy val AvailableOperations: List[FullOperation] = List(
@@ -138,77 +133,29 @@ object TransformationBuilder {
     Divide
   )
 
-  case class TransformValue private (
-    operation: Operation,
-    modify:    Modification
-  ) {
-    private def positive(value: AttributeType)(attributeValue: AttributeType): AttributeType = {
-      operation match {
-        case Addition => attributeValue + value
-        case Multiply => attributeValue * value
-      }
-    }
+  def willDo(operation: FullOperation): TransformValue = {
+    TransformValue(operation)
+  }
 
-    private def negative(value: AttributeType)(attributeValue: AttributeType): AttributeType = {
-      operation match {
-        case Addition => attributeValue - value
-        case Multiply => attributeValue / value
-      }
-    }
-
-    private def transformations(
-      value: AttributeType
-    ): (AttributeTransformation, AttributeTransformation) = {
-      modify match {
-        case Increase => (positive(value), negative(value))
-        case Decrease => (negative(value), positive(value))
-      }
-    }
-
+  case class TransformValue private (fullOperation: FullOperation) {
     def byValueOf(value: AttributeType): TransformationWithValue = {
-      val (forward, backward) = transformations(value)
       TransformationWithValue(
-        forwardTransformation = forward,
-        backwardTransformation = backward,
         value,
-        operation,
-        modify
+        fullOperation
       )
     }
   }
 
   case class TransformationWithValue(
-    forwardTransformation:  AttributeTransformation,
-    backwardTransformation: AttributeTransformation,
-    value:                  AttributeType,
-    operation:              Operation,
-    modify:                 Modification
+    value:         AttributeType,
+    fullOperation: FullOperation
   ) {
     def onAttribute(attribute: Attribute): Transformation = {
       Transformation(
-        attribute,
-        forwardTransformation,
-        backwardTransformation,
-        value,
-        operation,
-        modify
+        attribute = attribute,
+        value = value,
+        fullOperation = fullOperation
       )
     }
-  }
-
-  def willDo(operation: FullOperation): TransformValue = {
-    operation match {
-      case Addition => willDo(Addition, Increase)
-      case Multiply => willDo(Multiply, Increase)
-      case Reduce   => willDo(Addition, Decrease)
-      case Divide   => willDo(Multiply, Decrease)
-    }
-  }
-
-  def willDo(
-    operation: Operation,
-    modify:    Modification
-  ): TransformValue = {
-    TransformValue(operation, modify)
   }
 }

@@ -14,10 +14,10 @@ class AttributeCollectionTest extends ParentTest {
 
       val transformations: TransformationCollection =
         TransformationBuilder
-          .willDo(Addition, Increase)
+          .willDo(Addition)
           .byValueOf(1).onAttribute(Attributes.Strength) ++
           TransformationBuilder
-            .willDo(Addition, Decrease)
+            .willDo(Reduce)
             .byValueOf(2).onAttribute(Attributes.Intelligence)
 
       val newAttributes = unsafeRun(attributes << transformations)
