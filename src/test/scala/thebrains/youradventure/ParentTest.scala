@@ -2,12 +2,14 @@ package thebrains.youradventure
 
 import org.scalactic.source.Position
 import org.scalatest._
+import scalaz.zio.internal.Env
 import scalaz.zio.{IO, RTS}
 import thebrains.youradventure.Utils.Err
 
 import scala.util.Random
 
 class ParentTest extends FreeSpec with RTS {
+  lazy override val env: Env = Env.newDefaultEnv(_ => IO.unit)
 
   implicit class Extractor[I](e: Either[Throwable, I]) {
     def extract(implicit pos: Position): I = {
