@@ -14,7 +14,7 @@ private[Game] class Consumer(
   updater: Updater
 ) {
 
-  import Consumer._
+  import thebrains.youradventure.Utils.JumpIO._
 
   def consume(input: Input): IO[Err, GameStatus] = {
     debugPrint(s"Consume with input: '$input' and with game: '$game'.")
@@ -139,60 +139,4 @@ private[Game] class Consumer(
       game
     }
   }
-}
-
-object Consumer {
-  private def debugPrint(txt: String): Unit = if (false) println(s"[DEBUG] $txt")
-
-  private case class CMsg(
-    input:    Input,
-    game:     GameStatus,
-    passNext: Boolean
-  ) {
-    def toStable: CMsgS = CMsgS(input, game)
-  }
-
-  private case class CMsgS(
-    input: Input,
-    game:  GameStatus
-  )
-
-  implicit private class JumpIO(io: IO[Err, CMsg]) {
-    def mightJumpNext(next: CMsgS => IO[Err, CMsgS]): IO[Err, CMsgS] = {
-      io.flatMap {
-        case msg @ CMsg(_, _, passNext) =>
-          debugPrint(s"mightJumpNext: test: $passNext")
-          if (passNext) {
-            IO.sync(msg.toStable)
-          } else {
-            next(msg.toStable)
-          }
-      }
-    }
-
-    def mightJumpNextChain(next: CMsgS => IO[Err, CMsg]): IO[Err, CMsg] = {
-      io.flatMap {
-        case msg @ CMsg(_, _, passNext) =>
-          debugPrint(s"mightJumpNextChain: test: $passNext")
-          if (passNext) {
-            IO.sync(msg)
-          } else {
-            next(msg.toStable)
-          }
-      }
-    }
-
-    def tailChain(next: CMsgS => IO[Err, GameStatus]): IO[Err, GameStatus] = {
-      io.flatMap {
-        case msg @ CMsg(_, _, passNext) =>
-          debugPrint(s"tailChain: test: $passNext")
-          if (passNext) {
-            IO.sync(msg.game)
-          } else {
-            next(msg.toStable)
-          }
-      }
-    }
-  }
-
 }

@@ -3,6 +3,7 @@ package thebrains.youradventure.FactoriesTest.TransformationPack
 import scalaz.Maybe
 import thebrains.youradventure.Adventure.TransformationPack._
 import thebrains.youradventure.FactoriesTest.DefaultValues.DefaultListMaxLength
+import thebrains.youradventure.FactoriesTest.RawFactory
 import thebrains.youradventure.FactoriesTest.Utils.RandomMachine
 
 import scala.util.Random
@@ -15,11 +16,8 @@ object FTransformationCollection {
     implicit r: Random
   ): TransformationCollection = {
     TransformationCollection(
-      transformations = transformations.getOrElse(
-        (0 until (lengthTransformation getOrElse RandomMachine.getInt(1, DefaultListMaxLength)))
-          .map(_ => FTransformation())
-          .toList
-      ): _*
+      transformations =
+        RawFactory.getList(lengthTransformation, transformations, _ => FTransformation()): _*
     )
   }
 }

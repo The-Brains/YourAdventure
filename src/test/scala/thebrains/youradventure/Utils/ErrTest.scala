@@ -4,6 +4,11 @@ import thebrains.youradventure.ParentTest
 
 class ErrTest extends ParentTest {
   "Error" - {
+    "Should not be fatal by default" in {
+      val e = Err("name", "description")
+      assertFalse(e.isFatal)
+    }
+
     "Copy" - {
       val e = Err("name", "description", isFatal = true)
       "Should update name" in {
@@ -37,11 +42,6 @@ class ErrTest extends ParentTest {
         assert(e.isFatal)
         assertEquals(errorMessage, e.getDescription)
       }
-    }
-
-    "Should not be fatal by default" in {
-      val e = Err("name", "description")
-      assertFalse(e.isFatal)
     }
 
     "IO" - {

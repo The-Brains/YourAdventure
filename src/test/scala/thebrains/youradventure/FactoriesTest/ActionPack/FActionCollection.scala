@@ -6,6 +6,7 @@ import thebrains.youradventure.FactoriesTest.Utils.RandomMachine
 
 import scala.util.Random
 import thebrains.youradventure.FactoriesTest.DefaultValues._
+import thebrains.youradventure.FactoriesTest.RawFactory
 
 object FActionCollection {
   def apply(
@@ -18,11 +19,7 @@ object FActionCollection {
     ActionCollection(
       question = question getOrElse RandomMachine.getString(DefaultQuestionLength)
     )(
-      actions = actions.getOrElse(
-        (0 until (lengthAction getOrElse RandomMachine.getInt(1, DefaultListMaxLength)))
-          .map(_ => FAction())
-          .toList
-      ): _*
+      actions = RawFactory.getList(lengthAction, actions, _ => FAction()): _*
     )
   }
 }

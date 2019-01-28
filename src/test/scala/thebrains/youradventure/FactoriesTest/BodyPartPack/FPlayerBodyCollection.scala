@@ -4,6 +4,8 @@ import scalaz.Maybe
 import thebrains.youradventure.Adventure.BodyPack.{PlayerBodyCollection, PlayerBodyPart}
 import thebrains.youradventure.FactoriesTest.Utils.RandomMachine
 import thebrains.youradventure.FactoriesTest.DefaultValues._
+import thebrains.youradventure.FactoriesTest.RawFactory
+
 import scala.util.Random
 
 object FPlayerBodyCollection {
@@ -13,10 +15,6 @@ object FPlayerBodyCollection {
   )(
     implicit r: Random
   ): PlayerBodyCollection = PlayerBodyCollection(
-    bodyParts.getOrElse(
-      (0 until (lengthBodyParts getOrElse RandomMachine.getInt(1, DefaultListMaxLength)))
-        .map(_ => FPlayerBodyPart())
-        .toList
-    ): _*
+    RawFactory.getList(lengthBodyParts, bodyParts, _ => FPlayerBodyPart()): _*
   )
 }
